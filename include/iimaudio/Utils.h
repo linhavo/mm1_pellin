@@ -15,6 +15,7 @@
 
 namespace iimaudio {
 
+
 class NullLogger: public std::ostream {
 public:
 	NullLogger() {}
@@ -50,7 +51,7 @@ public:
 		return level<=mode;
 	}
 };
-extern Log log;
+extern Log logger;
 
 
 /*!
@@ -78,10 +79,6 @@ protected:
 	std::vector<Value> tmp_vec;
 };
 
-
-size_t convert_rate_to_int(const sampling_rate_t rate);
-size_t get_sample_size(const sampling_format_t format);
-std::string get_error_string(const return_type_t error);
 
 }
 

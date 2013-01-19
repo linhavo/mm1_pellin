@@ -16,5 +16,9 @@ IF (BUILD_EXAMPLES)
 		add_executable(capture_test capture_test.cpp)
 		target_link_libraries ( capture_test  ${EX_LIBS} )
 		install(TARGETS capture_test RUNTIME DESTINATION bin)
+		
+		add_executable(playback_test playback_test.cpp)
+		target_link_libraries ( playback_test  ${EX_LIBS} )
+		install(TARGETS playback_test RUNTIME DESTINATION bin)
 			
 ENDIF(BUILD_EXAMPLES)

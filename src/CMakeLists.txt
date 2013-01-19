@@ -11,7 +11,7 @@ SET (IIMA_SRC Utils.cpp)
 #ENDIF()
 
 IF (UNIX)
-SET(IIMA_SRC ${IIMA_SRC} AlsaDevice.cpp WaveFile.cpp)
+SET(IIMA_SRC ${IIMA_SRC} AlsaDevice.cpp WaveFile.cpp AudioTypes.cpp)
 SET(IIMA_LIBS ${IIMA_LIBS} asound)
 ENDIF()
 

@@ -48,9 +48,47 @@ struct wav_header_t
 class WaveFile
 {
 public:
+	/**
+	 * @brief Constructor for writing a WAV file
+	 *
+	 * Throws std::runtime_exception if it faild to create the file
+	 * @param filename Name of the file to write to
+	 * @param params Parameters of the WAV file
+	 */
 	WaveFile(const std::string& filename, audio_params_t params);
+
+	/**
+	 * @brief Constructor for reading a WAV file
+	 *
+	 * Throws std::runtime_exception when the file doesn't exist or the header is corrupted
+	 * @param filename Name of the file to read
+	 */
+	WaveFile(const std::string& filename);
+
+
+	/**
+	 * @brief Adds data to the WAV file
+	 * @param data Buffer containing samples for writing
+	 * @param sample_count Number of samples in the buffer. Set to 0 to use the whole buffer.
+	 * @return Returns return_type_t::ok when written successfully
+	 */
 	template<typename T>
 	return_type_t store_data(const std::vector<T>& data, size_t sample_count = 0);
+
+	/**
+	 * @brief
+	 * @param data
+	 * @param sample_count
+	 * @return
+	 */
+	template<typename T>
+	return_type_t read_data(std::vector<T>& data, size_t& sample_count);
+	/**
+	 * @brief Returns params corresponding to current file
+	 * @return Struct containing relevant parameters of the data in WAV file
+	 */
+	audio_params_t get_params();
+
 private:
 	wav_header_t header_;
 	audio_params_t	params_;
@@ -71,6 +109,15 @@ return_type_t WaveFile::store_data(const std::vector<T>& data, size_t sample_cou
 	return return_type_t::ok;
 }
 
+template<typename T>
+	return_type_t WaveFile::read_data(std::vector<T>& data, size_t& sample_count)
+{
+	size_t max_samples = data.size() * sizeof(T) / params_.sample_size();
+	if (sample_count > max_samples) sample_count = max_samples;
+	file_.read(reinterpret_cast<char*>(&data[0]),sample_count*params_.sample_size());
+	sample_count = file_.gcount() / params_.sample_size();
+	return return_type_t::ok;
+}
 }
 
 #endif /* WAVEFILE_H_ */

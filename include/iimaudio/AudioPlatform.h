@@ -34,7 +34,7 @@ typedef iimaudio::AlsaDevice PlatformDevice;
 
 namespace iimaudio {
 
-typedef PlatformDevice::audio_id_t audio_id;
+//typedef PlatformDevice::audio_id_t audio_id;
 
 }
 #endif /* AUDIOPLATFORM_H_ */

@@ -9,6 +9,7 @@
 #include "iimaudio/Utils.h"
 #include <stdexcept>
 #include <iostream>
+#include <algorithm>
 
 namespace iimaudio {
 
@@ -28,7 +29,8 @@ snd_pcm_format_t convert_format_to_alsa(sampling_format_t format)
 }
 
 AlsaDevice::AlsaDevice(action_type_t action, audio_id_t id, const audio_params_t& params)
-:action_(action),id_(id),params_(params),handle_(nullptr),sample_size_(0)
+:action_(action),id_(id),params_(params),handle_(nullptr),sample_size_(0),
+ first_empty_buffer(0),first_full_buffer(0)
 {
 
 	switch (action) {
@@ -51,7 +53,7 @@ AlsaDevice::AlsaDevice(action_type_t action, audio_id_t id, const audio_params_t
 	throw_call(snd_pcm_open (&handle_, id.c_str(), stream_type_, 0),
 			"Failed to open device for capture");
 
-	log[log_level::debug] << "Device '" << id << "' opened" << std::endl;
+	logger[log_level::debug] << "Device '" << id << "' opened" << std::endl;
 
 
 
@@ -72,11 +74,11 @@ AlsaDevice::AlsaDevice(action_type_t action, audio_id_t id, const audio_params_t
 
 	throw_call(snd_pcm_hw_params_set_rate_near (handle_, hw_params, &sampling_rate_, &dir),
 			"Failed to set sample rate");
-	log[log_level::info] << "Initialized for " << sampling_rate_ << " Hz" << std::endl;
+	logger[log_level::info] << "Initialized for " << sampling_rate_ << " Hz" << std::endl;
 
 	throw_call(snd_pcm_hw_params_set_channels (handle_, hw_params, params_.num_channels),
 				"Failed to set number of channels");
-	log[log_level::info] << "Initialized for " << static_cast<int>(params_.num_channels) << " channels" << std::endl;
+	logger[log_level::info] << "Initialized for " << static_cast<int>(params_.num_channels) << " channels" << std::endl;
 
 	throw_call(snd_pcm_hw_params (handle_, hw_params),
 				"Failed to set params");
@@ -100,7 +102,7 @@ AlsaDevice::AlsaDevice(action_type_t action, audio_id_t id, const audio_params_t
 
 	sample_size_ = params_.num_channels * get_sample_size(params_.format);
 	check_call(sample_size_ > 0, "Wrong sample format");
-	log[log_level::info] << "Device '" << id << "' initialized" << std::endl;
+	logger[log_level::info] << "Device '" << id << "' initialized" << std::endl;
 
 
 }
@@ -110,7 +112,7 @@ AlsaDevice::~AlsaDevice()
 	check_call(snd_pcm_close (handle_),
 			"Failed to close the device");
 
-	log[log_level::debug] << "Device '" << id_ << "' closed" << std::endl;
+	logger[log_level::debug] << "Device '" << id_ << "' closed" << std::endl;
 }
 
 AlsaDevice::audio_id_t AlsaDevice::default_device()
@@ -121,7 +123,7 @@ AlsaDevice::audio_id_t AlsaDevice::default_device()
 bool AlsaDevice::check_call(int res, std::string message)
 {
 	if (res < 0) {
-		log[log_level::fatal] << message << ": " << snd_strerror(res)<< std::endl;
+		logger[log_level::fatal] << message << ": " << snd_strerror(res)<< std::endl;
 		return false;
 	}
 	return true;
@@ -133,7 +135,7 @@ void AlsaDevice::throw_call(int res, std::string message)
 void AlsaDevice::throw_call(bool res, std::string message)
 {
 	if (!res) {
-		log[log_level::fatal] << message << std::endl;
+		logger[log_level::fatal] << message << std::endl;
 		throw std::runtime_error(message);
 	}
 }
@@ -144,7 +146,40 @@ return_type_t AlsaDevice::start_capture()
 		return return_type_t::failed;
 	return return_type_t::ok;
 }
+return_type_t AlsaDevice::start_playback()
+{
+	return start_capture();
+}
+return_type_t AlsaDevice::set_buffers(uint16_t count, uint32_t samples)
+{
+	buffers.resize(count);
+	const uint32_t size = samples * params_.sample_size();
+	logger[log_level::debug] << "Allocating " << count << " buffers of size " << size << " Bytes (" << samples << " samples)\n";
+	std::for_each(buffers.begin(), buffers.end(),
+			[size](audio_buffer_t& buf){buf.data.resize(size);buf.empty=true;buf.position=0;});
+	return return_type_t::ok;
+}
 
+return_type_t AlsaDevice::update(size_t delay)
+{
+	audio_buffer_t &buf = buffers[first_full_buffer];
+	if (buf.empty) return return_type_t::buffer_empty;
+
+	int ret = snd_pcm_wait(handle_, delay);
+	if (!ret) return return_type_t::busy;
+	size_t frames_free = snd_pcm_avail(handle_);
+	if (!frames_free) return return_type_t::invalid;
+
+	size_t write_frames = std::min(frames_free,(buf.data.size()-buf.position)/params_.sample_size());
+	write_frames = snd_pcm_writei(handle_,reinterpret_cast<void*>(&buf.data[buf.position]),write_frames);
+	buf.position+=write_frames*params_.sample_size();
+	if (buf.position>=buf.data.size()) {
+		first_full_buffer = (first_full_buffer+1)%buffers.size();
+		buf.position = 0;
+		buf.empty = true;
+	}
+	return return_type_t::ok;
+}
 audio_params_t AlsaDevice::get_params()
 {
 	return params_;

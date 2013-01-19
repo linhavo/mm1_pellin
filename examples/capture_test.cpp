@@ -21,7 +21,7 @@ int main()
 	};
 
 	// Initalize the capture device
-	CaptureDevice device (params);
+	CaptureDevice device(params);
 
 	// Prepare wave file
 	WaveFile wav("capture.wav", device.get_params());
@@ -37,22 +37,22 @@ int main()
 	error = device.start_capture();
 	// Did it succeed?
 	if (error != return_type_t::ok) {
-		log[log_level::fatal] << "Error starting capture: " << get_error_string(error) << "\n";
+		logger[log_level::fatal] << "Error starting capture: " << error_string(error) << "\n";
 		return 1;
 	}
 	// Capture is started
-	log[log_level::info] << "Capture started\n";
+	logger[log_level::info] << "Capture started\n";
 	// Capture samples for a while
 	for (int i = 0; i< 30;++i) {
 		// Capture samples
 		captured = device.capture_data(buffer,error);
 		// Did it succeed?
 		if (captured > 0) {
-			log[log_level::info] << "Captured " << captured << "samples\n";
+			logger[log_level::info] << "Captured " << captured << "samples\n";
 			// Store captured samples to a wav file
 			wav.store_data(buffer,captured);
 		} else {
-			log[log_level::fatal] << "Error during capture: " << get_error_string(error) << "\n";
+			logger[log_level::fatal] << "Error during capture: " << error_string(error) << "\n";
 			break;
 		}
 	}

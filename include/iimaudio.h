@@ -12,6 +12,6 @@
 #include "iimaudio/AudioDevice.h"
 namespace iimaudio {
 typedef AudioDevice<iimaudio::action_type_t::action_capture> CaptureDevice;
-typedef AudioDevice<iimaudio::action_type_t::action_capture> PlaybackDevice;
+typedef AudioDevice<iimaudio::action_type_t::action_playback> PlaybackDevice;
 }
 #endif /* IIMAUDIO_H_ */
