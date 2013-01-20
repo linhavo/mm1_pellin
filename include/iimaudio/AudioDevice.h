@@ -40,7 +40,7 @@ public:
 	return_type_t start_playback();
 
 	return_type_t update(size_t delay = 10);
-	audio_params_t get_params();
+	audio_params_t get_params() const;
 };
 
 
@@ -87,7 +87,7 @@ return_type_t AudioDevice<action, Threading, Device>::update(size_t delay)
 }
 
 template<action_type_t action, class Threading, class Device>
-audio_params_t AudioDevice<action, Threading, Device>::get_params()
+audio_params_t AudioDevice<action, Threading, Device>::get_params() const
 {
 	lock_t lock = Threading::lock_instance();
 	return Device::do_get_params();

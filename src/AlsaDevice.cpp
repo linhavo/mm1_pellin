@@ -180,7 +180,7 @@ return_type_t AlsaDevice::do_update(size_t delay)
 	}
 	return return_type_t::ok;
 }
-audio_params_t AlsaDevice::do_get_params()
+audio_params_t AlsaDevice::do_get_params() const
 {
 	return params_;
 }

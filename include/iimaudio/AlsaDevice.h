@@ -36,7 +36,7 @@ public:
 	return_type_t do_start_playback();
 
 	return_type_t do_update(size_t delay = 10);
-	audio_params_t do_get_params();
+	audio_params_t do_get_params() const;
 
 private:
 	action_type_t 		action_;

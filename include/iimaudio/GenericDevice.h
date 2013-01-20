@@ -27,7 +27,7 @@ public:
 	virtual return_type_t do_start_playback() = 0;
 
 	virtual return_type_t do_update(size_t delay = 10) = 0;
-	virtual audio_params_t do_get_params() = 0;
+	virtual audio_params_t do_get_params() const = 0;
 
 };
 }
