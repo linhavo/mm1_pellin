@@ -13,6 +13,7 @@
 #include <windows.h>
 #include <mmsystem.h>
 #include <mutex>
+#include <map>
 //#include <string>
 //#include <alsa/asoundlib.h>
 //#include <vector>
@@ -42,6 +43,8 @@ public:
 	audio_params_t do_get_params() const {return params_;}
 
 	void store_data(WAVEHDR& hdr);
+
+	static std::map<audio_id_t, audio_info_t> do_enumerate_capture_devices();
 private:
 	action_type_t 		action_;
 	audio_id_t			id_;

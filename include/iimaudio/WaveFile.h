@@ -95,7 +95,7 @@ public:
 	 * @brief Returns params corresponding to current file
 	 * @return Struct containing relevant parameters of the data in WAV file
 	 */
-	audio_params_t get_params();
+	audio_params_t get_params() const;
 
 private:
 	wav_header_t header_;

@@ -52,7 +52,7 @@ void WaveFile::update(size_t new_data_size)
 	file_.seekp(0,std::ios::end);
 }
 
-audio_params_t WaveFile::get_params()
+audio_params_t WaveFile::get_params() const
 {
 	return params_;
 }

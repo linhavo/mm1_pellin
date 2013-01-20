@@ -10,18 +10,7 @@
 #include <cstdint>
 #include <vector>
 #include <string>
-
-#ifdef __linux__
-#define EXPORT
-#else
-#ifdef _WIN32
-#ifdef iimaudio_EXPORTS
-#define EXPORT __declspec(dllexport)
-#else
-#define EXPORT
-#endif
-#endif
-#endif
+#include <set>
 
 namespace iimaudio {
 enum class sampling_rate_t: uint8_t {
@@ -80,6 +69,13 @@ struct audio_params_t {
 	audio_params_t(sampling_rate_t rate = sampling_rate_t::rate_22kHz, sampling_format_t format=sampling_format_t::format_16bit_signed, uint8_t num_channels=1):
 		rate(rate),format(format),num_channels(num_channels) {}
 	uint16_t sample_size() const { return get_sample_size(format)*num_channels; }
+};
+
+struct audio_info_t {
+	std::string name;
+	std::size_t max_channels;
+	std::set<std::pair<sampling_format_t, sampling_rate_t>> supported_formats;
+	bool default;
 };
 
 template<typename T>

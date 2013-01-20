@@ -14,6 +14,8 @@
  * This file contains specifications for types that are specific
  * to the platform used
  */
+
+#include "PlatformDefs.h"
 #ifdef _WIN32
 #include "WinMMDevice.h"
 namespace iimaudio {

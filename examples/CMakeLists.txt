@@ -12,7 +12,16 @@ IF (BUILD_EXAMPLES)
 #		ENDIF(Boost_PROGRAM_OPTIONS_FOUND)
 #		IF (Boost_FOUND)
 			
-		SET(EX_LIBS iimaudio) 
+		SET(EX_LIBS iimaudio)
+    
+    add_executable(enumerate_devices enumerate_devices.cpp)
+		target_link_libraries ( enumerate_devices  ${EX_LIBS} )
+		install(TARGETS enumerate_devices RUNTIME DESTINATION bin)
+    
+    add_executable(capture_minimal capture_minimal.cpp)
+		target_link_libraries ( capture_minimal  ${EX_LIBS} )
+		install(TARGETS capture_minimal RUNTIME DESTINATION bin)
+     
 		add_executable(capture_test capture_test.cpp)
 		target_link_libraries ( capture_test  ${EX_LIBS} )
 		install(TARGETS capture_test RUNTIME DESTINATION bin)

@@ -153,5 +153,24 @@ void WinMMDevice::store_data(WAVEHDR& hdr)
 	empty_buffers.push_back(&hdr);
 }
 
-
+audio_info_t get_info(UINT dev)
+{
+	audio_info_t info_;
+	WAVEINCAPS caps_;
+	waveInGetDevCaps (dev,&caps_,sizeof(WAVEINCAPS));
+	info_.max_channels = caps_.wChannels;
+	info_.name = caps_.szPname;
+	info_.default = false;
+	return info_;
+}
+std::map<WinMMDevice::audio_id_t, audio_info_t> WinMMDevice::do_enumerate_capture_devices() 
+{
+	std::map<audio_id_t, audio_info_t> devices;
+	devices[WAVE_MAPPER]=get_info(WAVE_MAPPER);
+	UINT num_dev = waveInGetNumDevs();
+	for (UINT i=0;i<num_dev;++i) devices[i]=get_info(i);
+	
+	devices[default_device()].default=true;
+	return devices;
+}
 }

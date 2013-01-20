@@ -1,6 +1,19 @@
 #ifndef PLATFORMDEFS_H_
 #define PLATFORMDEFS_H_
 
+#ifdef __linux__
+#define EXPORT
+#else
+#ifdef _WIN32
+#ifdef iimaudio_EXPORTS
+#define EXPORT __declspec(dllexport)
+#else
+#define EXPORT
+#endif
+#endif
+#endif
+
+
 #ifdef PACKED
 #undef PACKED
 #endif

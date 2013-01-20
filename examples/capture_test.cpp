@@ -15,11 +15,11 @@ int main()
 {
 	try {
 		// Prepare parameters for audio capture
-		audio_params_t params {
-				sampling_rate_t::rate_44kHz,			// Sample at 44100 Hz
-				sampling_format_t::format_16bit_signed,	// Each sample will be 16bit signed integer
-				1										// Capture single channel
-		};
+		audio_params_t params;
+		params.rate			= sampling_rate_t::rate_44kHz;				// Sample at 44100 Hz
+		params.format		= sampling_format_t::format_16bit_signed;	// Each sample will be 16bit signed integer
+		params.num_channels	= 1;										// Capture single channel
+		
 
 		// Initalize the capture device
 		CaptureDevice device(params);
@@ -51,7 +51,7 @@ int main()
 			capture_samples-=captured;
 			// Did it succeed?
 			if (captured > 0) {
-				logger[log_level::info] << "Captured " << captured << "samples\n";
+				logger[log_level::info] << "Captured " << captured << " samples\n";
 				// Store captured samples to a wav file
 				wav.store_data(buffer,captured);
 			} else {
