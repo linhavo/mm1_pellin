@@ -20,7 +20,8 @@ int main()
 			<< "sampling rate " << sampling_rate_string(params.rate) << " and "
 			<< "sampling format '" << sampling_format_string(params.format) << "'\n";
 
-	PlaybackDevice device(params);
+	//PlaybackDevice device(params);
+	MultithreadedPlaybackDevice device(params);
 	const size_t buffer_size = 512;
 	const size_t buffer_count = 4;
 	device.set_buffers(buffer_count,buffer_size);

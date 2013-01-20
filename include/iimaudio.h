@@ -10,8 +10,12 @@
 
 #include "iimaudio/AudioTypes.h"
 #include "iimaudio/AudioDevice.h"
+#include "iimaudio/AudioPolicies.h"
 namespace iimaudio {
-typedef AudioDevice<iimaudio::action_type_t::action_capture> CaptureDevice;
-typedef AudioDevice<iimaudio::action_type_t::action_playback> PlaybackDevice;
+typedef AudioDevice<iimaudio::action_type_t::action_capture,SingleThreaded> CaptureDevice;
+typedef AudioDevice<iimaudio::action_type_t::action_playback,SingleThreaded> PlaybackDevice;
+typedef AudioDevice<iimaudio::action_type_t::action_capture,MultiThreaded> MultithreadedCaptureDevice;
+typedef AudioDevice<iimaudio::action_type_t::action_playback,MultiThreaded> MultithreadedPlaybackDevice;
+
 }
 #endif /* IIMAUDIO_H_ */
