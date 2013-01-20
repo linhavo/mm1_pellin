@@ -11,20 +11,27 @@
 #include <iostream>
 #include <map>
 #include <vector>
+#include <sstream>
 #include "iimaudio/AudioTypes.h"
 
 namespace iimaudio {
 
-
+class NullBuf: public std::streambuf
+{
+public:
+	NullBuf() {}
+};
 class NullLogger: public std::ostream {
 public:
-	NullLogger() {}
+	NullLogger():std::ostream(&nb) {}
 	~NullLogger() {}
 template<typename T>
 	std::ostream &operator<<(T &)
 	{
 		return *this;
 	}
+private:
+	NullBuf nb;
 };
 
 enum class log_level {

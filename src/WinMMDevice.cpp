@@ -16,17 +16,22 @@ namespace iimaudio {
 namespace {
 void CALLBACK win_mm_device_capture_callback (HWAVEIN hwi, UINT uMsg, DWORD_PTR dwInstance, DWORD_PTR dwParam1, DWORD_PTR dwParam2)
 {
-
+	//logger[log_level::info] << "CALLBACK, msg: " << uMsg << "\n";
+	if (uMsg == WIM_DATA) {
+		WinMMDevice *winmm = reinterpret_cast<WinMMDevice*>(dwInstance);
+		WAVEHDR *hdr = reinterpret_cast<WAVEHDR*>(dwParam1);
+		winmm->store_data(*hdr);
+	}
 }
 
 }
 
 
 WinMMDevice::WinMMDevice(action_type_t action, audio_id_t id, const audio_params_t& params):
-GenericDevice(),action_(action),id_(id),params_(params)
+	GenericDevice(),action_(action),id_(id),params_(params),private_buffer_(1048576)
 {
 	sampling_rate_ 		= convert_rate_to_int(params_.rate);
-	bps_ 				= get_sample_size(params_.format);
+	bps_ 				= get_sample_size(params_.format) * 8;
 
 	WAVEFORMATEX fmt;
 	fmt.wFormatTag		= WAVE_FORMAT_PCM;
@@ -53,27 +58,32 @@ void WinMMDevice::init_capture(WAVEFORMATEX& fmt)
 	throw_call(waveInOpen(&in_handle,			// Input handle
 					id_ ,						// Device ID
 					&fmt,						// Input format
-					0L, 						// Callback
-					0L,							// Parameter to callback
-					WAVE_FORMAT_DIRECT|CALLBACK_NULL),	// Mode
+					reinterpret_cast<DWORD_PTR>(&win_mm_device_capture_callback), 
+												// Callback
+					reinterpret_cast<DWORD_PTR>(this),
+												// Parameter to callback
+					WAVE_FORMAT_DIRECT|CALLBACK_FUNCTION),	// Mode
 			"Failed to open input device");
+	//private_buffer_.data.resize(buffer_count*buffer_length*2);
+
 	for(auto& hdr: buffers) init_buffer(hdr);
+	logger[log_level::debug] << "Opened device and added " << buffers.size() << " buffers\n";
+
 
 }
 void WinMMDevice::init_buffer(WAVEHDR& hdr)
 {
-	hdr.lpData = (LPSTR)in_handle;
+	hdr.lpData = (LPSTR)new uint8_t[buffer_length];
 	hdr.dwBufferLength = buffer_length;
 	hdr.dwBytesRecorded=0;
 	hdr.dwUser = 0L;
 	hdr.dwFlags = 0L;
 	hdr.dwLoops = 0L;
-	waveInPrepareHeader(in_handle, &hdr, sizeof(WAVEHDR));
-
+	throw_call(waveInPrepareHeader(in_handle, &hdr, sizeof(WAVEHDR)),"Failed to prepare buffer");
+	throw_call(waveInAddBuffer(in_handle, &hdr, sizeof(WAVEHDR)),"Failed to add buffer");
 }
 WinMMDevice::~WinMMDevice()
 {
-
 }
 
 WinMMDevice::audio_id_t WinMMDevice::default_device()
@@ -114,4 +124,34 @@ void WinMMDevice::throw_call(bool res, std::string message)
 		throw std::runtime_error(message);
 	}
 }
+return_type_t WinMMDevice::do_start_capture() {
+	if(!check_call(waveInStart(in_handle),"Failed to start capture")) return return_type_t::failed;
+	return return_type_t::ok;
+}
+
+size_t WinMMDevice::do_capture_data(uint8_t* data_start, size_t data_size, return_type_t& error_code) 
+{
+	std::lock_guard<std::mutex> l(buffer_lock_);
+	while (!empty_buffers.empty()) {
+		WAVEHDR& hdr = *empty_buffers.back();
+		check_call(waveInUnprepareHeader(in_handle, &hdr, sizeof(WAVEHDR)),"Failed to unprepare buffer");
+		private_buffer_.store_data(reinterpret_cast<uint8_t*>(hdr.lpData),hdr.dwBytesRecorded);
+		logger[log_level::debug] << "Stored "<< hdr.dwBytesRecorded << " bytes into circular buffer\n";
+		check_call(waveInPrepareHeader(in_handle, &hdr, sizeof(WAVEHDR)),"Failed to prepare buffer");
+		check_call(waveInAddBuffer(in_handle, &hdr, sizeof(WAVEHDR)),"Failed to add buffer");
+		empty_buffers.pop_back();
+	}
+
+	std::size_t ret = private_buffer_.get_data_block(data_start,data_size);
+	if (ret == 0) error_code = return_type_t::buffer_empty;
+	else error_code = return_type_t::ok;
+	return ret/params_.sample_size();
+}
+void WinMMDevice::store_data(WAVEHDR& hdr)
+{
+	std::lock_guard<std::mutex> l(buffer_lock_);
+	empty_buffers.push_back(&hdr);
+}
+
+
 }

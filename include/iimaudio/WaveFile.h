@@ -9,6 +9,7 @@
 #define WAVEFILE_H_
 
 #include "AudioTypes.h"
+#include "PlatformDefs.h"
 #include <fstream>
 #include <string>
 #include <vector>
@@ -17,6 +18,7 @@ enum class read_mode_t {
 	read, write
 };
 
+PACKED_PRE
 struct wav_header_t
 {
 	char cID[4];
@@ -33,16 +35,22 @@ struct wav_header_t
 	char dataID[4];
 	uint32_t dataSize;
 	wav_header_t(uint16_t channels=2,uint32_t rate=44100,uint16_t bps=16,bool le=true):
-			cID{'R','I','F','F'}, cSize(0),wavID{'W','A','V','E'},subID{'f','m','t',' '},
+			cSize(0),
 			subSize(16),fmt(1),channels(channels),rate(rate),
 			byte_rate((rate*channels*bps)>>3),block_align((channels*bps)>>3),bps(bps),
-			dataID{'d','a','t','a'},dataSize(0)
+			dataSize(0)
 	{
-				if (!le) cID[3]='X';
+		// Ugly stupid workaround for visual studio stupidity
+		//set_array("RIFF",cID,4);
+		std::copy_n("RIFF",4,cID);
+		if (!le) cID[3]='X';
+		std::copy_n("WAVE",4,wavID);
+		std::copy_n("fmt ",4,subID);
+		std::copy_n("data",4,dataID);
 	}
 	void add_size(uint32_t size) { dataSize+=size;cSize=36+dataSize; }
 
-} __attribute__((packed));
+} PACKED;
 
 
 class WaveFile

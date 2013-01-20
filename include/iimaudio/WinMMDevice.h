@@ -12,6 +12,7 @@
 #include "GenericDevice.h"
 #include <windows.h>
 #include <mmsystem.h>
+#include <mutex>
 //#include <string>
 //#include <alsa/asoundlib.h>
 //#include <vector>
@@ -27,19 +28,20 @@ public:
 	virtual ~WinMMDevice();
 	static audio_id_t default_device();
 
-	return_type_t do_start_capture() {}
+	return_type_t do_start_capture();
 
-	size_t 	do_capture_data(uint8_t* data_start, size_t data_size, return_type_t& error_code) {}
+	size_t 	do_capture_data(uint8_t* data_start, size_t data_size, return_type_t& error_code);
 
-	return_type_t do_set_buffers(uint16_t count, uint32_t samples) {}
+	return_type_t do_set_buffers(uint16_t count, uint32_t samples) {return return_type_t::failed;}
 
-	return_type_t do_fill_buffer(const uint8_t* data_start, size_t data_size) {}
+	return_type_t do_fill_buffer(const uint8_t* data_start, size_t data_size) {return return_type_t::failed;}
 
-	return_type_t do_start_playback() {}
+	return_type_t do_start_playback() {return return_type_t::failed;}
 
-	return_type_t do_update(size_t delay = 10) {}
-	audio_params_t do_get_params() const {}
+	return_type_t do_update(size_t delay = 10) {return return_type_t::failed;}
+	audio_params_t do_get_params() const {return params_;}
 
+	void store_data(WAVEHDR& hdr);
 private:
 	action_type_t 		action_;
 	audio_id_t			id_;
@@ -48,9 +50,13 @@ private:
 	WORD				bps_;
 	HWAVEIN				in_handle;
 	std::vector<WAVEHDR>buffers;
+	circular_buffer_t<uint8_t>
+						private_buffer_;
+	std::mutex			buffer_lock_;
 
-	static const size_t buffer_length 	= 1024;
-	static const size_t buffer_count 	= 16;
+	static const size_t buffer_length 	= 2048;
+	static const size_t buffer_count 	= 4;
+	std::vector<WAVEHDR*> empty_buffers;
 
 //	snd_pcm_t			*handle_;
 //	snd_pcm_stream_t	stream_type_;
