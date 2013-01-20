@@ -2,7 +2,7 @@ SET (IIMA_LINK )
 SET (IIMA_LIBS )
 SET (IIMA_INCLUDE )
 
-SET (IIMA_SRC Utils.cpp)
+SET (IIMA_SRC Utils.cpp WaveFile.cpp AudioTypes.cpp)
 
 
 #CHECK_INCLUDE_FILES (stdint.h HAVE_STDINT_H)
@@ -11,8 +11,15 @@ SET (IIMA_SRC Utils.cpp)
 #ENDIF()
 
 IF (UNIX)
-SET(IIMA_SRC ${IIMA_SRC} AlsaDevice.cpp WaveFile.cpp AudioTypes.cpp)
+SET(IIMA_SRC ${IIMA_SRC} AlsaDevice.cpp)
 SET(IIMA_LIBS ${IIMA_LIBS} asound)
+ELSEIF(WIN32)
+SET(IIMA_SRC ${IIMA_SRC} WinMMDevice.cpp)
+ELSEIF(CYGWIN)
+SET(IIMA_SRC ${IIMA_SRC} WinMMDevice.cpp)
+ELSE()
+MESSAGE("Unknown platform")
+SET(IIMA_SRC ${IIMA_SRC} WinMMDevice.cpp)
 ENDIF()
 
 
