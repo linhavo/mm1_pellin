@@ -15,19 +15,23 @@ IF (BUILD_EXAMPLES)
 		SET(EX_LIBS iimaudio)
     
     add_executable(enumerate_devices enumerate_devices.cpp)
-		target_link_libraries ( enumerate_devices  ${EX_LIBS} )
-		install(TARGETS enumerate_devices RUNTIME DESTINATION bin)
+	target_link_libraries ( enumerate_devices  ${EX_LIBS} )
+	install(TARGETS enumerate_devices RUNTIME DESTINATION bin)
     
     add_executable(capture_minimal capture_minimal.cpp)
-		target_link_libraries ( capture_minimal  ${EX_LIBS} )
-		install(TARGETS capture_minimal RUNTIME DESTINATION bin)
-     
-		add_executable(capture_test capture_test.cpp)
-		target_link_libraries ( capture_test  ${EX_LIBS} )
-		install(TARGETS capture_test RUNTIME DESTINATION bin)
-		
-		add_executable(playback_test playback_test.cpp)
-		target_link_libraries ( playback_test  ${EX_LIBS} )
-		install(TARGETS playback_test RUNTIME DESTINATION bin)
+	target_link_libraries ( capture_minimal  ${EX_LIBS} )
+	install(TARGETS capture_minimal RUNTIME DESTINATION bin)
+ 
+	add_executable(capture_test capture_test.cpp)
+	target_link_libraries ( capture_test  ${EX_LIBS} )
+	install(TARGETS capture_test RUNTIME DESTINATION bin)
+	
+	add_executable(playback_test playback_test.cpp)
+	target_link_libraries ( playback_test  ${EX_LIBS} )
+	install(TARGETS playback_test RUNTIME DESTINATION bin)
+	
+	add_executable(playback_sine playback_sine.cpp)
+	target_link_libraries ( playback_sine  ${EX_LIBS} )
+	install(TARGETS playback_sine RUNTIME DESTINATION bin)
 			
 ENDIF(BUILD_EXAMPLES)
