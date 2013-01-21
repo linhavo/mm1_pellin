@@ -1,10 +1,12 @@
-/*
- * iimaudio.h
+/**
+ * @file 	iimaudio.h
  *
- *  Created on: 19.1.2013
- *      Author: neneko
+ * @date 	19.1.2013
+ * @author 	Zdenek Travnicek <travnicek@iim.cz>
+ * @copyright GNU Public License 3.0
+ *
+ * This file defines typedefs for simplified use of the library.
  */
-
 #ifndef IIMAUDIO_H_
 #define IIMAUDIO_H_
 

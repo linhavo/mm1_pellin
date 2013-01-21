@@ -1,8 +1,11 @@
-/*
- * capture_test.cpp
+/**
+ * @file 	capture_minimal.cpp
  *
- *  Created on: 19.1.2013
- *      Author: neneko
+ * @date 	20.1.2013
+ * @author 	Zdenek Travnicek <travnicek@iim.cz>
+ * @copyright GNU Public License 3.0
+ *
+ * Simplest example of audio capture.
  */
 
 #include "iimaudio.h"
@@ -17,7 +20,7 @@ int main()
 	return_type_t error;
 
 	device.start_capture();
-	captured = device.capture_data(buffer,error);
+	device.capture_data(buffer,error);
 	/* Process data in buffer
 	...
 	*/

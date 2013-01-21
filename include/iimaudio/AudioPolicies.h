@@ -1,8 +1,11 @@
-/*
- * AudioPolicies.h
+/**
+ * @file 	AudioPolicies.h
  *
- *  Created on: 20.1.2013
- *      Author: neneko
+ * @date 	20.1.2013
+ * @author 	Zdenek Travnicek <travnicek@iim.cz>
+ * @copyright GNU Public License 3.0
+ *
+ * This file defines policies for AudioDevice
  */
 
 #ifndef AUDIOPOLICIES_H_

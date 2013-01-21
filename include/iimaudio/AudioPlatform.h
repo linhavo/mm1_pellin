@@ -1,19 +1,15 @@
-/*
- * AudioPlatform.h
+/**
+ * @file 	AudioPlatform.h
  *
- *  Created on: 19.1.2013
- *      Author: neneko
+ * @date 	19.1.2013
+ * @author 	Zdenek Travnicek <travnicek@iim.cz>
+ * @copyright GNU Public License 3.0
+ *
+ * This file defines platform specific defaults.
  */
 
 #ifndef AUDIOPLATFORM_H_
 #define AUDIOPLATFORM_H_
-/*!
- * @file AudioPlatform.h
- * @brief Platform specific definitions
- *
- * This file contains specifications for types that are specific
- * to the platform used
- */
 
 #include "PlatformDefs.h"
 #ifdef _WIN32

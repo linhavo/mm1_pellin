@@ -1,9 +1,12 @@
-/*
- * WinMMDevice.cpp
+/**
+ * @file 	WinMMDevice.cpp
  *
- *  Created on: 20.1.2013
- *      Author: neneko
+ * @date 	19.1.2013
+ * @author 	Zdenek Travnicek <travnicek@iim.cz>
+ * @copyright GNU Public License 3.0
+ *
  */
+
 #include "iimaudio/WinMMDevice.h"
 #include "iimaudio/Utils.h"
 #include <map>
@@ -152,8 +155,8 @@ void WinMMDevice::store_data(WAVEHDR& hdr)
 	std::lock_guard<std::mutex> l(buffer_lock_);
 	empty_buffers.push_back(&hdr);
 }
-
-audio_info_t get_info(UINT dev)
+namespace {
+audio_info_t get_in_info(UINT dev)
 {
 	audio_info_t info_;
 	WAVEINCAPS caps_;
@@ -163,14 +166,36 @@ audio_info_t get_info(UINT dev)
 	info_.default = false;
 	return info_;
 }
+audio_info_t get_out_info(UINT dev)
+{
+	audio_info_t info_;
+	WAVEOUTCAPS caps_;
+	waveOutGetDevCaps (dev,&caps_,sizeof(WAVEOUTCAPS));
+	info_.max_channels = caps_.wChannels;
+	info_.name = caps_.szPname;
+	info_.default = false;
+	return info_;
+}
+}
 std::map<WinMMDevice::audio_id_t, audio_info_t> WinMMDevice::do_enumerate_capture_devices() 
 {
 	std::map<audio_id_t, audio_info_t> devices;
-	devices[WAVE_MAPPER]=get_info(WAVE_MAPPER);
+	devices[WAVE_MAPPER]=get_in_info(WAVE_MAPPER);
 	UINT num_dev = waveInGetNumDevs();
-	for (UINT i=0;i<num_dev;++i) devices[i]=get_info(i);
+	for (UINT i=0;i<num_dev;++i) devices[i]=get_in_info(i);
 	
-	devices[default_device()].default=true;
+	devices[default_device()].default_=true;
 	return devices;
 }
+std::map<WinMMDevice::audio_id_t, audio_info_t> WinMMDevice::do_enumerate_playback_devices()
+{
+	std::map<audio_id_t, audio_info_t> devices;
+	devices[WAVE_MAPPER]=get_out_info(WAVE_MAPPER);
+	UINT num_dev = waveOutGetNumDevs();
+	for (UINT i=0;i<num_dev;++i) devices[i]=get_out_info(i);
+
+	devices[default_device()].default_=true;
+	return devices;
+}
+
 }

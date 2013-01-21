@@ -1,8 +1,11 @@
-/*
- * AlsaDevice.h
+/**
+ * @file 	AlsaDevice.h
  *
- *  Created on: 19.1.2013
- *      Author: neneko
+ * @date 	19.1.2013
+ * @author 	Zdenek Travnicek <travnicek@iim.cz>
+ * @copyright GNU Public License 3.0
+ *
+ * This file defines Alsa backend
  */
 
 #ifndef ALSADEVICE_H_
@@ -13,6 +16,7 @@
 #include <string>
 #include <alsa/asoundlib.h>
 #include <vector>
+#include <map>
 #include <algorithm>
 
 namespace iimaudio {
@@ -38,6 +42,8 @@ public:
 	return_type_t do_update(size_t delay = 10);
 	audio_params_t do_get_params() const;
 
+	static std::map<audio_id_t, audio_info_t> do_enumerate_capture_devices();
+	static std::map<audio_id_t, audio_info_t> do_enumerate_playback_devices();
 private:
 	action_type_t 		action_;
 	audio_id_t			id_;
@@ -54,6 +60,8 @@ private:
 	static bool check_call(int res, std::string message);
 	static void throw_call(bool res, std::string message);
 	static void throw_call(int res, std::string message);
+
+	static void enumerate_hw_devices(std::map<audio_id_t, audio_info_t>&map_, snd_pcm_stream_t type_);
 
 };
 

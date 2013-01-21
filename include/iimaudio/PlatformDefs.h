@@ -1,3 +1,12 @@
+/**
+ * @file 	PlatformDefs.h
+ *
+ * @date 	20.1.2013
+ * @author 	Zdenek Travnicek <travnicek@iim.cz>
+ * @copyright GNU Public License 3.0
+ *
+ * Platform specific definitions.
+ */
 #ifndef PLATFORMDEFS_H_
 #define PLATFORMDEFS_H_
 
@@ -10,6 +19,8 @@
 #else
 #define EXPORT
 #endif
+#else
+#define EXPORT
 #endif
 #endif
 
@@ -28,6 +39,9 @@
 #ifdef _WIN32
 #define PACKED_PRE __pragma (pack (push,1))
 #define PACKED __pragma (pack (pop))
+#else
+#define PACKED_PRE
+#define PACKED
 #endif
 #endif
 

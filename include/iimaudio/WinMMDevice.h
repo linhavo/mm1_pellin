@@ -1,8 +1,11 @@
-/*
- * WinMMDevice.h
+/**
+ * @file 	WinMMDevice.h
  *
- *  Created on: 20.1.2013
- *      Author: neneko
+ * @date 	20.1.2013
+ * @author 	Zdenek Travnicek <travnicek@iim.cz>
+ * @copyright GNU Public License 3.0
+ *
+ * This file defines backend driver for WinMM API
  */
 
 #ifndef WINMMDEVICE_H_
@@ -45,6 +48,7 @@ public:
 	void store_data(WAVEHDR& hdr);
 
 	static std::map<audio_id_t, audio_info_t> do_enumerate_capture_devices();
+	static std::map<audio_id_t, audio_info_t> do_enumerate_playback_devices();
 private:
 	action_type_t 		action_;
 	audio_id_t			id_;

@@ -1,12 +1,13 @@
-/*
- * Log.h
+/**
+ * @file 	Utils.h
  *
- *  Created on: 19.1.2013
- *      Author: neneko
+ * @date 	19.1.2013
+ * @author 	Zdenek Travnicek <travnicek@iim.cz>
+ * @copyright GNU Public License 3.0
+ *
  */
-
-#ifndef LOG_H_
-#define LOG_H_
+#ifndef UTILS_H_
+#define UTILS_H_
 
 #include <iostream>
 #include <map>
@@ -91,4 +92,4 @@ protected:
 
 
 
-#endif /* LOG_H_ */
+#endif /* UTILS_H_ */

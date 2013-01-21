@@ -1,8 +1,10 @@
-/*
- * WaveFile.cpp
+/**
+ * @file 	WaveFile.cpp
  *
- *  Created on: 19.1.2013
- *      Author: neneko
+ * @date 	19.1.2013
+ * @author 	Zdenek Travnicek <travnicek@iim.cz>
+ * @copyright GNU Public License 3.0
+ *
  */
 
 #include "iimaudio/WaveFile.h"

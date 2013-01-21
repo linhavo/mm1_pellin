@@ -1,8 +1,11 @@
-/*
- * capture_test.cpp
+/**
+ * @file 	capture_test.cpp
  *
- *  Created on: 19.1.2013
- *      Author: neneko
+ * @date 	19.1.2013
+ * @author 	Zdenek Travnicek <travnicek@iim.cz>
+ * @copyright GNU Public License 3.0
+ *
+ * Example capturing 5s of audio from default device and storing it into a wave file
  */
 
 #include "iimaudio.h"

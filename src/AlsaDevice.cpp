@@ -1,8 +1,10 @@
-/*
- * AlsaDevice.cpp
+/**
+ * @file 	AlsaDevice.cpp
  *
- *  Created on: 19.1.2013
- *      Author: neneko
+ * @date 	19.1.2013
+ * @author 	Zdenek Travnicek <travnicek@iim.cz>
+ * @copyright GNU Public License 3.0
+ *
  */
 
 #include "iimaudio/AlsaDevice.h"
@@ -214,6 +216,84 @@ size_t AlsaDevice::do_capture_data(uint8_t* data_start, size_t data_size, return
 	error_code = return_type_t::ok;
 	return static_cast<size_t>(ret);
 }
+
+std::map<AlsaDevice::audio_id_t, audio_info_t> AlsaDevice::do_enumerate_capture_devices()
+{
+	std::map<audio_id_t, audio_info_t> devices;
+	enumerate_hw_devices(devices, SND_PCM_STREAM_CAPTURE);
+//        devices[WAVE_MAPPER]=get_info(WAVE_MAPPER);
+//        UINT num_dev = waveInGetNumDevs();
+//        for (UINT i=0;i<num_dev;++i) devices[i]=get_info(i);
+
+//        devices[default_device()].default_=true;
+        return devices;
+}
+
+std::map<AlsaDevice::audio_id_t, audio_info_t> AlsaDevice::do_enumerate_playback_devices()
+{
+	std::map<audio_id_t, audio_info_t> devices;
+	enumerate_hw_devices(devices, SND_PCM_STREAM_PLAYBACK);
+//        devices[WAVE_MAPPER]=get_info(WAVE_MAPPER);
+//        UINT num_dev = waveInGetNumDevs();
+//        for (UINT i=0;i<num_dev;++i) devices[i]=get_info(i);
+
+//        devices[default_device()].default_=true;
+        return devices;
+}
+void AlsaDevice::enumerate_hw_devices(std::map<audio_id_t, audio_info_t>&map_, snd_pcm_stream_t type_)
+{
+	snd_ctl_t *handle;
+	snd_ctl_card_info_t *info;
+	snd_pcm_info_t *pcminfo;
+	snd_ctl_card_info_alloca(&info);
+	snd_pcm_info_alloca(&pcminfo);
+
+	int id = -1;
+	int err;
+	int dev = -1;
+	while (snd_card_next(&id)==0) {
+		if (id<0) break;
+		std::stringstream ss;
+		ss << "hw:" << id;
+//		logger[log_level::info] << ss.str() << "\n";
+		err = snd_ctl_open(&handle, ss.str().c_str(), 0);
+		if (err<0) continue;
+		err = snd_ctl_card_info(handle, info);
+		if (err<0) {
+			snd_ctl_close(handle);
+			continue;
+		}
+		dev = -1;
+		while (snd_ctl_pcm_next_device(handle, &dev)==0) {
+			if (dev<0) break;
+//			logger[log_level::info] << dev << "\n";
+			snd_pcm_info_set_device(pcminfo, dev);
+			snd_pcm_info_set_subdevice(pcminfo, 0);
+			snd_pcm_info_set_stream(pcminfo, type_);
+			err = snd_ctl_pcm_info(handle, pcminfo);
+			if (err<0) {
+//				logger[log_level::info] <<  "err: " << snd_strerror(err) << "\n";
+				continue;
+			}
+//			logger[log_level::info] <<  "XX\n";
+			std::stringstream ss2;
+			ss2 << "hw:" << id <<","<<dev;
+			std::string hw = ss2.str();
+			std::stringstream ss3;
+			ss3 << snd_ctl_card_info_get_id(info) << " [" << snd_ctl_card_info_get_name(info) << "] "
+					<< snd_pcm_info_get_id(pcminfo) << " [" << snd_pcm_info_get_name(pcminfo)<<"]";
+			audio_info_t info_;
+			info_.name = ss3.str();
+			map_[hw]=info_;
+
+		}
+		snd_ctl_close(handle);
+	}
+//	snd_ctl_card_info_free(info);
+//	snd_pcm_info_free(pcminfo);
+}
+
+
 }
 
 
