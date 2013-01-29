@@ -14,12 +14,13 @@
 namespace iimaudio {
 
 class SingleThreaded {
+
 public:
 	SingleThreaded() {}
 	virtual ~SingleThreaded() {}
 
-	typedef bool lock_t; // Dummy lock type
-	lock_t lock_instance() const { return true; }
+	struct lock_t {~lock_t(){}}; // Dummy lock type. It has dtor to prevent g++4.6 considering it as an unused variable
+	lock_t lock_instance() const { return lock_t(); }
 };
 
 class MultiThreaded {

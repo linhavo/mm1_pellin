@@ -74,8 +74,13 @@ AlsaDevice::AlsaDevice(action_type_t action, audio_id_t id, const audio_params_t
 
 	int dir = 0;
 
+	throw_call(snd_pcm_hw_params_set_rate_resample(handle_, hw_params, params_.enable_resampling?1:0),
+					"Failed to set resampling");
+
 	throw_call(snd_pcm_hw_params_set_rate_near (handle_, hw_params, &sampling_rate_, &dir),
 			"Failed to set sample rate");
+
+
 	logger[log_level::info] << "Initialized for " << sampling_rate_ << " Hz" << std::endl;
 
 	throw_call(snd_pcm_hw_params_set_channels (handle_, hw_params, params_.num_channels),

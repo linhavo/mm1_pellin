@@ -25,7 +25,9 @@ enum class sampling_rate_t: uint8_t {
 	rate_11kHz,  //!< rate_11kHz
 	rate_22kHz,  //!< rate_22kHz
 	rate_44kHz,  //!< rate_44kHz
-	rate_48kHz   //!< rate_48kHz
+	rate_48kHz,  //!< rate_48kHz
+	rate_96kHz,  //!< rate_96kHz
+	rate_192kHz  //!< rate_192kHz
 };
 
 /*!
@@ -36,7 +38,7 @@ enum class sampling_format_t: uint8_t {
 	format_8bit_unsigned, //!< format_8bit_unsigned
 	format_8bit_signed,   //!< format_8bit_signed
 	format_16bit_unsigned,//!< format_16bit_unsigned
-	format_16bit_signed,  //!< format_16bit_signed
+	format_16bit_signed   //!< format_16bit_signed
 };
 
 /*!
@@ -92,8 +94,9 @@ struct audio_params_t {
 	sampling_rate_t rate;
 	sampling_format_t format;
 	uint8_t num_channels;
+	bool enable_resampling;
 	audio_params_t(sampling_rate_t rate = sampling_rate_t::rate_44kHz, sampling_format_t format=sampling_format_t::format_16bit_signed, uint8_t num_channels=1):
-		rate(rate),format(format),num_channels(num_channels) {}
+		rate(rate),format(format),num_channels(num_channels),enable_resampling(true) {}
 	uint16_t sample_size() const { return get_sample_size(format)*num_channels; }
 };
 

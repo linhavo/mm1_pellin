@@ -12,16 +12,17 @@
 #include <cmath>
 #include <algorithm>
 using namespace iimaudio;
-constexpr double pi() { return std::atan(1)*4; }
+//constexpr double pi() { return std::atan(1)*4; }
+const double pi = std::atan(1)*4;
 void fill_buffer(double& t, double frequency, std::size_t rate, std::vector<int16_t>& data)
 {
 	std::for_each(data.begin(),data.end(),[&t,frequency,rate](int16_t& v)//{v=1;});
-			{v=16384*std::sin(t);t=t+2*pi()*frequency/rate;if (t>2*pi()) t=t-2*pi();});
+			{v=16384*std::sin(t);t=t+2*pi*frequency/rate;if (t>2*pi) t=t-2*pi;});
 }
 
 int main()
 {
-	audio_params_t 		params(sampling_rate_t::rate_44kHz,
+	audio_params_t 		params(sampling_rate_t::rate_48kHz,
 							sampling_format_t::format_16bit_signed,
 							1);
 	PlaybackDevice 		device(params);

@@ -37,7 +37,9 @@ std::map<sampling_rate_t, size_t> rates_to_int = InitMap<sampling_rate_t, size_t
 (sampling_rate_t::rate_11kHz, 	11025)
 (sampling_rate_t::rate_22kHz, 	22050)
 (sampling_rate_t::rate_44kHz, 	44100)
-(sampling_rate_t::rate_48kHz, 	48000);
+(sampling_rate_t::rate_48kHz, 	48000)
+(sampling_rate_t::rate_96kHz, 	96000)
+(sampling_rate_t::rate_192kHz, 192000);
 }
 
 uint32_t convert_rate_to_int(const sampling_rate_t rate) {

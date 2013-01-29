@@ -139,11 +139,11 @@ public:
 /* Implementation of AudioDevice */
 template<action_type_t action, class Threading, class Device>
 AudioDevice<action, Threading, Device>::AudioDevice():
-#ifndef _WIN32
-		AudioDevice<action, Threading, Device>(audio_params_t(),Device::default_device()) {}
-#else // Visual studio compiler doesn't support delegating constructors
+//#ifndef _WIN32
+//		AudioDevice<action, Threading, Device>(audio_params_t(),Device::default_device()) {}
+//#else // Visual studio compiler doesn't support delegating constructors
 	Device(action, Device::default_device(), audio_params_t()) {}
-#endif
+//#endif
 
 template<action_type_t action, class Threading, class Device>
 AudioDevice<action, Threading, Device>::AudioDevice(const audio_params_t& params,

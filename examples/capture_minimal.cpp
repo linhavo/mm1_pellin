@@ -20,9 +20,9 @@ int main()
 	return_type_t error;
 
 	device.start_capture();
-	device.capture_data(buffer,error);
-	/* Process data in buffer
-	...
-	*/
+	captured = device.capture_data(buffer,error);
+
+	/* Process data in buffer */
+	(void) captured;
 }
 
