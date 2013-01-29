@@ -35,7 +35,7 @@ AlsaDevice::AlsaDevice(action_type_t action, audio_id_t id, const audio_params_t
  first_empty_buffer(0),first_full_buffer(0)
 {
 
-	switch (action) {
+	switch (action_) {
 		case action_type_t::action_capture: stream_type_ = SND_PCM_STREAM_CAPTURE;
 				break;
 		case action_type_t::action_playback: stream_type_ = SND_PCM_STREAM_PLAYBACK;

@@ -28,7 +28,7 @@ link_directories ( ${IIMA_LINK} )
 #include_directories ( ${IIMA_INCLUDE} )
 target_link_libraries ( iimaudio ${IIMA_LIBS})
 
-SET_TARGET_PROPERTIES( iimaudio PROPERTIES SOVERSION 1 VERSION 0.1.0 )
+SET_TARGET_PROPERTIES( iimaudio PROPERTIES SOVERSION 1 VERSION 0.9.0 )
 install(TARGETS iimaudio 	RUNTIME DESTINATION bin
 							LIBRARY DESTINATION lib 
 							ARCHIVE DESTINATION lib)
