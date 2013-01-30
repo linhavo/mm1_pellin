@@ -21,7 +21,7 @@ int main()
 	audio_params_t params = wav.get_params();
 	logger[log_level::info] << "Opened wav file with " << static_cast<int>(params.num_channels) << " channels, "
 			<< "sampling rate " << sampling_rate_string(params.rate) << " and "
-			<< "sampling format '" << sampling_format_string(params.format) << "'\n";
+			<< "sampling format '" << sampling_format_string(params.format) << "'";
 
 	//PlaybackDevice device(params);
 	MultithreadedPlaybackDevice device(params);
@@ -42,13 +42,13 @@ int main()
 		return_type_t ret = device.update();
 		if (ret == return_type_t::busy) continue;
 		if (ret != return_type_t::ok) {
-			logger[log_level::fatal] << "Failed to update\n";
+			logger[log_level::fatal] << "Failed to update";
 			break;
 		}
 		ret = device.fill_buffer(data);
 		if (ret == return_type_t::buffer_full) continue;
 		if (ret != return_type_t::ok) break;
-		logger[log_level::debug] << "Filled " << frames << " frames\n";
+		logger[log_level::debug] << "Filled " << frames << " frames";
 		frames = buffer_size;
 		wav.read_data(data,frames);
 		if (!frames) break;

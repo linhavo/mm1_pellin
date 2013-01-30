@@ -14,11 +14,11 @@
 using namespace iimaudio;
 int main()
 {
-	logger[log_level::info] << "Capture devices:\n";
+	logger[log_level::info] << "Capture devices:";
 	for (auto dev: CaptureDevice::enumerate_devices()) 
-		logger[log_level::info] << (dev.second.default_?"*":" ") << "Device: '"<< dev.first << "': " << dev.second.name << "\n";
-	logger[log_level::info] << "Plaback devices:\n";
+		logger[log_level::info] << (dev.second.default_?"*":" ") << "Device: '"<< dev.first << "': " << dev.second.name;
+	logger[log_level::info] << "Playback devices:";
 	for (auto dev: PlaybackDevice::enumerate_devices())
-		logger[log_level::info] << (dev.second.default_?"*":" ") << "Device: '"<< dev.first << "': " << dev.second.name << "\n";
+		logger[log_level::info] << (dev.second.default_?"*":" ") << "Device: '"<< dev.first << "': " << dev.second.name;
 }
 

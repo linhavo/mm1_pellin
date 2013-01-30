@@ -16,24 +16,34 @@
 #include "iimaudio/AudioTypes.h"
 
 namespace iimaudio {
-
-class NullBuf: public std::streambuf
-{
+class LogProxy {
 public:
-	NullBuf() {}
-};
-class NullLogger: public std::ostream {
-public:
-	NullLogger():std::ostream(&nb) {}
-	~NullLogger() {}
-template<typename T>
-	std::ostream &operator<<(T &)
-	{
+	LogProxy() = delete;
+	LogProxy(LogProxy&)=delete;
+	LogProxy(const LogProxy&)=delete;
+	LogProxy(std::ostream* str_):stream_(str_){}
+	LogProxy(LogProxy&& rhs) noexcept:stream_(rhs.stream_) {
+		const std::string str = rhs.buffer_.str();
+		buffer_.write(str.c_str(),str.size());
+		rhs.stream_ = nullptr;
+	}
+	~LogProxy() {
+		if (stream_) {
+			buffer_  << "\n";
+			const std::string str = buffer_.str();
+			stream_->write(str.c_str(),str.size());
+		}
+	}
+	template<class T>
+	LogProxy &operator<<(const T& val) {
+		if (stream_) buffer_<< val;
 		return *this;
 	}
 private:
-	NullBuf nb;
+	std::ostream *stream_;
+	std::stringstream buffer_;
 };
+
 
 enum class log_level {
 	fatal 	= 0,
@@ -43,17 +53,15 @@ enum class log_level {
 class Log {
 private:
 	static log_level mode;
-	NullLogger null;
 	std::ostream &stream;
 public:
 	Log(std::ostream& stream):stream(stream) {}
 	void set_global_mode(log_level mode_) {
 		mode = mode_;
-		//(*this)[log_level::info] << "[Log] Log level set to " << mode_ << std::endl;
 	}
-	std::ostream &operator[](log_level level_) {
-		if (!active(level_)) return null;
-		else return stream;
+	LogProxy operator[](log_level level_) {
+		if (!active(level_)) return LogProxy(nullptr);
+		else return LogProxy(&stream);
 	}
 	inline bool active(log_level level) {
 		return level<=mode;

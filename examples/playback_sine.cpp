@@ -11,13 +11,15 @@
 #include <vector>
 #include <cmath>
 #include <algorithm>
+#include <limits>
 using namespace iimaudio;
 //constexpr double pi() { return std::atan(1)*4; }
 const double pi = std::atan(1)*4;
-void fill_buffer(double& t, double frequency, std::size_t rate, std::vector<int16_t>& data)
+template<typename T>
+void fill_buffer(double& t, double frequency, std::size_t rate, std::vector<T>& data)
 {
-	std::for_each(data.begin(),data.end(),[&t,frequency,rate](int16_t& v)//{v=1;});
-			{v=16384*std::sin(t);t=t+2*pi*frequency/rate;if (t>2*pi) t=t-2*pi;});
+	std::for_each(data.begin(),data.end(),[&t,frequency,rate](T& v)//{v=1;});
+			{v=std::numeric_limits<T>::max()*std::sin(t);t=t+2*pi*frequency/rate;if (t>2*pi) t=t-2*pi;});
 }
 
 int main()
@@ -45,7 +47,7 @@ int main()
 		return_type_t ret = device.update();
 		if (ret == return_type_t::busy) continue;
 		if (ret != return_type_t::ok) {
-			logger[log_level::fatal] << "Failed to update\n";
+			logger[log_level::fatal] << "Failed to update";
 			break;
 		}
 		ret = device.fill_buffer(data);

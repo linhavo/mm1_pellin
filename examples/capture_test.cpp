@@ -42,11 +42,11 @@ int main()
 		error = device.start_capture();
 		// Did it succeed?
 		if (error != return_type_t::ok) {
-			logger[log_level::fatal] << "Error starting capture: " << error_string(error) << "\n";
+			logger[log_level::fatal] << "Error starting capture: " << error_string(error);
 			return 1;
 		}
 		// Capture is started
-		logger[log_level::info] << "Capture started\n";
+		logger[log_level::info] << "Capture started";
 		// Capture samples for a while
 		while(capture_samples > 0) {
 			// Capture samples
@@ -54,20 +54,20 @@ int main()
 			capture_samples-=captured;
 			// Did it succeed?
 			if (captured > 0) {
-				logger[log_level::info] << "Captured " << captured << " samples\n";
+				logger[log_level::info] << "Captured " << captured << " samples";
 				// Store captured samples to a wav file
 				wav.store_data(buffer,captured);
 			} else {
 				if (error == return_type_t::buffer_empty) {
 					continue;
 				}
-				logger[log_level::fatal] << "Error during capture: " << error_string(error) << "\n";
+				logger[log_level::fatal] << "Error during capture: " << error_string(error);
 				break;
 			}
 		}
 	}
 	catch (std::runtime_error &e) {
-		logger[log_level::fatal] << "Unhandled exception: " << e.what() << "\n";
+		logger[log_level::fatal] << "Unhandled exception: " << e.what();
 
 	}
 }

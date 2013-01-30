@@ -55,7 +55,7 @@ AlsaDevice::AlsaDevice(action_type_t action, audio_id_t id, const audio_params_t
 	throw_call(snd_pcm_open (&handle_, id.c_str(), stream_type_, 0),
 			"Failed to open device for capture");
 
-	logger[log_level::debug] << "Device '" << id << "' opened" << std::endl;
+	logger[log_level::debug] << "Device '" << id << "' opened";
 
 
 
@@ -81,11 +81,11 @@ AlsaDevice::AlsaDevice(action_type_t action, audio_id_t id, const audio_params_t
 			"Failed to set sample rate");
 
 
-	logger[log_level::info] << "Initialized for " << sampling_rate_ << " Hz" << std::endl;
+	logger[log_level::info] << "Initialized for " << sampling_rate_ << " Hz";
 
 	throw_call(snd_pcm_hw_params_set_channels (handle_, hw_params, params_.num_channels),
 				"Failed to set number of channels");
-	logger[log_level::info] << "Initialized for " << static_cast<int>(params_.num_channels) << " channels" << std::endl;
+	logger[log_level::info] << "Initialized for " << static_cast<int>(params_.num_channels) << " channels";
 
 	throw_call(snd_pcm_hw_params (handle_, hw_params),
 				"Failed to set params");
@@ -109,7 +109,7 @@ AlsaDevice::AlsaDevice(action_type_t action, audio_id_t id, const audio_params_t
 
 	sample_size_ = params_.num_channels * get_sample_size(params_.format);
 	check_call(sample_size_ > 0, "Wrong sample format");
-	logger[log_level::info] << "Device '" << id << "' initialized" << std::endl;
+	logger[log_level::info] << "Device '" << id << "' initialized";
 
 
 }
@@ -119,7 +119,7 @@ AlsaDevice::~AlsaDevice()
 	check_call(snd_pcm_close (handle_),
 			"Failed to close the device");
 
-	logger[log_level::debug] << "Device '" << id_ << "' closed" << std::endl;
+	logger[log_level::debug] << "Device '" << id_ << "' closed";
 }
 
 AlsaDevice::audio_id_t AlsaDevice::default_device()
@@ -130,7 +130,7 @@ AlsaDevice::audio_id_t AlsaDevice::default_device()
 bool AlsaDevice::check_call(int res, std::string message)
 {
 	if (res < 0) {
-		logger[log_level::fatal] << message << ": " << snd_strerror(res)<< std::endl;
+		logger[log_level::fatal] << message << ": " << snd_strerror(res);
 		return false;
 	}
 	return true;
@@ -142,7 +142,7 @@ void AlsaDevice::throw_call(int res, std::string message)
 void AlsaDevice::throw_call(bool res, std::string message)
 {
 	if (!res) {
-		logger[log_level::fatal] << message << std::endl;
+		logger[log_level::fatal] << message;
 		throw std::runtime_error(message);
 	}
 }
@@ -161,7 +161,7 @@ return_type_t AlsaDevice::do_set_buffers(uint16_t count, uint32_t samples)
 {
 	buffers.resize(count);
 	const uint32_t size = samples * params_.sample_size();
-	logger[log_level::debug] << "Allocating " << count << " buffers of size " << size << " Bytes (" << samples << " samples)\n";
+	logger[log_level::debug] << "Allocating " << count << " buffers of size " << size << " Bytes (" << samples << " samples)";
 	std::for_each(buffers.begin(), buffers.end(),
 			[size](audio_buffer_t& buf){buf.data.resize(size);buf.empty=true;buf.position=0;});
 	return return_type_t::ok;
@@ -226,11 +226,6 @@ std::map<AlsaDevice::audio_id_t, audio_info_t> AlsaDevice::do_enumerate_capture_
 {
 	std::map<audio_id_t, audio_info_t> devices;
 	enumerate_hw_devices(devices, SND_PCM_STREAM_CAPTURE);
-//        devices[WAVE_MAPPER]=get_info(WAVE_MAPPER);
-//        UINT num_dev = waveInGetNumDevs();
-//        for (UINT i=0;i<num_dev;++i) devices[i]=get_info(i);
-
-//        devices[default_device()].default_=true;
         return devices;
 }
 
@@ -238,11 +233,6 @@ std::map<AlsaDevice::audio_id_t, audio_info_t> AlsaDevice::do_enumerate_playback
 {
 	std::map<audio_id_t, audio_info_t> devices;
 	enumerate_hw_devices(devices, SND_PCM_STREAM_PLAYBACK);
-//        devices[WAVE_MAPPER]=get_info(WAVE_MAPPER);
-//        UINT num_dev = waveInGetNumDevs();
-//        for (UINT i=0;i<num_dev;++i) devices[i]=get_info(i);
-
-//        devices[default_device()].default_=true;
         return devices;
 }
 void AlsaDevice::enumerate_hw_devices(std::map<audio_id_t, audio_info_t>&map_, snd_pcm_stream_t type_)
@@ -271,7 +261,6 @@ void AlsaDevice::enumerate_hw_devices(std::map<audio_id_t, audio_info_t>&map_, s
 		dev = -1;
 		while (snd_ctl_pcm_next_device(handle, &dev)==0) {
 			if (dev<0) break;
-//			logger[log_level::info] << dev << "\n";
 			snd_pcm_info_set_device(pcminfo, dev);
 			snd_pcm_info_set_subdevice(pcminfo, 0);
 			snd_pcm_info_set_stream(pcminfo, type_);
@@ -280,7 +269,6 @@ void AlsaDevice::enumerate_hw_devices(std::map<audio_id_t, audio_info_t>&map_, s
 //				logger[log_level::info] <<  "err: " << snd_strerror(err) << "\n";
 				continue;
 			}
-//			logger[log_level::info] <<  "XX\n";
 			std::stringstream ss2;
 			ss2 << "hw:" << id <<","<<dev;
 			std::string hw = ss2.str();
