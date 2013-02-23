@@ -1,9 +1,12 @@
-/*
- * SDLDevice.cpp
+/**
+ * @file 	SDLDevice.cpp
  *
- *  Created on: 23.2.2013
- *      Author: neneko
+ * @date 	23.2.2013
+ * @author 	Zdenek Travnicek <travnicek@iim.cz>
+ * @copyright GNU Public License 3.0
+ *
  */
+
 
 #include "SDL.h"
 #include "iimaudio/SDLDevice.h"
