@@ -43,12 +43,12 @@ WaveFile::WaveFile(const std::string& filename)
 		default:
 			throw std::runtime_error("Unsupported input format");
 	}
-	params_.num_channels = header_.channels;
+	params_.num_channels = static_cast<uint8_t>(header_.channels);
 }
 
 void WaveFile::update(size_t new_data_size)
 {
-	header_.add_size(new_data_size);
+	header_.add_size(static_cast<uint32_t>(new_data_size));
 	file_.seekp(0,std::ios::beg);
 	file_.write(reinterpret_cast<char*>(&header_),sizeof(header_));
 	file_.seekp(0,std::ios::end);

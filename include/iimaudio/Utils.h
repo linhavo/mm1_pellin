@@ -14,13 +14,16 @@
 #include <vector>
 #include <sstream>
 #include "iimaudio/AudioTypes.h"
+#include "PlatformDefs.h"
 
 namespace iimaudio {
 class LogProxy {
 public:
+#ifdef SYSTEM_LINUX
 	LogProxy() = delete;
 	LogProxy(LogProxy&)=delete;
 	LogProxy(const LogProxy&)=delete;
+#endif
 	LogProxy(std::ostream* str_):stream_(str_){}
 	LogProxy(LogProxy&& rhs) noexcept:stream_(rhs.stream_) {
 		const std::string str = rhs.buffer_.str();

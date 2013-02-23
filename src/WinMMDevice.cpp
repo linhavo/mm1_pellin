@@ -123,7 +123,7 @@ void WinMMDevice::throw_call(MMRESULT res, std::string message)
 void WinMMDevice::throw_call(bool res, std::string message)
 {
 	if (!res) {
-		logger[log_level::fatal] << message << std::endl;
+		logger[log_level::fatal] << message << "\n";
 		throw std::runtime_error(message);
 	}
 }
@@ -163,7 +163,7 @@ audio_info_t get_in_info(UINT dev)
 	waveInGetDevCaps (dev,&caps_,sizeof(WAVEINCAPS));
 	info_.max_channels = caps_.wChannels;
 	info_.name = caps_.szPname;
-	info_.default = false;
+	info_.default_ = false;
 	return info_;
 }
 audio_info_t get_out_info(UINT dev)
@@ -173,7 +173,7 @@ audio_info_t get_out_info(UINT dev)
 	waveOutGetDevCaps (dev,&caps_,sizeof(WAVEOUTCAPS));
 	info_.max_channels = caps_.wChannels;
 	info_.name = caps_.szPname;
-	info_.default = false;
+	info_.default_ = false;
 	return info_;
 }
 }

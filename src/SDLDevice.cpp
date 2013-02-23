@@ -11,7 +11,9 @@
 #include "SDL.h"
 #include "iimaudio/SDLDevice.h"
 #include "iimaudio/Utils.h"
+#ifdef SYSTEM_LINUX
 #include <unistd.h>
+#endif
 namespace iimaudio {
 
 struct SDLDeleter {
@@ -26,7 +28,7 @@ SDLDevice::SDLDevice(size_t width, size_t height, const std::string& title):
 		data_changed_(false),flip_required_(false)
 {
 	static_assert(sizeof(RGB)==3,"Wrongly packed RGB struct!");
-	SDL_Init(SDL_INIT_VIDEO);
+	
 	data_.resize(width*height);
 	pimpl_.reset(new sdl_pimpl_t());
 }
@@ -53,6 +55,7 @@ bool SDLDevice::stop()
 	if (!thread_.joinable()) return true;
 	finish_ = true;
 	thread_.join();
+	
 	logger[log_level::debug] << "SDL thread joined";
 	return true;
 
@@ -60,16 +63,27 @@ bool SDLDevice::stop()
 
 void SDLDevice::run()
 {
+	SDL_Init(SDL_INIT_VIDEO);
+	logger[log_level::debug] << "Creating SDL window";
 	pimpl_->window_.reset(SDL_SetVideoMode(static_cast<int>(width_), static_cast<int>(height_),
-			24, SDL_DOUBLEBUF|SDL_HWACCEL));
+			24, SDL_DOUBLEBUF));
+	if (!pimpl_->window_) {
+		logger[log_level::fatal] << "Failed to create SDL window!";
+		finish_=true;
+	} else {
+		logger[log_level::debug] << "SDL window created";
+	}
 	SDL_WM_SetCaption(title_.c_str(),title_.c_str());
+	
 	while (process_events()) {
 		update_data();
 		if (flip_required_) {
 			SDL_Flip(pimpl_->window_.get());
 			flip_required_ = false;
 		} else {
+#ifdef SYSTEM_LINUX
 			usleep(5000);
+#endif
 		}
 	}
 	pimpl_->window_.reset();
@@ -78,7 +92,7 @@ void SDLDevice::update_data()
 {
 	std::unique_lock<std::mutex> lock(data_mutex_);
 	if (data_changed_) {
-		SDL_Surface* surface = SDL_CreateRGBSurfaceFrom(&data_[0],width_,height_,24,0,0x0000FF,0x00FF00,0xFF0000,0);
+		SDL_Surface* surface = SDL_CreateRGBSurfaceFrom(&data_[0],static_cast<int>(width_),static_cast<int>(height_),24,0,0x0000FF,0x00FF00,0xFF0000,0);
 		SDL_BlitSurface(surface, nullptr, pimpl_->window_.get(), nullptr);
 		SDL_FreeSurface(surface);
 		flip_required_ = true;
@@ -109,5 +123,13 @@ bool SDLDevice::process_events()
 	}
 	return !finish_;
 }
-
+template<>
+bool SDLDevice::update(const data_type& data) {
+	if (finish_) return false;
+	std::unique_lock<std::mutex> lock(data_mutex_);
+	if (data.size()>data_.size()) data_.resize(data.size());
+	std::copy(data.begin(),data.end(),data_.begin());
+	data_changed_ = true;
+	return true;
+}
 }

@@ -58,7 +58,9 @@ struct wav_header_t
 
 class WaveFile
 {
+#ifdef SYSTEM_LINUX
 	WaveFile() = delete;
+#endif
 public:
 	/**
 	 * @brief Constructor for writing a WAV file

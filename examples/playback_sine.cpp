@@ -13,13 +13,13 @@
 #include <algorithm>
 #include <limits>
 using namespace iimaudio;
-//constexpr double pi() { return std::atan(1)*4; }
+const uint16_t uint16_max = std::numeric_limits<uint16_t>::max();
 const double pi = std::atan(1)*4;
 template<typename T>
 void fill_buffer(double& t, double frequency, std::size_t rate, std::vector<T>& data)
 {
 	std::for_each(data.begin(),data.end(),[&t,frequency,rate](T& v)//{v=1;});
-			{v=std::numeric_limits<T>::max()*std::sin(t);t=t+2*pi*frequency/rate;if (t>2*pi) t=t-2*pi;});
+			{v=static_cast<uint16_t>(uint16_max*std::sin(t));t=t+2.0*pi*frequency/rate;if (t>2*pi) t=t-2*pi;});
 }
 
 int main()

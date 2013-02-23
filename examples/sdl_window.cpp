@@ -8,7 +8,9 @@
  */
 
 #include "iimaudio/SDLDevice.h"
+#ifdef SYSTEM_LINUX
 #include <unistd.h>
+#endif
 #include <algorithm>
 int main()
 {
@@ -17,7 +19,9 @@ int main()
 	sdl.start();
 	while(sdl.update(data)) {
 		std::for_each(data.begin(),data.end(),[](iimaudio::RGB&rgb){rgb.r+=1;});
+#ifdef SYSTEM_LINUX
 		usleep(1000);
+#endif
 	}
 	sdl.stop();
 

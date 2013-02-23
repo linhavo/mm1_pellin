@@ -43,7 +43,7 @@ std::map<sampling_rate_t, size_t> rates_to_int = InitMap<sampling_rate_t, size_t
 }
 
 uint32_t convert_rate_to_int(const sampling_rate_t rate) {
-	return get_from_map(rates_to_int, rate, 0);
+	return static_cast<uint32_t>(get_from_map(rates_to_int, rate, 0));
 }
 sampling_rate_t convert_int_to_rate(const size_t irate)
 {
@@ -61,7 +61,7 @@ std::map<sampling_format_t, size_t> sample_sizes = InitMap<sampling_format_t, si
 
 uint32_t get_sample_size(const sampling_format_t format)
 {
-	return get_from_map(sample_sizes, format, 0);
+	return static_cast<uint32_t>(get_from_map(sample_sizes, format, 0));
 }
 
 namespace {
@@ -71,7 +71,9 @@ std::map<sampling_rate_t, std::string> sampling_rate_strings = InitMap<sampling_
 (sampling_rate_t::rate_11kHz,		"11.025 Hz")
 (sampling_rate_t::rate_22kHz,		"22.050 Hz")
 (sampling_rate_t::rate_44kHz,		"44.100 Hz")
-(sampling_rate_t::rate_48kHz,		"48.000 Hz");
+(sampling_rate_t::rate_48kHz,		"48.000 Hz")
+(sampling_rate_t::rate_96kHz,		"96.000 Hz")
+(sampling_rate_t::rate_192kHz,		"192.000 Hz");
 
 }
 std::string sampling_rate_string(const sampling_rate_t rate)

@@ -15,6 +15,7 @@
 #include <mutex>
 #include <atomic>
 #include <vector>
+#include <memory>
 
 namespace iimaudio {
 
@@ -53,14 +54,8 @@ private:
 };
 
 template<>
-bool SDLDevice::update(const data_type& data) {
-	if (finish_) return false;
-	std::unique_lock<std::mutex> lock(data_mutex_);
-	if (data.size()>data_.size()) data_.resize(data.size());
-	std::copy(data.begin(),data.end(),data_.begin());
-	data_changed_ = true;
-	return true;
-}
+bool SDLDevice::update(const data_type& data);
+
 template<typename T>
 bool SDLDevice::update(const std::vector<T>& data) {
 	if (finish_) return false;

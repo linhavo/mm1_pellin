@@ -12,8 +12,13 @@
 
 #ifdef __linux__
 #define EXPORT
+#define SYSTEM_LINUX 1
 #else
 #ifdef _WIN32
+#define WIN32_MEAN_AND_LEAN
+#define NOMINMAX
+#define SYSTEM_WINDOWS 1
+#define noexcept throw()
 #ifdef iimaudio_EXPORTS
 #define EXPORT __declspec(dllexport)
 #else
