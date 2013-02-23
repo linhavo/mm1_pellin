@@ -26,7 +26,7 @@ include_directories( ${CMAKE_SOURCE_DIR}/include )
 IF (UNIX)
 add_definitions("-Wall -Wextra -pedantic -std=c++0x")
 ENDIF ()
-
+find_package(SDL)
 add_subdirectory(src)
 add_subdirectory(examples)
 

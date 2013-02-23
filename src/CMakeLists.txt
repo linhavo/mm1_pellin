@@ -22,10 +22,15 @@ MESSAGE("Unknown platform")
 SET(IIMA_SRC ${IIMA_SRC} WinMMDevice.cpp)
 ENDIF()
 
+IF (SDL_FOUND)
+	SET(IIMA_SRC ${IIMA_SRC} SDLDevice.cpp)
+	SET(IIMA_LIBS ${IIMA_LIBS} ${SDL_LIBRARY})
+	SET(IIMA_INCLUDE ${IIMA_INCLUDE} ${SDL_INCLUDE_DIR})
+ENDIF()
 
 add_library(iimaudio ${IIMA_SRC})
 link_directories ( ${IIMA_LINK} )
-#include_directories ( ${IIMA_INCLUDE} )
+include_directories ( ${IIMA_INCLUDE} )
 target_link_libraries ( iimaudio ${IIMA_LIBS})
 
 SET_TARGET_PROPERTIES( iimaudio PROPERTIES SOVERSION 1 VERSION 0.9.0 )
