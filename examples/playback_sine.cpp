@@ -24,12 +24,12 @@ void fill_buffer(double& t, double frequency, std::size_t rate, std::vector<T>& 
 
 int main()
 {
-	audio_params_t 		params(sampling_rate_t::rate_48kHz,
+	audio_params_t 		params(sampling_rate_t::rate_44kHz,
 							sampling_format_t::format_16bit_signed,
 							1);
 	PlaybackDevice 		device(params);
 	const std::size_t	buffer_size 	= 512;
-	const std::size_t	buffer_count 	= 4;
+	const std::size_t	buffer_count 	= 8;
 	const double	 	frequency		= 1000.0;
 	const std::size_t rate = convert_rate_to_int(params.rate);
 	double time = 0.0;

@@ -36,17 +36,16 @@ public:
 
 	size_t 	do_capture_data(uint8_t* data_start, size_t data_size, return_type_t& error_code);
 
-	return_type_t do_set_buffers(uint16_t count, uint32_t samples) {return return_type_t::failed;}
+	return_type_t do_set_buffers(uint16_t count, uint32_t samples);
 
-	return_type_t do_fill_buffer(const uint8_t* data_start, size_t data_size) {return return_type_t::failed;}
+	return_type_t do_fill_buffer(const uint8_t* data_start, size_t data_size);
 
-	return_type_t do_start_playback() {return return_type_t::failed;}
+	return_type_t do_start_playback();
 
-	return_type_t do_update(size_t delay = 10) {return return_type_t::failed;}
+	return_type_t do_update(size_t delay = 10);
 	audio_params_t do_get_params() const {return params_;}
 
 	void store_data(WAVEHDR& hdr);
-
 	static std::map<audio_id_t, audio_info_t> do_enumerate_capture_devices();
 	static std::map<audio_id_t, audio_info_t> do_enumerate_playback_devices();
 private:
@@ -56,13 +55,17 @@ private:
 	DWORD				sampling_rate_;
 	WORD				bps_;
 	HWAVEIN				in_handle;
+	HWAVEOUT			out_handle;
 	std::vector<WAVEHDR>buffers;
 	circular_buffer_t<uint8_t>
 						private_buffer_;
 	std::mutex			buffer_lock_;
 
-	static const size_t buffer_length 	= 2048;
-	static const size_t buffer_count 	= 4;
+	size_t buffer_length;
+	//size_t buffer_count;
+	static const size_t capture_buffer_length 	= 2048;
+	static const size_t capture_buffer_count 	= 4;
+	
 	std::vector<WAVEHDR*> empty_buffers;
 
 //	snd_pcm_t			*handle_;
@@ -74,7 +77,9 @@ private:
 //	size_t				first_full_buffer;
 //
 	void init_capture(WAVEFORMATEX& fmt);
-	void init_buffer(WAVEHDR& hdr);
+	void init_in_buffer(WAVEHDR& hdr);
+	void init_out_buffer(WAVEHDR& hdr);
+	void init_playback(WAVEFORMATEX& fmt);
 	static bool check_call(MMRESULT res, std::string message);
 	static void throw_call(bool res, std::string message);
 	static void throw_call(MMRESULT res, std::string message);
