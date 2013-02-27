@@ -11,7 +11,7 @@
 #ifndef GENERICDEVICE_H_
 #define GENERICDEVICE_H_
 #include "AudioTypes.h"
-namespace iimaudio {
+namespace iimavlib {
 class GenericDevice
 {
 public:

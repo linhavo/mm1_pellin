@@ -13,10 +13,10 @@
 #include <map>
 #include <vector>
 #include <sstream>
-#include "iimaudio/AudioTypes.h"
+#include "iimavlib/AudioTypes.h"
 #include "PlatformDefs.h"
 
-namespace iimaudio {
+namespace iimavlib {
 class LogProxy {
 public:
 #ifdef SYSTEM_LINUX

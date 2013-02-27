@@ -15,7 +15,7 @@
 #include "AudioPolicies.h"
 #include <array>
 #include <map>
-namespace iimaudio {
+namespace iimavlib {
 
 /*!
  * @class AudioDevice

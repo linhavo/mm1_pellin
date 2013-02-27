@@ -7,9 +7,9 @@
  *
  */
 
-#include "iimaudio/Utils.h"
+#include "iimavlib/Utils.h"
 
-namespace iimaudio {
+namespace iimavlib {
 Log logger(std::cerr);
 
 log_level Log::mode =

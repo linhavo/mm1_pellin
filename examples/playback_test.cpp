@@ -9,12 +9,12 @@
  */
 
 
-#include "iimaudio.h"
-#include "iimaudio/WaveFile.h"
-#include "iimaudio/Utils.h"
+#include "iimavlib.h"
+#include "iimavlib/WaveFile.h"
+#include "iimavlib/Utils.h"
 #include <vector>
 
-using namespace iimaudio;
+using namespace iimavlib;
 int main()
 {
 	WaveFile wav("capture.wav");

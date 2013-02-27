@@ -8,10 +8,10 @@
  * Simplest example of audio capture.
  */
 
-#include "iimaudio.h"
+#include "iimavlib.h"
 #include <vector>
 
-using namespace iimaudio;
+using namespace iimavlib;
 int main()
 {
 	CaptureDevice device;

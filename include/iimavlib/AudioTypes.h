@@ -15,7 +15,7 @@
 #include <string>
 #include <set>
 
-namespace iimaudio {
+namespace iimavlib {
 /*!
  * @brief Sample rates usable in the library
  */

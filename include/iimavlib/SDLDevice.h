@@ -17,7 +17,7 @@
 #include <vector>
 #include <memory>
 
-namespace iimaudio {
+namespace iimavlib {
 
 struct RGB {
 	uint8_t r:8;

@@ -7,13 +7,13 @@
  *
  */
 
-#include "iimaudio/AlsaDevice.h"
-#include "iimaudio/Utils.h"
+#include "iimavlib/AlsaDevice.h"
+#include "iimavlib/Utils.h"
 #include <stdexcept>
 #include <iostream>
 #include <algorithm>
 
-namespace iimaudio {
+namespace iimavlib {
 
 namespace {
 std::map<sampling_format_t, snd_pcm_format_t> format_mapping = InitMap<sampling_format_t, snd_pcm_format_t>

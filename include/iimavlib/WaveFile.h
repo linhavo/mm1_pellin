@@ -16,7 +16,7 @@
 #include <string>
 #include <vector>
 #include <algorithm>
-namespace iimaudio {
+namespace iimavlib {
 enum class read_mode_t {
 	read, write
 };

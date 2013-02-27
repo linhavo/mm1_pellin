@@ -8,12 +8,12 @@
  * Example capturing 5s of audio from default device and storing it into a wave file
  */
 
-#include "iimaudio.h"
-#include "iimaudio/Utils.h"
-#include "iimaudio/WaveFile.h"
+#include "iimavlib.h"
+#include "iimavlib/Utils.h"
+#include "iimavlib/WaveFile.h"
 #include <vector>
 
-using namespace iimaudio;
+using namespace iimavlib;
 int main()
 {
 	try {

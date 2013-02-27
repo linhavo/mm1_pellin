@@ -8,10 +8,10 @@
  * Example enumerating all capture and playback devices
  */
 
-#include "iimaudio.h"
-#include "iimaudio/Utils.h"
+#include "iimavlib.h"
+#include "iimavlib/Utils.h"
 
-using namespace iimaudio;
+using namespace iimavlib;
 int main()
 {
 	logger[log_level::info] << "Capture devices:";

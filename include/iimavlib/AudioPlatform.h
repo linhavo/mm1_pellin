@@ -14,14 +14,14 @@
 #include "PlatformDefs.h"
 #ifdef _WIN32
 #include "WinMMDevice.h"
-namespace iimaudio {
-typedef iimaudio::WinMMDevice PlatformDevice;
+namespace iimavlib {
+typedef iimavlib::WinMMDevice PlatformDevice;
 }
 #else
 #ifdef __linux__
 #include "AlsaDevice.h"
-namespace iimaudio {
-typedef iimaudio::AlsaDevice PlatformDevice;
+namespace iimavlib {
+typedef iimavlib::AlsaDevice PlatformDevice;
 }
 #else
 #error Unsupported platform
@@ -30,7 +30,7 @@ typedef iimaudio::AlsaDevice PlatformDevice;
 
 
 
-namespace iimaudio {
+namespace iimavlib {
 
 //typedef PlatformDevice::audio_id_t audio_id;
 

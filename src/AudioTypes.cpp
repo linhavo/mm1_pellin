@@ -7,11 +7,11 @@
  *
  */
 
-#include "iimaudio/Utils.h"
+#include "iimavlib/Utils.h"
 #include <algorithm>
 #include <map>
 #include <string>
-namespace iimaudio {
+namespace iimavlib {
 
 namespace {
 template<typename first, typename second, typename val>

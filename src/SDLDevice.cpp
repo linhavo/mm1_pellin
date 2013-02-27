@@ -9,12 +9,12 @@
 
 
 #include "SDL.h"
-#include "iimaudio/SDLDevice.h"
-#include "iimaudio/Utils.h"
+#include "iimavlib/SDLDevice.h"
+#include "iimavlib/Utils.h"
 #ifdef SYSTEM_LINUX
 #include <unistd.h>
 #endif
-namespace iimaudio {
+namespace iimavlib {
 
 struct SDLDeleter {
 	void operator()(SDL_Surface*obj){SDL_FreeSurface(obj);}

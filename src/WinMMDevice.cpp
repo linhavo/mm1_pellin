@@ -7,14 +7,14 @@
  *
  */
 
-#include "iimaudio/WinMMDevice.h"
-#include "iimaudio/Utils.h"
+#include "iimavlib/WinMMDevice.h"
+#include "iimavlib/Utils.h"
 #include <map>
 #include <stdexcept>
 #include <algorithm>
 
 #pragma comment(lib, "winmm.lib")
-namespace iimaudio {
+namespace iimavlib {
 
 namespace {
 void CALLBACK win_mm_device_capture_callback (HWAVEIN hwi, UINT uMsg, DWORD_PTR dwInstance, DWORD_PTR dwParam1, DWORD_PTR dwParam2)

@@ -19,7 +19,7 @@
 #define NOMINMAX
 #define SYSTEM_WINDOWS 1
 #define noexcept throw()
-#ifdef iimaudio_EXPORTS
+#ifdef iimavlib_EXPORTS
 #define EXPORT __declspec(dllexport)
 #else
 #define EXPORT

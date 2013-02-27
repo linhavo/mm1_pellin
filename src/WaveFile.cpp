@@ -7,10 +7,10 @@
  *
  */
 
-#include "iimaudio/WaveFile.h"
-#include "iimaudio/Utils.h"
+#include "iimavlib/WaveFile.h"
+#include "iimavlib/Utils.h"
 #include <stdexcept>
-namespace iimaudio {
+namespace iimavlib {
 
 WaveFile::WaveFile(const std::string& filename, audio_params_t params)
 :params_(params)

@@ -28,12 +28,12 @@ IF (SDL_FOUND)
 	SET(IIMA_INCLUDE ${IIMA_INCLUDE} ${SDL_INCLUDE_DIR})
 ENDIF()
 
-add_library(iimaudio ${IIMA_SRC})
+add_library(iimavlib ${IIMA_SRC})
 link_directories ( ${IIMA_LINK} )
 include_directories ( ${IIMA_INCLUDE} )
-target_link_libraries ( iimaudio ${IIMA_LIBS})
+target_link_libraries ( iimavlib ${IIMA_LIBS})
 
-SET_TARGET_PROPERTIES( iimaudio PROPERTIES SOVERSION 1 VERSION 0.9.0 )
-install(TARGETS iimaudio 	RUNTIME DESTINATION bin
+SET_TARGET_PROPERTIES( iimavlib PROPERTIES SOVERSION 1 VERSION 0.9.0 )
+install(TARGETS iimavlib 	RUNTIME DESTINATION bin
 							LIBRARY DESTINATION lib 
 							ARCHIVE DESTINATION lib)

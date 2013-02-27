@@ -19,7 +19,7 @@
 #include <map>
 #include <algorithm>
 
-namespace iimaudio {
+namespace iimavlib {
 
 
 class AlsaDevice:public GenericDevice {

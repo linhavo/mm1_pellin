@@ -11,7 +11,7 @@
 #ifndef AUDIOPOLICIES_H_
 #define AUDIOPOLICIES_H_
 #include <mutex>
-namespace iimaudio {
+namespace iimavlib {
 
 class SingleThreaded {
 

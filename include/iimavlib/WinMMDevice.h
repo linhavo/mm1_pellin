@@ -22,7 +22,7 @@
 //#include <vector>
 //#include <algorithm>
 
-namespace iimaudio {
+namespace iimavlib {
 
 
 class WinMMDevice:public GenericDevice {
