@@ -164,12 +164,12 @@ void WinMMDevice::throw_call(bool res, std::string message)
 		throw std::runtime_error(message);
 	}
 }
-return_type_t WinMMDevice::do_start_capture() {
-	if(!check_call(waveInStart(in_handle),"Failed to start capture")) return return_type_t::failed;
-	return return_type_t::ok;
+error_type_t WinMMDevice::do_start_capture() {
+	if(!check_call(waveInStart(in_handle),"Failed to start capture")) return error_type_t::failed;
+	return error_type_t::ok;
 }
 
-size_t WinMMDevice::do_capture_data(uint8_t* data_start, size_t data_size, return_type_t& error_code) 
+size_t WinMMDevice::do_capture_data(uint8_t* data_start, size_t data_size, error_type_t& error_code) 
 {
 	std::lock_guard<std::mutex> l(buffer_lock_);
 	while (!empty_buffers.empty()) {
@@ -183,18 +183,18 @@ size_t WinMMDevice::do_capture_data(uint8_t* data_start, size_t data_size, retur
 	}
 
 	std::size_t ret = private_buffer_.get_data_block(data_start,data_size);
-	if (ret == 0) error_code = return_type_t::buffer_empty;
-	else error_code = return_type_t::ok;
+	if (ret == 0) error_code = error_type_t::buffer_empty;
+	else error_code = error_type_t::ok;
 	return ret/params_.sample_size();
 }
-return_type_t WinMMDevice::do_set_buffers(uint16_t count, uint32_t samples) 
+error_type_t WinMMDevice::do_set_buffers(uint16_t count, uint32_t samples) 
 {
 	buffers.resize(count);
 	buffer_length = samples * get_sample_size(params_.format);
 	for(auto& hdr: buffers) init_out_buffer(hdr);
 	for(auto& hdr: buffers) empty_buffers.push_back(&hdr);
 	logger[log_level::debug] << "Added " << buffers.size() << " buffers for " << samples << " samples each";
-	return return_type_t::ok;
+	return error_type_t::ok;
 }
 void WinMMDevice::store_data(WAVEHDR& hdr)
 {
@@ -202,28 +202,28 @@ void WinMMDevice::store_data(WAVEHDR& hdr)
 	empty_buffers.push_back(&hdr);
 	//logger[log_level::debug] << "Empty buffer count: " << empty_buffers.size();
 }
-return_type_t WinMMDevice::do_fill_buffer(const uint8_t* data_start, size_t data_size) 
+error_type_t WinMMDevice::do_fill_buffer(const uint8_t* data_start, size_t data_size) 
 {
 	std::lock_guard<std::mutex> l(buffer_lock_);
-	if (!empty_buffers.size()) return return_type_t::buffer_full;
+	if (!empty_buffers.size()) return error_type_t::buffer_full;
 	WAVEHDR* hdr = empty_buffers.back();
 	empty_buffers.pop_back();
 	logger[log_level::debug] << "Writing samples to the device";
-	if (MMSYSERR_NOERROR  == waveOutWrite(out_handle,hdr,sizeof(WAVEHDR))) 	return return_type_t::ok;
+	if (MMSYSERR_NOERROR  == waveOutWrite(out_handle,hdr,sizeof(WAVEHDR))) 	return error_type_t::ok;
 	logger[log_level::debug] << "Failed to write samples to the device!!";
-	return return_type_t::failed;
+	return error_type_t::failed;
 }
 
-return_type_t WinMMDevice::do_update(size_t delay) 
+error_type_t WinMMDevice::do_update(size_t delay) 
 {
-	return return_type_t::ok;
+	return error_type_t::ok;
 }
-return_type_t WinMMDevice::do_start_playback()
+error_type_t WinMMDevice::do_start_playback()
 {
 	logger[log_level::debug] << "Starting the device";
-	if (waveOutRestart(out_handle)==MMSYSERR_NOERROR) return return_type_t::ok;
+	if (waveOutRestart(out_handle)==MMSYSERR_NOERROR) return error_type_t::ok;
 	logger[log_level::debug] << "Failed to start the device";
-	return return_type_t::failed;
+	return error_type_t::failed;
 }
 namespace {
 audio_info_t get_in_info(UINT dev)

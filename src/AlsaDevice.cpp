@@ -147,35 +147,35 @@ void AlsaDevice::throw_call(bool res, std::string message)
 	}
 }
 
-return_type_t AlsaDevice::do_start_capture()
+error_type_t AlsaDevice::do_start_capture()
 {
 	if (!check_call(snd_pcm_prepare (handle_), "Failed to prepare PCM"))
-		return return_type_t::failed;
-	return return_type_t::ok;
+		return error_type_t::failed;
+	return error_type_t::ok;
 }
-return_type_t AlsaDevice::do_start_playback()
+error_type_t AlsaDevice::do_start_playback()
 {
 	return do_start_capture();
 }
-return_type_t AlsaDevice::do_set_buffers(uint16_t count, uint32_t samples)
+error_type_t AlsaDevice::do_set_buffers(uint16_t count, uint32_t samples)
 {
 	buffers.resize(count);
 	const uint32_t size = samples * params_.sample_size();
 	logger[log_level::debug] << "Allocating " << count << " buffers of size " << size << " Bytes (" << samples << " samples)";
 	std::for_each(buffers.begin(), buffers.end(),
 			[size](audio_buffer_t& buf){buf.data.resize(size);buf.empty=true;buf.position=0;});
-	return return_type_t::ok;
+	return error_type_t::ok;
 }
 
-return_type_t AlsaDevice::do_update(size_t delay)
+error_type_t AlsaDevice::do_update(size_t delay)
 {
 	audio_buffer_t &buf = buffers[first_full_buffer];
-	if (buf.empty) return return_type_t::buffer_empty;
+	if (buf.empty) return error_type_t::buffer_empty;
 
 	int ret = snd_pcm_wait(handle_, delay);
-	if (!ret) return return_type_t::busy;
+	if (!ret) return error_type_t::busy;
 	size_t frames_free = snd_pcm_avail(handle_);
-	if (!frames_free) return return_type_t::invalid;
+	if (!frames_free) return error_type_t::invalid;
 
 	size_t write_frames = std::min(frames_free,(buf.data.size()-buf.position)/params_.sample_size());
 	write_frames = snd_pcm_writei(handle_,reinterpret_cast<void*>(&buf.data[buf.position]),write_frames);
@@ -185,27 +185,27 @@ return_type_t AlsaDevice::do_update(size_t delay)
 		buf.position = 0;
 		buf.empty = true;
 	}
-	return return_type_t::ok;
+	return error_type_t::ok;
 }
 audio_params_t AlsaDevice::do_get_params() const
 {
 	return params_;
 }
 
-return_type_t AlsaDevice::do_fill_buffer(const uint8_t* data_start, size_t data_size)
+error_type_t AlsaDevice::do_fill_buffer(const uint8_t* data_start, size_t data_size)
 {
-	if (first_empty_buffer >= buffers.size()) return return_type_t::invalid;
+	if (first_empty_buffer >= buffers.size()) return error_type_t::invalid;
 	audio_buffer_t &buf = buffers[first_empty_buffer];
-	if (!buf.empty) return return_type_t::buffer_full;
+	if (!buf.empty) return error_type_t::buffer_full;
 	size_t copy_bytes = std::min(buf.data.size(),data_size);
 	std::copy_n(data_start,copy_bytes,buf.data.begin());
 	buf.position = 0;
 	buf.empty = false;
 	if (buffers[first_full_buffer].empty) first_full_buffer = first_empty_buffer;
 	first_empty_buffer = (first_empty_buffer+1)%buffers.size();
-	return return_type_t::ok;
+	return error_type_t::ok;
 }
-size_t AlsaDevice::do_capture_data(uint8_t* data_start, size_t data_size, return_type_t& error_code)
+size_t AlsaDevice::do_capture_data(uint8_t* data_start, size_t data_size, error_type_t& error_code)
 {
 	int ret;
 	const unsigned long buffer_size = static_cast<unsigned long>(data_size/sample_size_);
@@ -214,11 +214,11 @@ size_t AlsaDevice::do_capture_data(uint8_t* data_start, size_t data_size, return
 					"Failed to read data"))
 	{
 		if (ret == -EPIPE) {
-			error_code = return_type_t::xrun;
-		} else if (ret <0) error_code = return_type_t::failed;
+			error_code = error_type_t::xrun;
+		} else if (ret <0) error_code = error_type_t::failed;
 		return 0;
 	}
-	error_code = return_type_t::ok;
+	error_code = error_type_t::ok;
 	return static_cast<size_t>(ret);
 }
 

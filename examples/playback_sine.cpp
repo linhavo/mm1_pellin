@@ -6,21 +6,30 @@
  * @copyright GNU Public License 3.0
  */
 
-#include "iimaudio.h"
-#include "iimaudio/Utils.h"
+#include "iimavlib.h"
+#include "iimavlib/Utils.h"
 #include <vector>
 #include <cmath>
 #include <algorithm>
 #include <limits>
-using namespace iimaudio;
+using namespace iimavlib;
 const uint16_t uint16_max = std::numeric_limits<uint16_t>::max();
 const double pi = std::atan(1)*4;
 template<typename T>
-void fill_buffer(double& t, double frequency, std::size_t rate, std::vector<T>& data)
+void synthesize(double& t, double frequency, std::size_t rate, std::vector<T>& data)
 {
 	std::for_each(data.begin(),data.end(),[&t,frequency,rate](T& v)//{v=1;});
 			{v=static_cast<uint16_t>(uint16_max*std::sin(t));t=t+2.0*pi*frequency/rate;if (t>2*pi) t=t-2*pi;});
 }
+
+
+
+
+void callback(void *p, int len)
+{
+}
+
+
 
 int main()
 {
@@ -29,7 +38,7 @@ int main()
 							1);
 	PlaybackDevice 		device(params);
 	const std::size_t	buffer_size 	= 512;
-	const std::size_t	buffer_count 	= 8;
+	const std::size_t	buffer_count 	= 4;
 	const double	 	frequency		= 1000.0;
 	const std::size_t rate = convert_rate_to_int(params.rate);
 	double time = 0.0;
@@ -38,22 +47,22 @@ int main()
 	device.set_buffers(buffer_count,buffer_size);
 
 	for (size_t i=0;i<buffer_count;++i) {
-		fill_buffer(time,frequency,rate,data);
+		synthesize(time,frequency,rate,data);
 		device.fill_buffer(data);
 	}
-	fill_buffer(time,frequency,rate,data);
+	synthesize(time,frequency,rate,data);
 	device.start_playback();
 	while (true) {
-		return_type_t ret = device.update();
-		if (ret == return_type_t::busy) continue;
-		if (ret != return_type_t::ok) {
+		error_type_t ret = device.update();
+		if (ret == error_type_t::busy) continue;
+		if (ret != error_type_t::ok) {
 			logger[log_level::fatal] << "Failed to update";
 			break;
 		}
 		ret = device.fill_buffer(data);
-		if (ret == return_type_t::buffer_full) continue;
-		if (ret != return_type_t::ok) break;
-		fill_buffer(time,frequency,rate,data);
+		if (ret == error_type_t::buffer_full) continue;
+		if (ret != error_type_t::ok) break;
+		synthesize(time,frequency,rate,data);
 	}
 }
 

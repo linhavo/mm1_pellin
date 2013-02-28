@@ -17,7 +17,7 @@ int main()
 	CaptureDevice device;
 	std::vector<int16_t> buffer(16384,0);
 	size_t captured;
-	return_type_t error;
+	error_type_t error;
 
 	device.start_capture();
 	captured = device.capture_data(buffer,error);

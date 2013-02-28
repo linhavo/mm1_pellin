@@ -7,18 +7,18 @@
  *
  */
 
-#include "iimaudio/SDLDevice.h"
+#include "iimavlib/SDLDevice.h"
 #ifdef SYSTEM_LINUX
 #include <unistd.h>
 #endif
 #include <algorithm>
 int main()
 {
-	iimaudio::SDLDevice sdl(800,600,"HEY!");
-	iimaudio::SDLDevice::data_type data(800*600);
+	iimavlib::SDLDevice sdl(800,600,"HEY!");
+	iimavlib::SDLDevice::data_type data(800*600);
 	sdl.start();
 	while(sdl.update(data)) {
-		std::for_each(data.begin(),data.end(),[](iimaudio::RGB&rgb){rgb.r+=1;});
+		std::for_each(data.begin(),data.end(),[](iimavlib::RGB&rgb){rgb.r+=1;});
 #ifdef SYSTEM_LINUX
 		usleep(1000);
 #endif

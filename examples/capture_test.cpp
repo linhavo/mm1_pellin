@@ -35,13 +35,13 @@ int main()
 		//! Number of captured samples
 		size_t captured;
 		//! Error core returned from the device
-		return_type_t error;
+		error_type_t error;
 
 		int64_t capture_samples = convert_rate_to_int(params.rate)*5;
 		// Start the capture
 		error = device.start_capture();
 		// Did it succeed?
-		if (error != return_type_t::ok) {
+		if (error != error_type_t::ok) {
 			logger[log_level::fatal] << "Error starting capture: " << error_string(error);
 			return 1;
 		}
@@ -58,7 +58,7 @@ int main()
 				// Store captured samples to a wav file
 				wav.store_data(buffer,captured);
 			} else {
-				if (error == return_type_t::buffer_empty) {
+				if (error == error_type_t::buffer_empty) {
 					continue;
 				}
 				logger[log_level::fatal] << "Error during capture: " << error_string(error);

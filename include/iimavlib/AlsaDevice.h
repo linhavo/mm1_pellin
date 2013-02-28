@@ -29,17 +29,17 @@ public:
 	virtual ~AlsaDevice();
 	static audio_id_t default_device();
 
-	return_type_t do_start_capture();
+	error_type_t do_start_capture();
 
-	size_t 	do_capture_data(uint8_t* data_start, size_t data_size, return_type_t& error_code);
+	size_t 	do_capture_data(uint8_t* data_start, size_t data_size, error_type_t& error_code);
 
-	return_type_t do_set_buffers(uint16_t count, uint32_t samples);
+	error_type_t do_set_buffers(uint16_t count, uint32_t samples);
 
-	return_type_t do_fill_buffer(const uint8_t* data_start, size_t data_size);
+	error_type_t do_fill_buffer(const uint8_t* data_start, size_t data_size);
 
-	return_type_t do_start_playback();
+	error_type_t do_start_playback();
 
-	return_type_t do_update(size_t delay = 10);
+	error_type_t do_update(size_t delay = 10);
 	audio_params_t do_get_params() const;
 
 	static std::map<audio_id_t, audio_info_t> do_enumerate_capture_devices();

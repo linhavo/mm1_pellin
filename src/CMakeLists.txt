@@ -2,7 +2,7 @@ SET (IIMA_LINK )
 SET (IIMA_LIBS )
 SET (IIMA_INCLUDE )
 
-SET (IIMA_SRC Utils.cpp WaveFile.cpp AudioTypes.cpp)
+SET (IIMA_SRC Utils.cpp WaveFile.cpp AudioTypes.cpp AudioFilter.cpp)
 
 
 #CHECK_INCLUDE_FILES (stdint.h HAVE_STDINT_H)
@@ -28,12 +28,12 @@ IF (SDL_FOUND)
 	SET(IIMA_INCLUDE ${IIMA_INCLUDE} ${SDL_INCLUDE_DIR})
 ENDIF()
 
-add_library(iimavlib ${IIMA_SRC})
+add_library(iimav ${IIMA_SRC})
 link_directories ( ${IIMA_LINK} )
 include_directories ( ${IIMA_INCLUDE} )
-target_link_libraries ( iimavlib ${IIMA_LIBS})
+target_link_libraries ( iimav ${IIMA_LIBS})
 
-SET_TARGET_PROPERTIES( iimavlib PROPERTIES SOVERSION 1 VERSION 0.9.0 )
-install(TARGETS iimavlib 	RUNTIME DESTINATION bin
+SET_TARGET_PROPERTIES( iimav PROPERTIES SOVERSION 1 VERSION 0.9.0 )
+install(TARGETS iimav 		RUNTIME DESTINATION bin
 							LIBRARY DESTINATION lib 
 							ARCHIVE DESTINATION lib)

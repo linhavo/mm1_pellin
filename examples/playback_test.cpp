@@ -39,15 +39,15 @@ int main()
 	//bool running = true;
 	device.start_playback();
 	while (true) {
-		return_type_t ret = device.update();
-		if (ret == return_type_t::busy) continue;
-		if (ret != return_type_t::ok) {
+		error_type_t ret = device.update();
+		if (ret == error_type_t::busy) continue;
+		if (ret != error_type_t::ok) {
 			logger[log_level::fatal] << "Failed to update";
 			break;
 		}
 		ret = device.fill_buffer(data);
-		if (ret == return_type_t::buffer_full) continue;
-		if (ret != return_type_t::ok) break;
+		if (ret == error_type_t::buffer_full) continue;
+		if (ret != error_type_t::ok) break;
 		logger[log_level::debug] << "Filled " << frames << " frames";
 		frames = buffer_size;
 		wav.read_data(data,frames);

@@ -84,10 +84,10 @@ public:
 	 * @brief Adds data to the WAV file
 	 * @param data Buffer containing samples for writing
 	 * @param sample_count Number of samples in the buffer. Set to 0 to use the whole buffer.
-	 * @return Returns return_type_t::ok when written successfully
+	 * @return Returns error_type_t::ok when written successfully
 	 */
 	template<typename T>
-	return_type_t store_data(const std::vector<T>& data, size_t sample_count = 0);
+	error_type_t store_data(const std::vector<T>& data, size_t sample_count = 0);
 
 	/**
 	 * @brief
@@ -96,7 +96,7 @@ public:
 	 * @return
 	 */
 	template<typename T>
-	return_type_t read_data(std::vector<T>& data, size_t& sample_count);
+	error_type_t read_data(std::vector<T>& data, size_t& sample_count);
 	/**
 	 * @brief Returns params corresponding to current file
 	 * @return Struct containing relevant parameters of the data in WAV file
@@ -114,23 +114,23 @@ private:
 
 
 template<typename T>
-return_type_t WaveFile::store_data(const std::vector<T>& data, size_t sample_count)
+error_type_t WaveFile::store_data(const std::vector<T>& data, size_t sample_count)
 {
 	if (!sample_count) sample_count = data.size();
 	const size_t data_size = sample_count*sizeof(T) * params_.num_channels;
 	update(data_size);
 	file_.write(reinterpret_cast<const char*>(&data[0]),data_size);
-	return return_type_t::ok;
+	return error_type_t::ok;
 }
 
 template<typename T>
-	return_type_t WaveFile::read_data(std::vector<T>& data, size_t& sample_count)
+	error_type_t WaveFile::read_data(std::vector<T>& data, size_t& sample_count)
 {
 	size_t max_samples = data.size() * sizeof(T) / params_.sample_size();
 	if (sample_count > max_samples) sample_count = max_samples;
 	file_.read(reinterpret_cast<char*>(&data[0]),sample_count*params_.sample_size());
 	sample_count = file_.gcount() / params_.sample_size();
-	return return_type_t::ok;
+	return error_type_t::ok;
 }
 }
 

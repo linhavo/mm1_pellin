@@ -52,7 +52,7 @@ enum class action_type_t: uint8_t {
 /*!
  * @brief Error codes
  */
-enum class return_type_t: uint8_t {
+enum class error_type_t: uint8_t {
 	ok,          //!< No error
 	failed,      //!< Generic error
 	xrun,        //!< Overrun or underrun occured
@@ -78,7 +78,7 @@ uint32_t get_sample_size(const sampling_format_t format);
  * @param error Error code to convert
  * @return Human readable representation of the error code
  */
-std::string error_string(const return_type_t error);
+std::string error_string(const error_type_t error);
 std::string sampling_rate_string(const sampling_rate_t rate);
 std::string sampling_format_string(const sampling_format_t format);
 

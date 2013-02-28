@@ -12,7 +12,7 @@ IF (BUILD_EXAMPLES)
 #		ENDIF(Boost_PROGRAM_OPTIONS_FOUND)
 #		IF (Boost_FOUND)
 			
-		SET(EX_LIBS iimaudio)
+		SET(EX_LIBS iimav)
     
     add_executable(enumerate_devices enumerate_devices.cpp)
 	target_link_libraries ( enumerate_devices  ${EX_LIBS} )

@@ -95,13 +95,13 @@ std::string sampling_format_string(const sampling_format_t format)
 }
 
 namespace {
-std::map<return_type_t, std::string> error_strings = InitMap<return_type_t, std::string>
-(return_type_t::ok, 		"OK")
-(return_type_t::failed, 	"Failed")
-(return_type_t::xrun, 		"Under/Overrun occurred");
+std::map<error_type_t, std::string> error_strings = InitMap<error_type_t, std::string>
+(error_type_t::ok, 		"OK")
+(error_type_t::failed, 	"Failed")
+(error_type_t::xrun, 		"Under/Overrun occurred");
 }
 
-std::string error_string(const return_type_t error)
+std::string error_string(const error_type_t error)
 {
 	return get_from_map(error_strings, error, "Unknown error");
 }
