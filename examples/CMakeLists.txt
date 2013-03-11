@@ -33,6 +33,14 @@ IF (BUILD_EXAMPLES)
 	add_executable(playback_sine playback_sine.cpp)
 	target_link_libraries ( playback_sine  ${EX_LIBS} )
 	install(TARGETS playback_sine RUNTIME DESTINATION bin)
+	
+	add_executable(playback_high playback_high.cpp)
+	target_link_libraries ( playback_high  ${EX_LIBS} )
+	install(TARGETS playback_high RUNTIME DESTINATION bin)
+	
+	add_executable(playback_sine_high playback_sine_high.cpp)
+	target_link_libraries ( playback_sine_high  ${EX_LIBS} )
+	install(TARGETS playback_sine_high RUNTIME DESTINATION bin)
 
 	IF(SDL_FOUND)
 		include_directories(${SDL_INCLUDE_DIR})

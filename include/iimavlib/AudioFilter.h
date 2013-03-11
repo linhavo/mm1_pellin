@@ -9,6 +9,7 @@
 #define AUDIOFILTER_H_
 #include "AudioTypes.h"
 #include <memory>
+#include <vector>
 
 namespace iimavlib {
 
@@ -16,13 +17,16 @@ typedef std::shared_ptr<class AudioFilter> pAudioFilter;
 
 class AudioFilter {
 public:
-	AudioFilter(pAudioFilter parent);
+	AudioFilter(const pAudioFilter& child);
 	virtual ~AudioFilter();
 	error_type_t process(audio_buffer_t& buffer);
+	audio_params_t get_params() const;
 private:
 	virtual error_type_t do_process(audio_buffer_t& buffer) = 0;
-	pAudioFilter parent_;
+	virtual audio_params_t do_get_params() const;
+	pAudioFilter child_;
 };
+
 
 }
 

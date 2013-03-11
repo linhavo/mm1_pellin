@@ -83,12 +83,6 @@ std::string sampling_rate_string(const sampling_rate_t rate);
 std::string sampling_format_string(const sampling_format_t format);
 
 
-struct audio_buffer_t {
-	std::vector<uint8_t> data;
-	bool empty;
-	uint32_t position;
-	audio_buffer_t():empty(true),position(0) {}
-};
 
 struct audio_params_t {
 	sampling_rate_t rate;
@@ -106,6 +100,16 @@ struct audio_info_t {
 	std::set<std::pair<sampling_format_t, sampling_rate_t>> supported_formats;
 	bool default_;
 	audio_info_t():max_channels(0),default_(false) {}
+};
+
+struct audio_buffer_t {
+	std::vector<uint8_t> data;
+	audio_params_t params;
+	std::size_t valid_samples;
+// private fields
+	bool empty;
+	uint32_t position;
+	audio_buffer_t():valid_samples(0),empty(true),position(0) {}
 };
 
 template<typename T>
