@@ -3,7 +3,7 @@ SET (IIMA_LIBS )
 SET (IIMA_INCLUDE )
 
 SET (IIMA_SRC Utils.cpp WaveFile.cpp AudioTypes.cpp AudioFilter.cpp WaveSource.cpp AudioSink.cpp
-				filters/SineMultiply.cpp)
+				filters/SineMultiply.cpp filters/NullFilter.cpp )
 
 
 #CHECK_INCLUDE_FILES (stdint.h HAVE_STDINT_H)

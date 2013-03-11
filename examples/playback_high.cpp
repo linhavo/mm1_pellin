@@ -9,7 +9,6 @@
 #include "iimavlib/AlsaSink.h"
 #include "iimavlib/WaveSource.h"
 #include "iimavlib/Utils.h"
-#include "iimavlib/filters/SineMultiply.h"
 #include <string>
 
 
@@ -34,6 +33,5 @@ int main(int argc, char** argv)
 						.add<AlsaSink>("sysdefault")
 						.sink();
 	chain->run();
-
 
 }
