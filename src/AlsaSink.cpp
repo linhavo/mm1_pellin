@@ -48,21 +48,19 @@ error_type_t AlsaSink::do_run()
 		if (ret == error_type_t::busy) continue;
 		if (ret != error_type_t::ok) {
 			logger[log_level::fatal] << "Failed to update";
-			stop();
 			break;
 		}
 		buffer_.valid_samples = buffer_size_;
 		ret = device_.do_fill_buffer(&buffer_.data[0],buffer_.valid_samples*params_.sample_size());
 		if (ret == error_type_t::buffer_full) continue;
 		if (ret != error_type_t::ok) {
-			stop();
 			break;
 		}
 //		logger[log_level::debug] << "Filled " << buffer_.valid_samples << " samples";
 
-		process(buffer_);
-
+		if (process(buffer_)!=error_type_t::ok) break;
 	}
+	stop(); // Not necessarily needed, but it seems cleaner.
 	return error_type_t::ok;
 }
 
