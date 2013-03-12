@@ -177,8 +177,23 @@ error_type_t AlsaDevice::do_update(size_t delay)
 	size_t frames_free = snd_pcm_avail(handle_);
 	if (!frames_free) return error_type_t::invalid;
 
-	size_t write_frames = std::min(frames_free,(buf.data.size()-buf.position)/params_.sample_size());
+	snd_pcm_sframes_t write_frames = std::min(frames_free,(buf.data.size()-buf.position)/params_.sample_size());
 	write_frames = snd_pcm_writei(handle_,reinterpret_cast<void*>(&buf.data[buf.position]),write_frames);
+	if (write_frames<0) {
+		int ret = 0;
+		if (write_frames == -EPIPE) {
+			logger[log_level::info] << "AlsaDevice underrun! Recovering";
+			ret = snd_pcm_recover(handle_,write_frames,1);
+		} else {
+			logger[log_level::info] << "AlsaDevice write error, trying to recover";
+			ret = snd_pcm_recover(handle_,write_frames,0);
+		}
+		if (ret<0) {
+			logger[log_level::fatal] << "Failed to recover from alsa error!";
+			return error_type_t::failed;
+		}
+		return error_type_t::busy;
+	}
 	buf.position+=write_frames*params_.sample_size();
 	if (buf.position>=buf.data.size()) {
 		first_full_buffer = (first_full_buffer+1)%buffers.size();
