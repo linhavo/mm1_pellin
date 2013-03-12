@@ -4,7 +4,7 @@ SET (IIMA_INCLUDE )
 
 SET (IIMA_SRC Utils.cpp WaveFile.cpp AudioTypes.cpp AudioFilter.cpp WaveSource.cpp AudioSink.cpp
 				WaveSink.cpp
-				filters/SineMultiply.cpp filters/NullFilter.cpp )
+				filters/SineMultiply.cpp filters/NullFilter.cpp filters/SimpleEchoFilter.cpp)
 
 
 #CHECK_INCLUDE_FILES (stdint.h HAVE_STDINT_H)

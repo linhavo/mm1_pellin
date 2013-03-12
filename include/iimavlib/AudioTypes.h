@@ -59,7 +59,8 @@ enum class error_type_t: uint8_t {
 	invalid,     //!< Device is in an invalid state
 	buffer_full, //!< Buffer is full (and nothing couldn't be added at the moment)
 	buffer_empty,//!< Buffer in empty, so no data couldn't be read
-	busy         //!< Device is busy, try again later
+	busy,         //!< Device is busy, try again later
+	unsupported	 //!< Operation of format is not supported
 };
 
 /*!
