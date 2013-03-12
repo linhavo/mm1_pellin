@@ -60,9 +60,6 @@ struct filter_chain {
 		filter_.reset(new T (filter_, std::forward<Args>(args)...));
 		return *this;
 	}
-	/**
-	 * Conversion operator to the head of filter chain
-	 */
 #else
 
 	filter_chain():
@@ -116,6 +113,13 @@ struct filter_chain {
 		return *this;
 	}
 #endif
+	filter_chain(filter_chain&& rhs):filter_(std::move(rhs.filter_)) {}
+	filter_chain(filter_chain& rhs):filter_(rhs.filter_) {}
+	filter_chain(const filter_chain& rhs):filter_(rhs.filter_) {}
+
+	/**
+	 * Conversion operator to the head of filter chain
+	 */
 	operator pAudioFilter () {return filter_; }
 
 	/**
