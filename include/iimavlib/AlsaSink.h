@@ -26,6 +26,7 @@ public:
 private:
 	error_type_t do_run();
 	void init_buffers();
+	virtual void do_set_buffers(size_t count, size_t size);
 	AlsaDevice device_;
 	const audio_params_t params_;
 	size_t buffer_count_;

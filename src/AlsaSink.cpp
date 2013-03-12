@@ -38,9 +38,16 @@ AlsaSink::~AlsaSink()
 error_type_t AlsaSink::do_run()
 {
 
-	for (size_t i=0;i<buffer_count_;++i) {
-		process(buffer_);
+	for (size_t i=0;i<buffer_count_;) {
+		if (!still_running()) break;
+		buffer_.valid_samples = buffer_size_;
+		if (process(buffer_)!=error_type_t::ok) {
+			stop();
+			break;
+		}
+		if (buffer_.valid_samples==0) continue;
 		device_.do_fill_buffer(&buffer_.data[0],buffer_.valid_samples*params_.sample_size());
+		++i;
 	}
 	device_.do_start_playback();
 	while (still_running()) {
@@ -65,6 +72,12 @@ error_type_t AlsaSink::do_run()
 }
 
 
+void AlsaSink::do_set_buffers(size_t count, size_t size)
+{
+	buffer_count_ = count;
+	buffer_size_ = size;
+	init_buffers();
+}
 
 }
 
