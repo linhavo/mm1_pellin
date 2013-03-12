@@ -9,7 +9,7 @@
 #define NULLFILTER_H_
 #include "../AudioFilter.h"
 namespace iimavlib {
-class NullFilter: public AudioFilter {
+class EXPORT NullFilter: public AudioFilter {
 public:
 	NullFilter(const pAudioFilter& child);
 	virtual ~NullFilter();

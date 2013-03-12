@@ -13,7 +13,7 @@
 #include <string>
 namespace iimavlib {
 
-class WaveSink: public AudioSink
+class EXPORT WaveSink: public AudioSink
 {
 public:
 	WaveSink(const pAudioFilter& child, const std::string& filename);

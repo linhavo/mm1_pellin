@@ -11,8 +11,9 @@
 #ifndef GENERICDEVICE_H_
 #define GENERICDEVICE_H_
 #include "AudioTypes.h"
+#include "PlatformDefs.h"
 namespace iimavlib {
-class GenericDevice
+class EXPORT GenericDevice
 {
 public:
 	GenericDevice() {}

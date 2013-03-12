@@ -26,7 +26,7 @@ namespace iimavlib {
  * @tparam Device Backend driver
  */
 template<action_type_t action = action_type_t::action_capture, class Threading = SingleThreaded, class Device = PlatformDevice>
-class EXPORT AudioDevice:private Device,private Threading
+class AudioDevice:private Device,private Threading
 {
 public:
 	typedef typename Device::audio_id_t audio_id;
@@ -36,23 +36,23 @@ public:
 	 *
 	 * Constructs AudioDevice using default parameters and default device
 	 */
-	EXPORT AudioDevice();
+	AudioDevice();
 
-	EXPORT AudioDevice(const audio_params_t& params, audio_id device_id = Device::default_device());
-	EXPORT virtual ~AudioDevice() {}
+	AudioDevice(const audio_params_t& params, audio_id device_id = Device::default_device());
+	virtual ~AudioDevice() {}
 
 	/*!
 	 * @brief Starts the device
 	 *
 	 * Starts capture or playback, depending on the @em action template parameter
 	 */
-	EXPORT error_type_t start();
+	error_type_t start();
 
 	/*!
 	 * @brief [capture] Starts capture
 	 *
 	 */
-	EXPORT error_type_t start_capture();
+	 error_type_t start_capture();
 
 	/*!
 	 * @brief [capture] Reads data from the device to a vector
@@ -70,7 +70,7 @@ public:
 	 * @param	error_code	When an error occurs, the error code will be stored here
 	 * @return 			Returns number of captured samples, or 0 when an error occurred.
 	 */
-	EXPORT template<typename T>
+	 template<typename T>
 	size_t capture_data(std::vector<T>& buffer, error_type_t& error_code);
 	/*!
 	 * @brief [capture] Reads data from the device to an std::array
@@ -89,7 +89,7 @@ public:
 	 * @param	error_code	When an error occurs, the error code will be stored here
 	 * @return 			Returns number of captured samples, or 0 when an error occurred.
 		 */
-	EXPORT template<typename T, std::size_t S>
+	 template<typename T, std::size_t S>
 	size_t capture_data(std::array<T,S>& buffer, error_type_t& error_code);
 	/*!
 	 * @brief [capture] Reads data from the device to a raw memory area
@@ -108,7 +108,7 @@ public:
 	 * @param	error_code	When an error occurs, the error code will be stored here
 	 * @return 			Returns number of captured samples, or 0 when an error occurred.
 	 */
-	EXPORT template<typename T>
+	 template<typename T>
 	size_t capture_data(T* raw_data, std::size_t data_size, error_type_t& error_code);
 
 	/*!
@@ -118,20 +118,20 @@ public:
 	 * @param	samples	Number of samples each of the buffers should store
 	 * @return			Returns ok if buffers were correctly allocated
 	 */
-	EXPORT error_type_t set_buffers(uint16_t count, uint32_t samples);
+	 error_type_t set_buffers(uint16_t count, uint32_t samples);
 
 
-	EXPORT template<typename T>
+	 template<typename T>
 	error_type_t fill_buffer(const std::vector<T>& data);
 
-	EXPORT error_type_t start_playback();
+	 error_type_t start_playback();
 
-	EXPORT error_type_t update(size_t delay = 10);
-	EXPORT audio_params_t get_params() const;
+	 error_type_t update(size_t delay = 10);
+	 audio_params_t get_params() const;
 
-	EXPORT static std::map<audio_id, audio_info_t> enumerate_devices();
-	EXPORT static std::map<audio_id, audio_info_t> enumerate_capture_devices();
-	EXPORT static std::map<audio_id, audio_info_t> enumerate_playback_devices();
+	 static std::map<audio_id, audio_info_t> enumerate_devices();
+	 static std::map<audio_id, audio_info_t> enumerate_capture_devices();
+	 static std::map<audio_id, audio_info_t> enumerate_playback_devices();
 };
 
 

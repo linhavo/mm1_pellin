@@ -10,6 +10,7 @@
 
 #ifndef AUDIOTYPES_H_
 #define AUDIOTYPES_H_
+#include "PlatformDefs.h"
 #include <cstdint>
 #include <vector>
 #include <string>
@@ -69,19 +70,19 @@ enum class error_type_t: uint8_t {
  * @param rate Sampling rate to convert
  * @return Integer representation of the sampling rate
  */
-uint32_t convert_rate_to_int(const sampling_rate_t rate);
+EXPORT uint32_t convert_rate_to_int(const sampling_rate_t rate);
 
-sampling_rate_t convert_int_to_rate(const size_t irate);
-uint32_t get_sample_size(const sampling_format_t format);
+EXPORT sampling_rate_t convert_int_to_rate(const size_t irate);
+EXPORT uint32_t get_sample_size(const sampling_format_t format);
 
 /*!
  * @brief Converts an error code to a corresponding string value
  * @param error Error code to convert
  * @return Human readable representation of the error code
  */
-std::string error_string(const error_type_t error);
-std::string sampling_rate_string(const sampling_rate_t rate);
-std::string sampling_format_string(const sampling_format_t format);
+EXPORT std::string error_string(const error_type_t error);
+EXPORT std::string sampling_rate_string(const sampling_rate_t rate);
+EXPORT std::string sampling_format_string(const sampling_format_t format);
 
 
 

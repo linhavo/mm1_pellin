@@ -9,7 +9,7 @@
 
 #ifndef SDLDEVICE_H_
 #define SDLDEVICE_H_
-
+#include "PlatformDefs.h"
 #include <string>
 #include <thread>
 #include <mutex>
@@ -19,13 +19,13 @@
 
 namespace iimavlib {
 
-struct RGB {
+struct EXPORT RGB {
 	uint8_t r:8;
 	uint8_t g:8;
 	uint8_t b:8;
 };
 struct sdl_pimpl_t;
-class SDLDevice {
+class EXPORT SDLDevice {
 public:
 	typedef std::vector<RGB> data_type;
 	SDLDevice(size_t width, size_t height, const std::string& title = "IIMAudio application");
@@ -54,7 +54,7 @@ private:
 };
 
 template<>
-bool SDLDevice::update(const data_type& data);
+EXPORT bool SDLDevice::update(const data_type& data);
 
 template<typename T>
 bool SDLDevice::update(const std::vector<T>& data) {

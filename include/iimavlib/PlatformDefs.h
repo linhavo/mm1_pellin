@@ -19,11 +19,15 @@
 #define WIN32_MEAN_AND_LEAN
 #define NOMINMAX
 #define SYSTEM_WINDOWS 1
-#define noexcept throw()
-#ifdef iimavlib_EXPORTS
+//#define noexcept throw()
+// Disable warning about dllexport specs
+#pragma warning(disable: 4251)
+// Disable multiple constructors warning
+#pragma warning(disable: 4521)
+#ifdef iimav_EXPORTS
 #define EXPORT __declspec(dllexport)
 #else
-#define EXPORT
+#define EXPORT __declspec(dllimport)
 #endif
 #else
 #define EXPORT

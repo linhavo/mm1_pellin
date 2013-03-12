@@ -8,14 +8,15 @@
 #ifndef AUDIOFILTER_H_
 #define AUDIOFILTER_H_
 #include "AudioTypes.h"
+#include "PlatformDefs.h"
 #include <memory>
 #include <vector>
 
 namespace iimavlib {
 
-typedef std::shared_ptr<class AudioFilter> pAudioFilter;
+typedef EXPORT std::shared_ptr<class AudioFilter> pAudioFilter;
 
-class AudioFilter {
+class EXPORT AudioFilter {
 public:
 	AudioFilter(const pAudioFilter& child);
 	virtual ~AudioFilter();

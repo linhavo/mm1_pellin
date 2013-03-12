@@ -17,7 +17,7 @@
 #include "PlatformDefs.h"
 
 namespace iimavlib {
-class LogProxy {
+class EXPORT LogProxy {
 public:
 #ifdef SYSTEM_LINUX
 	LogProxy() = delete;
@@ -25,7 +25,7 @@ public:
 	LogProxy(const LogProxy&)=delete;
 #endif
 	LogProxy(std::ostream* str_):stream_(str_){}
-	LogProxy(LogProxy&& rhs) noexcept:stream_(rhs.stream_) {
+	LogProxy(LogProxy&& rhs) throw():stream_(rhs.stream_) {
 		const std::string str = rhs.buffer_.str();
 		buffer_.write(str.c_str(),str.size());
 		rhs.stream_ = nullptr;
@@ -48,12 +48,12 @@ private:
 };
 
 
-enum class log_level {
+enum class EXPORT log_level {
 	fatal 	= 0,
 	info	= 1,
 	debug	= 2
 };
-class Log {
+class EXPORT Log {
 private:
 	static log_level mode;
 	std::ostream &stream;
@@ -70,7 +70,7 @@ public:
 		return level<=mode;
 	}
 };
-extern Log logger;
+extern  EXPORT Log logger;
 
 
 /*!
@@ -78,7 +78,7 @@ extern Log logger;
  *
  * Usage std::map<A, B> name_of_map = InitMap<A, B>(a0, b0)(a1, b1)(a2, b2);
  */
-template<class Key, class Value> class InitMap {
+template<class Key, class Value> class EXPORT InitMap {
 public:
 	operator std::map<Key, Value>() { return tmp_map; }
 	InitMap() {}

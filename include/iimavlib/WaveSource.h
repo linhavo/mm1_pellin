@@ -13,7 +13,7 @@
 #include <string>
 
 namespace iimavlib {
-class WaveSource: public AudioFilter {
+class EXPORT WaveSource: public AudioFilter {
 public:
 	WaveSource(const std::string filename);
 	virtual ~WaveSource();

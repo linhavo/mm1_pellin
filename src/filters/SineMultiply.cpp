@@ -30,7 +30,7 @@ error_type_t SineMultiply::do_process(audio_buffer_t& buffer)
 	const size_t num_channels = params.num_channels;
 	for (size_t sample=0;sample<buffer.valid_samples;++sample) {
 		for (size_t channel=0;channel<num_channels;++channel){
-			data[sample*num_channels+channel]*=std::sin(time_*frequency_*pi2);
+			data[sample*num_channels+channel]*=static_cast<int16_t>(std::sin(time_*frequency_*pi2));
 		}
 		time_=time_+1.0/convert_rate_to_int(params.rate);
 	}

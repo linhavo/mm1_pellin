@@ -103,7 +103,7 @@ void WinMMDevice::init_playback(WAVEFORMATEX& fmt)
 void WinMMDevice::init_in_buffer(WAVEHDR& hdr)
 {
 	hdr.lpData = (LPSTR)new uint8_t[buffer_length];
-	hdr.dwBufferLength = buffer_length;
+	hdr.dwBufferLength = static_cast<DWORD>(buffer_length);
 	hdr.dwBytesRecorded=0;
 	hdr.dwUser = 0L;
 	hdr.dwFlags = 0L;
@@ -114,7 +114,7 @@ void WinMMDevice::init_in_buffer(WAVEHDR& hdr)
 void WinMMDevice::init_out_buffer(WAVEHDR& hdr)
 {
 	hdr.lpData = (LPSTR)new uint8_t[buffer_length];
-	hdr.dwBufferLength = buffer_length;
+	hdr.dwBufferLength = static_cast<DWORD>(buffer_length);
 	hdr.dwBytesRecorded=0;
 	hdr.dwUser = 0L;
 	hdr.dwFlags = 0L;
@@ -200,7 +200,7 @@ void WinMMDevice::store_data(WAVEHDR& hdr)
 {
 	std::lock_guard<std::mutex> l(buffer_lock_);
 	empty_buffers.push_back(&hdr);
-	//logger[log_level::debug] << "Empty buffer count: " << empty_buffers.size();
+	logger[log_level::debug] << "Empty buffer count: " << empty_buffers.size();
 }
 error_type_t WinMMDevice::do_fill_buffer(const uint8_t* data_start, size_t data_size) 
 {

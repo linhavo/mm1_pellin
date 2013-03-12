@@ -56,7 +56,7 @@ struct wav_header_t
 } PACKED;
 
 
-class WaveFile
+class EXPORT WaveFile
 {
 #ifdef SYSTEM_LINUX
 	WaveFile() = delete;

@@ -10,7 +10,7 @@
 
 #include "../AudioFilter.h"
 namespace iimavlib {
-class SimpleEchoFilter: public AudioFilter {
+class EXPORT SimpleEchoFilter: public AudioFilter {
 public:
 	SimpleEchoFilter(const pAudioFilter& child, double delay=0.3, double decay=0.5);
 	virtual ~SimpleEchoFilter();

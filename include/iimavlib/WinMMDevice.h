@@ -13,6 +13,7 @@
 
 #include "AudioTypes.h"
 #include "GenericDevice.h"
+#include "PlatformDefs.h"
 #include <windows.h>
 #include <mmsystem.h>
 #include <mutex>
@@ -25,7 +26,7 @@
 namespace iimavlib {
 
 
-class WinMMDevice:public GenericDevice {
+class EXPORT WinMMDevice:public GenericDevice {
 public:
 	typedef UINT audio_id_t;
 	WinMMDevice(action_type_t action, audio_id_t id, const audio_params_t& params);

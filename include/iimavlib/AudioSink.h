@@ -12,9 +12,9 @@
 #include <cassert>
 
 namespace iimavlib {
-typedef std::shared_ptr<class AudioSink> pAudioSink;
+EXPORT typedef std::shared_ptr<class AudioSink> pAudioSink;
 
-class AudioSink: public AudioFilter {
+class EXPORT AudioSink: public AudioFilter {
 public:
 	AudioSink(const pAudioFilter& child_);
 	virtual ~AudioSink();
@@ -163,6 +163,7 @@ struct filter_chain {
 		filter_=rhs.filter_;
 		return *this;
 	}
+	~filter_chain() {}
 	/**
 	 * Conversion operator to the head of filter chain
 	 */
