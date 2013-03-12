@@ -12,7 +12,7 @@
 #include <string>
 
 
-int main(int argc, char** argv)
+int main(int argc, char** argv) try
 {
 	using namespace iimavlib;
 	/* ******************************************************************
@@ -33,9 +33,14 @@ int main(int argc, char** argv)
 	 *                Create and run the filter chain
 	 ****************************************************************** */
 
-	pAudioSink chain = filter_chain<WaveSource>(filename)
+	auto chain = filter_chain<WaveSource>(filename)
 						.add<DefaultSink>(device_id)
 						.sink();
 	chain->run();
 
+}
+catch (std::exception& e)
+{
+	using namespace iimavlib;
+	logger[log_level::fatal] << "ERROR: An error occured during program run: " << e.what();
 }

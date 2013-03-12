@@ -11,7 +11,7 @@
 #include "iimavlib/filters/SimpleEchoFilter.h"
 #include "iimavlib/Utils.h"
 
-int main(int argc, char** argv)
+int main(int argc, char** argv) try
 {
 	using namespace iimavlib;
 
@@ -38,8 +38,13 @@ int main(int argc, char** argv)
 						.add<WaveSink>(out_file);
 	auto chain = filters.add<PlatformSink>(device_out)
 						.sink();
+
 	chain->set_buffers(4,2048);
 	chain->run();
 
 }
-
+catch (std::exception& e)
+{
+	using namespace iimavlib;
+	logger[log_level::fatal] << "ERROR: An error occured during program run: " << e.what();
+}

@@ -54,7 +54,7 @@ private:
 	double time_;
 };
 
-int main(int argc, char** argv)
+int main(int argc, char** argv) try
 {
 	/* ******************************************************************
 	 *                      Process parameters
@@ -76,12 +76,13 @@ int main(int argc, char** argv)
 	 *                      Create and run the filter chain
 	 ****************************************************************** */
 
-	pAudioSink chain = filter_chain<SineGenerator>(frequency)
+	auto chain = filter_chain<SineGenerator>(frequency)
 						.add<PlatformSink>(device_id)
 						.sink();
 	chain->run();
 
 }
-
-
-
+catch (std::exception& e)
+{
+	logger[log_level::fatal] << "ERROR: An error occured during program run: " << e.what();
+}
