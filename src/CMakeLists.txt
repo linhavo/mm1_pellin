@@ -13,7 +13,7 @@ SET (IIMA_SRC Utils.cpp WaveFile.cpp AudioTypes.cpp AudioFilter.cpp WaveSource.c
 #ENDIF()
 
 IF (UNIX)
-SET(IIMA_SRC ${IIMA_SRC} AlsaDevice.cpp AlsaSink.cpp)
+SET(IIMA_SRC ${IIMA_SRC} AlsaDevice.cpp AlsaSink.cpp AlsaSource.cpp)
 SET(IIMA_LIBS ${IIMA_LIBS} asound)
 ELSEIF(WIN32)
 SET(IIMA_SRC ${IIMA_SRC} WinMMDevice.cpp)

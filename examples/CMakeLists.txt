@@ -46,6 +46,10 @@ IF (BUILD_EXAMPLES)
 	target_link_libraries ( copy_wav  ${EX_LIBS} )
 	install(TARGETS copy_wav RUNTIME DESTINATION bin)
 	
+	add_executable(playthrough_high playthrough_high.cpp)
+	target_link_libraries ( playthrough_high  ${EX_LIBS} )
+	install(TARGETS playthrough_high RUNTIME DESTINATION bin)
+	
 	IF(SDL_FOUND)
 		include_directories(${SDL_INCLUDE_DIR})
 		add_executable(sdl_window sdl_window.cpp)
