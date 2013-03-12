@@ -13,6 +13,7 @@
 #ifdef __linux__
 #define EXPORT
 #define SYSTEM_LINUX 1
+#define MODERN_COMPILER
 #else
 #ifdef _WIN32
 #define WIN32_MEAN_AND_LEAN
