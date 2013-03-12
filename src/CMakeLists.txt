@@ -2,15 +2,12 @@ SET (IIMA_LINK )
 SET (IIMA_LIBS )
 SET (IIMA_INCLUDE )
 
-SET (IIMA_SRC Utils.cpp WaveFile.cpp AudioTypes.cpp AudioFilter.cpp WaveSource.cpp AudioSink.cpp
-				WaveSink.cpp
-				filters/SineMultiply.cpp filters/NullFilter.cpp filters/SimpleEchoFilter.cpp)
+SET (IIMA_SRC Utils.cpp AudioTypes.cpp AudioFilter.cpp AudioSink.cpp
+				WaveFile.cpp WaveSource.cpp WaveSink.cpp
+				filters/SineMultiply.cpp filters/NullFilter.cpp filters/SimpleEchoFilter.cpp
+				
+				)
 
-
-#CHECK_INCLUDE_FILES (stdint.h HAVE_STDINT_H)
-#IF (NOT HAVE_STDINT_H)
-#	MESSAGE(FATAL_ERROR "Missing stdint.h. Please update your compile chain")
-#ENDIF()
 
 IF (UNIX)
 SET(IIMA_SRC ${IIMA_SRC} AlsaDevice.cpp AlsaSink.cpp AlsaSource.cpp)

@@ -90,7 +90,7 @@ struct audio_params_t {
 	sampling_format_t format;
 	uint8_t num_channels;
 	bool enable_resampling;
-	audio_params_t(sampling_rate_t rate = sampling_rate_t::rate_44kHz, sampling_format_t format=sampling_format_t::format_16bit_signed, uint8_t num_channels=1):
+	audio_params_t(sampling_rate_t rate = sampling_rate_t::rate_44kHz, sampling_format_t format=sampling_format_t::format_16bit_signed, uint8_t num_channels=2):
 		rate(rate),format(format),num_channels(num_channels),enable_resampling(true) {}
 	uint16_t sample_size() const { return get_sample_size(format)*num_channels; }
 };
