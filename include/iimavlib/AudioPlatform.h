@@ -14,14 +14,22 @@
 #include "PlatformDefs.h"
 #ifdef _WIN32
 #include "WinMMDevice.h"
+#include "WinMMSource.h"
+#include "WinMMSink.h"
 namespace iimavlib {
 typedef iimavlib::WinMMDevice PlatformDevice;
+typedef iimavlib::WinMMSink PlatformSink;
+typedef iimavlib::WinMMSource PlatformSource;
 }
 #else
 #ifdef __linux__
 #include "AlsaDevice.h"
+#include "AlsaSink.h"
+#include "AlsaSource.h"
 namespace iimavlib {
 typedef iimavlib::AlsaDevice PlatformDevice;
+typedef iimavlib::AlsaSink PlatformSink;
+typedef iimavlib::AlsaSource PlatformSource;
 }
 #else
 #error Unsupported platform
@@ -32,7 +40,9 @@ typedef iimavlib::AlsaDevice PlatformDevice;
 
 namespace iimavlib {
 
-//typedef PlatformDevice::audio_id_t audio_id;
+typedef PlatformDevice::audio_id_t audio_id_t;
+typedef PlatformSink DefaultSink;
+typedef PlatformSource DefaultSource;
 
 }
 #endif /* AUDIOPLATFORM_H_ */
