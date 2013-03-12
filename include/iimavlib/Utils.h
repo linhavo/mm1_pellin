@@ -98,6 +98,15 @@ protected:
 	std::vector<Value> tmp_vec;
 };
 
+template<typename Out, typename In>
+Out simple_cast(In&& src)
+{
+	std::stringstream sstr;
+	Out tmp;
+	sstr << src;
+	sstr >> tmp;
+	return tmp;
+}
 
 }
 
