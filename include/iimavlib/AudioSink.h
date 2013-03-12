@@ -61,7 +61,9 @@ struct filter_chain {
 		return *this;
 	}
 #else
-
+	// Visual Studio 2012 stiil has no support for variadic templates.
+	// So we have to define lots of non-variadic templates....
+	// Anyway, this limits VS support to classes with 5 non-child parameters at most
 	filter_chain():
 		filter_()
 	{}
@@ -76,7 +78,24 @@ struct filter_chain {
 	{}
 	template<class T1, class T2, class T3>
 	filter_chain(T1&& a1, T2&& a2, T3&& a3):
-		filter_(std::make_shared<Src>(std::forward<T1>(a1), std::forward<T2>(a2), std::forward<T3>(a3)))
+		filter_(std::make_shared<Src>(std::forward<T1>(a1),
+										std::forward<T2>(a2),
+										std::forward<T3>(a3)))
+	{}
+	template<class T1, class T2, class T3, class T4>
+	filter_chain(T1&& a1, T2&& a2, T3&& a3, T4&& a4):
+		filter_(std::make_shared<Src>(std::forward<T1>(a1),
+										std::forward<T2>(a2),
+										std::forward<T3>(a3),
+										std::forward<T4>(a4)))
+	{}
+	template<class T1, class T2, class T3, class T4, class T5>
+	filter_chain(T1&& a1, T2&& a2, T3&& a3, T4&& a4, T5&& a5):
+		filter_(std::make_shared<Src>(std::forward<T1>(a1),
+										std::forward<T2>(a2),
+										std::forward<T3>(a3),
+										std::forward<T4>(a4),
+										std::forward<T5>(a5)))
 	{}
 	/**
 	 * Method for adding new filters into the chain
@@ -109,14 +128,41 @@ struct filter_chain {
 	filter_chain& add(T1&& a1, T2&& a2, T3&& a3)
 	{
 		assert(filter_);
-		filter_.reset(new T (filter_, std::forward<T1>(a1), std::forward<T2>(a2), std::forward<T3>(a3)));
+		filter_.reset(new T (filter_, std::forward<T1>(a1),
+										std::forward<T2>(a2),
+										std::forward<T3>(a3)));
+		return *this;
+	}
+	template<class T, class T1, class T2, class T3, class T4>
+	filter_chain& add(T1&& a1, T2&& a2, T3&& a3, T4&& a4)
+	{
+		assert(filter_);
+		filter_.reset(new T (filter_, std::forward<T1>(a1),
+										std::forward<T2>(a2),
+										std::forward<T3>(a3),
+										std::forward<T3>(a4)));
+		return *this;
+	}
+	template<class T, class T1, class T2, class T3, class T4, class T5>
+	filter_chain& add(T1&& a1, T2&& a2, T3&& a3, T4&& a4, T5&& a5)
+	{
+		assert(filter_);
+		filter_.reset(new T (filter_, std::forward<T1>(a1),
+										std::forward<T2>(a2),
+										std::forward<T3>(a3),
+										std::forward<T3>(a4),
+										std::forward<T3>(a5)));
 		return *this;
 	}
 #endif
 	filter_chain(filter_chain&& rhs):filter_(std::move(rhs.filter_)) {}
 	filter_chain(filter_chain& rhs):filter_(rhs.filter_) {}
 	filter_chain(const filter_chain& rhs):filter_(rhs.filter_) {}
-
+	filter_chain& operator=(const filter_chain& rhs)
+	{
+		filter_=rhs.filter_;
+		return *this;
+	}
 	/**
 	 * Conversion operator to the head of filter chain
 	 */
