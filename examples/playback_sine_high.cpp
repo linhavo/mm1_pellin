@@ -14,7 +14,7 @@
  */
 
 
-#include "iimavlib/AlsaSink.h"
+#include "iimavlib.h"
 #include "iimavlib/WaveSource.h"
 #include "iimavlib/Utils.h"
 #include "iimavlib/AudioFilter.h"
@@ -61,17 +61,23 @@ int main(int argc, char** argv)
 	 ****************************************************************** */
 	if (argc<2) {
 		logger[log_level::fatal] << "Not enough parameters. Specify the frequency, please.";
+		logger[log_level::fatal] << "Usage: " << argv[0] << " frequency [audio_device]";
 		return 1;
 	}
 	const double frequency = std::stod(argv[1]);
 	logger[log_level::debug] << "Generating sine with frequency " << frequency << "Hz.";
 
+	audio_id_t device_id = PlatformDevice::default_device();
+	if (argc>2) {
+		device_id = simple_cast<audio_id_t>(argv[2]);
+	}
+	logger[log_level::debug] << "Using audio device " << device_id;
 	/* ******************************************************************
 	 *                      Create and run the filter chain
 	 ****************************************************************** */
 
 	pAudioSink chain = filter_chain<SineGenerator>(frequency)
-						.add<AlsaSink>("sysdefault")
+						.add<PlatformSink>(device_id)
 						.sink();
 	chain->run();
 

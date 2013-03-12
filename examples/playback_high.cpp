@@ -6,7 +6,7 @@
  */
 
 
-#include "iimavlib/AlsaSink.h"
+#include "iimavlib.h"
 #include "iimavlib/WaveSource.h"
 #include "iimavlib/Utils.h"
 #include <string>
@@ -25,12 +25,16 @@ int main(int argc, char** argv)
 	const std::string filename (argv[1]);
 	logger[log_level::debug] << "Loading file " << filename;
 
+	audio_id_t device_id = PlatformDevice::default_device();
+	if (argc>2) {
+		device_id = simple_cast<audio_id_t>(argv[2]);
+	}
 	/* ******************************************************************
 	 *                Create and run the filter chain
 	 ****************************************************************** */
 
 	pAudioSink chain = filter_chain<WaveSource>(filename)
-						.add<AlsaSink>("sysdefault")
+						.add<DefaultSink>(device_id)
 						.sink();
 	chain->run();
 
