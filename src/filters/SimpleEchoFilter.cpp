@@ -71,13 +71,13 @@ error_type_t SimpleEchoFilter::do_process(audio_buffer_t& buffer)
 		old_samples_.insert(old_samples_.end(), data,data+buffer.valid_samples*channels);
 	} else {
 		// Our input buffer was larger then old_samples_, that means we still need to add echo to some samples
-		logger[log_level::debug] << "Too large input buffer or too small delay, not tested";
+		//logger[log_level::debug] << "Too large input buffer or too small delay, not tested";
 		// Add echo to the rest of input buffer
 		add_echo(data+channels*from_old,data,(buffer.valid_samples-from_old)*channels,decay_);
 		// We have no valid old samples
 		old_samples_.resize(0);
 		// Copy samples to old_samples_ from input buffer
-		old_samples_.insert(old_samples_.begin(),
+		old_samples_.insert(old_samples_.end(),
 						data+(buffer.valid_samples-delay_samples)*channels,
 						data+buffer.valid_samples*channels);
 	}
