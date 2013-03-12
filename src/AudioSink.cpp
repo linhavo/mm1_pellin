@@ -37,6 +37,12 @@ bool AudioSink::still_running() const
 {
 	return running_;
 }
-
+void AudioSink::set_buffers(size_t count, size_t size)
+{
+	do_set_buffers(count, size);
+}
+void AudioSink::do_set_buffers(size_t /*count*/, size_t /*size*/)
+{
+}
 }
 

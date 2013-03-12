@@ -20,11 +20,13 @@ public:
 	virtual ~AudioSink();
 	error_type_t run();
 	void stop();
+	void set_buffers(size_t count, size_t size);
 protected:
 	bool still_running() const;
 private:
 	virtual error_type_t do_run() = 0;
 	virtual error_type_t do_process(audio_buffer_t& buffer);
+	virtual void do_set_buffers(size_t count, size_t size);
 	std::atomic<bool> running_;
 };
 
