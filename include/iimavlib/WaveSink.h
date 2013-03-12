@@ -21,6 +21,7 @@ public:
 	virtual ~WaveSink();
 private:
 	virtual error_type_t do_run();
+	virtual error_type_t do_process(audio_buffer_t& buffer);
 	WaveFile file_;
 };
 

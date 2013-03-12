@@ -38,12 +38,16 @@ error_type_t WaveSink::do_run()
 			stop();
 			break;
 		}
-		file_.store_data(buffer.data,buffer.valid_samples*buffer.params.sample_size()/buffer.params.num_channels);
+		//file_.store_data(buffer.data,buffer.valid_samples*buffer.params.sample_size()/buffer.params.num_channels);
 	}
 	return error_type_t::ok;
 }
 
-
+error_type_t WaveSink::do_process(audio_buffer_t& buffer)
+{
+	file_.store_data(buffer.data,buffer.valid_samples*buffer.params.sample_size()/buffer.params.num_channels);
+	return error_type_t::ok;
+}
 
 }
 
