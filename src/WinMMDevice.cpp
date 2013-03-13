@@ -28,7 +28,7 @@ void CALLBACK win_mm_device_capture_callback (HWAVEIN hwi, UINT uMsg, DWORD_PTR 
 }
 void CALLBACK win_mm_device_playback_callback (HWAVEOUT hwi, UINT uMsg, DWORD_PTR dwInstance, DWORD_PTR dwParam1, DWORD_PTR dwParam2)
 {
-	//logger[log_level::info] << "Playback CALLBACK, msg: " << uMsg;
+	logger[log_level::info] << "Playback CALLBACK, msg: " << uMsg;
 	if (uMsg == WOM_DONE) {
 		WinMMDevice *winmm = reinterpret_cast<WinMMDevice*>(dwInstance);
 		WAVEHDR *hdr = reinterpret_cast<WAVEHDR*>(dwParam1);
@@ -88,6 +88,9 @@ void WinMMDevice::init_capture(WAVEFORMATEX& fmt)
 
 void WinMMDevice::init_playback(WAVEFORMATEX& fmt)
 {
+	logger[log_level::debug] << "Initializing playback.  " << fmt.nChannels << " chan, " 
+		<< fmt.wBitsPerSample << " bps, " << fmt.nAvgBytesPerSec << " BPS, " <<
+		fmt.nSamplesPerSec << "SPS";
 	throw_call(waveOutOpen(&out_handle,			// Input handle
 					id_ ,						// Device ID
 					&fmt,						// Input format
@@ -113,13 +116,14 @@ void WinMMDevice::init_in_buffer(WAVEHDR& hdr)
 }
 void WinMMDevice::init_out_buffer(WAVEHDR& hdr)
 {
-	hdr.lpData = (LPSTR)new uint8_t[buffer_length];
-	hdr.dwBufferLength = static_cast<DWORD>(buffer_length);
+	hdr.lpData = (LPSTR)nullptr;//new uint8_t[buffer_length];
+	hdr.dwBufferLength = 0;//static_cast<DWORD>(buffer_length);
 	hdr.dwBytesRecorded=0;
 	hdr.dwUser = 0L;
 	hdr.dwFlags = 0L;
 	hdr.dwLoops = 0L;
 	throw_call(waveOutPrepareHeader(out_handle, &hdr, sizeof(WAVEHDR)),"Failed to prepare buffer");
+	logger[log_level::debug] << "Out buffer prepared";
 	//throw_call(waveOutAddBuffer(out_handle, &hdr, sizeof(WAVEHDR)),"Failed to add buffer");
 }
 WinMMDevice::~WinMMDevice()
@@ -166,22 +170,28 @@ void WinMMDevice::throw_call(bool res, std::string message)
 }
 error_type_t WinMMDevice::do_start_capture() {
 	if(!check_call(waveInStart(in_handle),"Failed to start capture")) return error_type_t::failed;
+	logger[log_level::debug] << "Capture started";
 	return error_type_t::ok;
 }
 
 size_t WinMMDevice::do_capture_data(uint8_t* data_start, size_t data_size, error_type_t& error_code) 
 {
-	std::lock_guard<std::mutex> l(buffer_lock_);
-	while (!empty_buffers.empty()) {
-		WAVEHDR& hdr = *empty_buffers.back();
-		check_call(waveInUnprepareHeader(in_handle, &hdr, sizeof(WAVEHDR)),"Failed to unprepare buffer");
-		private_buffer_.store_data(reinterpret_cast<uint8_t*>(hdr.lpData),hdr.dwBytesRecorded);
-		logger[log_level::debug] << "Stored "<< hdr.dwBytesRecorded << " bytes into circular buffer";
-		check_call(waveInPrepareHeader(in_handle, &hdr, sizeof(WAVEHDR)),"Failed to prepare buffer");
-		check_call(waveInAddBuffer(in_handle, &hdr, sizeof(WAVEHDR)),"Failed to add buffer");
-		empty_buffers.pop_back();
+	std::vector<WAVEHDR*> tmp_hdr;
+	{
+		std::lock_guard<std::mutex> l(buffer_lock_);
+		while (!empty_buffers.empty()) {
+			WAVEHDR& hdr = *empty_buffers.back();
+			check_call(waveInUnprepareHeader(in_handle, &hdr, sizeof(WAVEHDR)),"Failed to unprepare buffer");
+			private_buffer_.store_data(reinterpret_cast<uint8_t*>(hdr.lpData),hdr.dwBytesRecorded);
+			logger[log_level::debug] << "Stored "<< hdr.dwBytesRecorded << " bytes into circular buffer";
+			tmp_hdr.push_back(&hdr);
+			empty_buffers.pop_back();
+		}
 	}
-
+	for (WAVEHDR*hdr:tmp_hdr) {
+		check_call(waveInPrepareHeader(in_handle, hdr, sizeof(WAVEHDR)),"Failed to prepare buffer");
+		check_call(waveInAddBuffer(in_handle, hdr, sizeof(WAVEHDR)),"Failed to add buffer");
+	}
 	std::size_t ret = private_buffer_.get_data_block(data_start,data_size);
 	if (ret == 0) error_code = error_type_t::buffer_empty;
 	else error_code = error_type_t::ok;
@@ -189,6 +199,7 @@ size_t WinMMDevice::do_capture_data(uint8_t* data_start, size_t data_size, error
 }
 error_type_t WinMMDevice::do_set_buffers(uint16_t count, uint32_t samples) 
 {
+	std::lock_guard<std::mutex> l(buffer_lock_);
 	buffers.resize(count);
 	buffer_length = samples * get_sample_size(params_.format);
 	for(auto& hdr: buffers) init_out_buffer(hdr);
@@ -204,12 +215,31 @@ void WinMMDevice::store_data(WAVEHDR& hdr)
 }
 error_type_t WinMMDevice::do_fill_buffer(const uint8_t* data_start, size_t data_size) 
 {
-	std::lock_guard<std::mutex> l(buffer_lock_);
-	if (!empty_buffers.size()) return error_type_t::buffer_full;
-	WAVEHDR* hdr = empty_buffers.back();
-	empty_buffers.pop_back();
+	WAVEHDR* hdr = nullptr;
+	{
+		std::lock_guard<std::mutex> l(buffer_lock_);
+		if (empty_buffers.empty()) return error_type_t::buffer_full;
+		hdr = empty_buffers.back();
+		empty_buffers.pop_back();
+	}
 	logger[log_level::debug] << "Writing samples to the device";
-	if (MMSYSERR_NOERROR  == waveOutWrite(out_handle,hdr,sizeof(WAVEHDR))) 	return error_type_t::ok;
+	
+	check_call(waveOutUnprepareHeader(out_handle, hdr, sizeof(WAVEHDR)),"Failed to unprepare buffer");
+	if (hdr->dwBufferLength != data_size) {
+		delete [] hdr->lpData;
+		hdr->lpData = (LPSTR)(new uint8_t[data_size]);
+		hdr->dwBufferLength = static_cast<DWORD>(buffer_length);
+		hdr->dwBytesRecorded= static_cast<DWORD>(buffer_length);
+	}
+	hdr->dwUser = 0L;
+	hdr->dwFlags = 0L;
+	hdr->dwLoops = 0L;
+	throw_call(waveOutPrepareHeader(out_handle, hdr, sizeof(WAVEHDR)),"Failed to prepare buffer");
+	std::copy(data_start, data_start+data_size, hdr->lpData);
+	if (MMSYSERR_NOERROR  == waveOutWrite(out_handle,hdr,sizeof(WAVEHDR))) 	{
+		logger[log_level::debug] << "OK";
+		return error_type_t::ok;
+	}
 	logger[log_level::debug] << "Failed to write samples to the device!!";
 	return error_type_t::failed;
 }
@@ -221,7 +251,10 @@ error_type_t WinMMDevice::do_update(size_t delay)
 error_type_t WinMMDevice::do_start_playback()
 {
 	logger[log_level::debug] << "Starting the device";
-	if (waveOutRestart(out_handle)==MMSYSERR_NOERROR) return error_type_t::ok;
+	if (waveOutRestart(out_handle)==MMSYSERR_NOERROR) {
+		logger[log_level::debug] << "Playback started";
+		return error_type_t::ok;
+	}
 	logger[log_level::debug] << "Failed to start the device";
 	return error_type_t::failed;
 }

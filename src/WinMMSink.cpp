@@ -12,7 +12,7 @@ namespace iimavlib {
 WinMMSink::WinMMSink(const pAudioFilter& child_, const audio_params_t& params, WinMMDevice::audio_id_t id):
 		AudioSink(child_),device_(action_type_t::action_playback, id, params),
 		params_(params),
-		buffer_count_(4),buffer_size_(512)
+		buffer_count_(8),buffer_size_(1024)
 {
 	init_buffers();
 }
@@ -20,7 +20,7 @@ WinMMSink::WinMMSink(const pAudioFilter& child_, const audio_params_t& params, W
 WinMMSink::WinMMSink(const pAudioFilter& child_, WinMMDevice::audio_id_t id):
 		AudioSink(child_),device_(action_type_t::action_playback, id, get_params()),
 		params_(device_.do_get_params()),
-		buffer_count_(4),buffer_size_(512)
+		buffer_count_(8),buffer_size_(1024)
 {
 	init_buffers();
 }
@@ -58,14 +58,16 @@ error_type_t WinMMSink::do_run()
 			break;
 		}
 		buffer_.valid_samples = buffer_size_;
+		logger[log_level::debug] << "Storing " << buffer_.valid_samples*params_.sample_size() << " bytes";
 		ret = device_.do_fill_buffer(&buffer_.data[0],buffer_.valid_samples*params_.sample_size());
 		if (ret == error_type_t::buffer_full) continue;
 		if (ret != error_type_t::ok) {
 			break;
 		}
-//		logger[log_level::debug] << "Filled " << buffer_.valid_samples << " samples";
+
 
 		if (process(buffer_)!=error_type_t::ok) break;
+		logger[log_level::debug] << "Filled " << buffer_.valid_samples << " samples";
 	}
 	stop(); // Not necessarily needed, but it seems cleaner.
 	return error_type_t::ok;
