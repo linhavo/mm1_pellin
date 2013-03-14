@@ -30,7 +30,7 @@ int main(int argc, char** argv) try
 	 ****************************************************************** */
 
 
-	audio_params_t params(sampling_rate_t::rate_48kHz, sampling_format_t::format_16bit_signed, 1);
+	audio_params_t params(sampling_rate_t::rate_48kHz, sampling_format_t::format_16bit_signed, 2);
 	auto filters = filter_chain<PlatformSource>(params,device_in)
 						.add<NullFilter>()
 						.add<SimpleEchoFilter>(0.2);
@@ -39,7 +39,7 @@ int main(int argc, char** argv) try
 	auto chain = filters.add<PlatformSink>(device_out)
 						.sink();
 
-	chain->set_buffers(4,2048);
+	assert(chain);
 	chain->run();
 
 }
