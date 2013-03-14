@@ -32,6 +32,7 @@ error_type_t WaveSink::do_run()
 	audio_buffer_t buffer;
 	buffer.params = file_.get_params();
 	buffer.data.resize(buffer.params.sample_size()*buffer_size);
+	std::fill(buffer.data.begin(),buffer.data.end(),0);
 	while (still_running()) {
 		buffer.valid_samples = buffer_size;
 		if (process(buffer)!=error_type_t::ok) {
