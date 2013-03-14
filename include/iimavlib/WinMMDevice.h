@@ -65,7 +65,7 @@ private:
 	size_t buffer_length;
 	//size_t buffer_count;
 	static const size_t capture_buffer_length 	= 2048;
-	static const size_t capture_buffer_count 	= 4;
+	static const size_t capture_buffer_count 	= 8;
 	
 	std::vector<WAVEHDR*> empty_buffers;
 

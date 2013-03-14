@@ -26,12 +26,14 @@ void CALLBACK win_mm_device_capture_callback (HWAVEIN hwi, UINT uMsg, DWORD_PTR 
 		winmm->store_data(*hdr);
 	}
 }
-void CALLBACK win_mm_device_playback_callback (HWAVEOUT hwi, UINT uMsg, DWORD_PTR dwInstance, DWORD_PTR dwParam1, DWORD_PTR dwParam2)
+void CALLBACK win_mm_device_playback_callback (HWAVEOUT hwo, UINT uMsg, DWORD_PTR dwInstance, DWORD_PTR dwParam1, DWORD_PTR dwParam2)
 {
-	logger[log_level::info] << "Playback CALLBACK, msg: " << uMsg;
+	//logger[log_level::info] << "Playback CALLBACK, msg: " << uMsg;
 	if (uMsg == WOM_DONE) {
+		
 		WinMMDevice *winmm = reinterpret_cast<WinMMDevice*>(dwInstance);
 		WAVEHDR *hdr = reinterpret_cast<WAVEHDR*>(dwParam1);
+		logger[log_level::info] << "Returning buffer 0x" << std::hex << hdr;
 		winmm->store_data(*hdr);
 	}
 }
@@ -91,6 +93,12 @@ void WinMMDevice::init_playback(WAVEFORMATEX& fmt)
 	logger[log_level::debug] << "Initializing playback.  " << fmt.nChannels << " chan, " 
 		<< fmt.wBitsPerSample << " bps, " << fmt.nAvgBytesPerSec << " BPS, " <<
 		fmt.nSamplesPerSec << "SPS";
+	WAVEOUTCAPS caps;
+	throw_call (waveOutGetDevCaps(id_,&caps,sizeof(WAVEOUTCAPS)),"Failed to query output device");
+	logger[log_level::info] << "Using output device: " << caps.szPname 
+		<< ", driver version: " << caps.vDriverVersion << "\n"
+		<< "Device has " << caps.wChannels << " channels";
+	
 	throw_call(waveOutOpen(&out_handle,			// Input handle
 					id_ ,						// Device ID
 					&fmt,						// Input format
@@ -100,6 +108,8 @@ void WinMMDevice::init_playback(WAVEFORMATEX& fmt)
 												// Parameter to callback
 					WAVE_FORMAT_DIRECT|CALLBACK_FUNCTION),	// Mode
 			"Failed to open input device");
+	waveOutReset(out_handle);
+	waveOutSetPlaybackRate(out_handle,0x00010000);
 	waveOutPause(out_handle);
 	logger[log_level::debug] << "Opened and configured output device.";
 }
@@ -140,7 +150,8 @@ std::map<MMRESULT, std::string> mmerror_strings = InitMap<MMRESULT, std::string>
 (MMSYSERR_INVALHANDLE, "Specified device handle is invalid")
 (MMSYSERR_NODRIVER, "No device driver is present")
 (MMSYSERR_NOMEM, "Unable to allocate or lock memory")
-(WAVERR_UNPREPARED, "The buffer pointed to by the pwh parameter hasn't been prepared");
+(WAVERR_UNPREPARED, "The buffer pointed to by the pwh parameter hasn't been prepared")
+(MMSYSERR_NOTSUPPORTED,"Function isn't supported");
 
 std::string mmresult_to_string(MMRESULT error)
 {
@@ -183,7 +194,7 @@ size_t WinMMDevice::do_capture_data(uint8_t* data_start, size_t data_size, error
 			WAVEHDR& hdr = *empty_buffers.back();
 			check_call(waveInUnprepareHeader(in_handle, &hdr, sizeof(WAVEHDR)),"Failed to unprepare buffer");
 			private_buffer_.store_data(reinterpret_cast<uint8_t*>(hdr.lpData),hdr.dwBytesRecorded);
-			logger[log_level::debug] << "Stored "<< hdr.dwBytesRecorded << " bytes into circular buffer";
+			//logger[log_level::debug] << "Stored "<< hdr.dwBytesRecorded << " bytes into circular buffer";
 			tmp_hdr.push_back(&hdr);
 			empty_buffers.pop_back();
 		}
@@ -211,7 +222,7 @@ void WinMMDevice::store_data(WAVEHDR& hdr)
 {
 	std::lock_guard<std::mutex> l(buffer_lock_);
 	empty_buffers.push_back(&hdr);
-	logger[log_level::debug] << "Empty buffer count: " << empty_buffers.size();
+	//logger[log_level::debug] << "Empty buffer count: " << empty_buffers.size();
 }
 error_type_t WinMMDevice::do_fill_buffer(const uint8_t* data_start, size_t data_size) 
 {
@@ -234,10 +245,19 @@ error_type_t WinMMDevice::do_fill_buffer(const uint8_t* data_start, size_t data_
 	hdr->dwUser = 0L;
 	hdr->dwFlags = 0L;
 	hdr->dwLoops = 0L;
-	throw_call(waveOutPrepareHeader(out_handle, hdr, sizeof(WAVEHDR)),"Failed to prepare buffer");
-	std::copy(data_start, data_start+data_size, hdr->lpData);
+	check_call(waveOutPrepareHeader(out_handle, hdr, sizeof(WAVEHDR)),"Failed to prepare buffer");
+	std::copy_n(data_start, data_size, hdr->lpData);
+	logger[log_level::debug] << "Copied " << data_size << " bytes";
+	logger[log_level::info] << "Sending buffer 0x" << std::hex << hdr;
 	if (MMSYSERR_NOERROR  == waveOutWrite(out_handle,hdr,sizeof(WAVEHDR))) 	{
-		logger[log_level::debug] << "OK";
+		//logger[log_level::debug] << "OK";
+		DWORD rate=0;
+
+		if (check_call(waveOutGetPlaybackRate(out_handle,&rate),"Querying playback rate")) {
+			double frate = (rate>>16)+(static_cast<double>(rate&0xFFFF)/0xFFFF);
+			logger[log_level::debug] << "Playback rate: " << frate << ", raw: 0x"<<std::hex <<rate;
+		}
+		
 		return error_type_t::ok;
 	}
 	logger[log_level::debug] << "Failed to write samples to the device!!";
