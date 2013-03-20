@@ -1,8 +1,11 @@
-/*
- * WaveSource.h
+/**
+ * @file 	WaveSource.h
  *
- *  Created on: 11.3.2013
- *      Author: neneko
+ * @date 	11.3.2013
+ * @author 	Zdenek Travnicek <travnicek@iim.cz>
+ * @copyright GNU Public License 3.0
+ *
+ * This file defines source filter for Wave files
  */
 
 #ifndef WAVESOURCE_H_

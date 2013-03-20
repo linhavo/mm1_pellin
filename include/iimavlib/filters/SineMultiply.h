@@ -1,8 +1,11 @@
-/*
- * SineMultiply.h
+/**
+ * @file 	SineMultiply.h
  *
- *  Created on: 11.3.2013
- *      Author: neneko
+ * @date 	11.3.2013
+ * @author 	Zdenek Travnicek <travnicek@iim.cz>
+ * @copyright GNU Public License 3.0
+ *
+ * This file declares filter multiplying the signal with a sine
  */
 
 #ifndef SINEMULTIPLY_H_

@@ -1,8 +1,11 @@
-/*
- * WaveSink.h
+/**
+ * @file 	WaveSink.h
  *
- *  Created on: 11.3.2013
- *      Author: neneko
+ * @date 	11.3.2013
+ * @author 	Zdenek Travnicek <travnicek@iim.cz>
+ * @copyright GNU Public License 3.0
+ *
+ * This file defines sink filter for wave files
  */
 
 #ifndef WAVESINK_H_

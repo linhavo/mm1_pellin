@@ -1,10 +1,12 @@
-/*
- * AudioSink.h
+/**
+ * @file 	AudioSink.h
  *
- *  Created on: 11.3.2013
- *      Author: neneko
+ * @date 	19.1.2013
+ * @author 	Zdenek Travnicek <travnicek@iim.cz>
+ * @copyright GNU Public License 3.0
+ *
+ * This file defines generic sink filter
  */
-
 #ifndef AUDIOSINK_H_
 #define AUDIOSINK_H_
 #include "AudioFilter.h"
