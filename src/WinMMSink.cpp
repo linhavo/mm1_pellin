@@ -74,7 +74,8 @@ bool WinMMSink::winmm_prepare_buffer(win_mm_buffer_t& buffer)
 {
 	if (buffer.prepared_) return true;
 	buffer.hdr_.lpData = reinterpret_cast<LPSTR>(&(buffer.buffer_.data[0]));
-	buffer.hdr_.dwBufferLength = static_cast<DWORD>(buffer.buffer_.data.size());
+	//buffer.hdr_.dwBufferLength = static_cast<DWORD>(buffer.buffer_.data.size());
+	buffer.hdr_.dwBufferLength = static_cast<DWORD>(buffer.buffer_.valid_samples*params_.sample_size());
 	buffer.hdr_.dwBytesRecorded = 0;
 	buffer.hdr_.dwUser	= reinterpret_cast<DWORD_PTR>(&buffer);
 	buffer.hdr_.dwFlags = 0;
@@ -150,7 +151,14 @@ bool WinMMSink::fill_buffer(win_mm_buffer_t& buffer)
 		if (!still_running()) return false;
 		buffer.buffer_.valid_samples=buffer_size_;
 		if (process(buffer.buffer_)!=error_type_t::ok) return false;
-		if (buffer.buffer_.valid_samples) break;
+		if (buffer.buffer_.valid_samples) {
+			//if (buffer.buffer_.valid_samples!=buffer_size_) {
+			winmm_unprepare_buffer(buffer);
+			winmm_prepare_buffer(buffer);
+			//buffer.hdr_.dwBufferLength=buffer.buffer_.valid_samples*params_.sample_size();
+			//}
+			break;
+		}
 	}
 	return check_call(waveOutWrite(out_handle,&buffer.hdr_,sizeof(WAVEHDR)),"Failed to write buffer");
 }

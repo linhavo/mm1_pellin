@@ -48,6 +48,7 @@ int main(int argc, char** argv) try
 	auto chain = filters.add<PlatformSink>(device_out)
 						.sink();
 
+	assert(chain);
 	chain->run();
 
 }

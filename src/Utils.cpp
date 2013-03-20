@@ -8,7 +8,6 @@
  */
 
 #include "iimavlib/Utils.h"
-
 namespace iimavlib {
 Log logger(std::cerr);
 
@@ -18,7 +17,6 @@ log_level Log::mode =
 #else
 		log_level::debug;
 #endif
-
 }
 
 

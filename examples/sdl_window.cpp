@@ -15,10 +15,13 @@
 int main()
 {
 	iimavlib::SDLDevice sdl(800,600,"HEY!");
-	iimavlib::SDLDevice::data_type data(800*600);
+	iimavlib::SDLDevice::data_type data(800*600,{0,0,0});
 	sdl.start();
+
 	while(sdl.update(data)) {
-		std::for_each(data.begin(),data.end(),[](iimavlib::RGB&rgb){rgb.r+=1;});
+		size_t i=0;
+		std::for_each(data.begin(),data.end(),[&i](iimavlib::RGB&rgb){rgb.r+=i++;});
+
 #ifdef SYSTEM_LINUX
 		usleep(1000);
 #endif

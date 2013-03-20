@@ -38,10 +38,16 @@ IF (BUILD_EXAMPLES)
 	target_link_libraries ( playthrough_high  ${EX_LIBS} )
 	install(TARGETS playthrough_high RUNTIME DESTINATION bin)
 	
+
 	IF(SDL_FOUND)
 		include_directories(${SDL_INCLUDE_DIR})
 		add_executable(sdl_window sdl_window.cpp)
 		target_link_libraries ( sdl_window  ${EX_LIBS} )
 		install(TARGETS sdl_window RUNTIME DESTINATION bin)
+
+		add_executable(visualization visualization.cpp)
+		target_link_libraries ( visualization  ${EX_LIBS} )
+		install(TARGETS visualization RUNTIME DESTINATION bin)
+
 	ENDIF()			
 ENDIF(BUILD_EXAMPLES)
