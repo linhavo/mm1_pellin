@@ -11,12 +11,14 @@
 #include "iimavlib/Utils.h"
 #ifdef SYSTEM_LINUX
 #include <unistd.h>
+#else
+#include <windows.h>
 #endif
 #include <algorithm>
 #include <iostream>
 ///*
 
-const int xMax=800;
+const int xMax=80;
 const int yMax=80;
 const int cx=xMax/2;
 const int cy=yMax/2;
@@ -31,7 +33,8 @@ template<typename T> void move(T&d, T&s, int dx, int dy) {
 		for(x=0;x<xMax;x++) {
 			xn=(x-dx+xMax)%xMax;
 			yn=(y-dy+yMax)%yMax;
-			d[y*xMax+x]=s[yn*xMax+xn];
+			d[yn*xMax+xn]=s[y*xMax+x];
+			//d[yn*xMax+xn].r=(d[y*xMax+x].r+1)%255;
 		}
 	}
 }
@@ -91,10 +94,10 @@ int main()
 	
 	int i=0,j=0;
 	bool swtch=false;
-	//bool swtch2=false;
+	bool swtch2=false;
 	//data[i].b=0;
 	//rx[1]=data[1];
-	//const double angle=3; //degrees
+	const double angle=3; //degrees
 
 	/*for(i=0;i<xMax;i++) {
 		if(j%10==0) swtch2=!swtch2;
@@ -110,25 +113,26 @@ int main()
 	
 	std::for_each(data.begin(),data.end(),[&](iimavlib::RGB&rgb){
 			
-		rgb.r=rgb.g=(i/256)%256;
-		rgb.b=i%256;
-		//if(i%800==0) 
-		//	swtch=!swtch;
+		rgb.r=rgb.g=rgb.b=0;
+		if(i%10==0) 
+			swtch=!swtch;
 		
-		//if(swtch)
-		//	rgb.r=rgb.g=rgb.b=255;
+		if(swtch || swtch2)
+			rgb.r=rgb.g=rgb.b=255;
 		
-		i++;//=(i+1)%xMax;
-		/*if(i==0) {
+		i=(i+1)%xMax;
+		
+		if(i==0) {
 			j=(j+1)%yMax;
 			if(j%10==0) swtch2=!swtch2;
-		}*/
+		}
 		});
-	iimavlib::logger[iimavlib::log_level::info] << "i: " << i;
+	//iimavlib::logger[iimavlib::log_level::info] << "i: " << i;
 	sdl.start();
 	while(sdl.update(data)) {
-		//int i=0,j=0;
+		int i=0,j=0;
 		//for (int n=0;n<1000000;n++);
+		
 		/*std::for_each(data.begin(),data.end(),[&](iimavlib::RGB&rgb){
 			
 			rgb.r=(rgb.r+1)%255;
@@ -139,12 +143,18 @@ int main()
 			if(i==0) j=(j+1)%yMax;
 		});*/
 		//swapt<iimavlib::SDLDevice::data_type*>(d,s);
+		//std::swap(d,s);
 		//rot0<iimavlib::SDLDevice::data_type>(*d,*s,angle);
+		std::swap(data,rx);
 		//move<iimavlib::SDLDevice::data_type>(*d,*s,1,1);
+		move<iimavlib::SDLDevice::data_type>(data,rx,1,1);
+		//std::swap(data,rx);
 		//std::cout << "iterace\n";
 
 #ifdef SYSTEM_LINUX
 		usleep(1000);
+#else
+		Sleep(100);
 #endif
 	}
 	sdl.stop();
