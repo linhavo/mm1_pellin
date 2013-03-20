@@ -5,7 +5,7 @@
  * @author 	Zdenek Travnicek <travnicek@iim.cz>
  * @copyright GNU Public License 3.0
  *
- * This file defines the user API.
+ * This file defines the low user API.
  */
 
 #ifndef AUDIODEVICE_H_

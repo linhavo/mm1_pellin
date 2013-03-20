@@ -29,7 +29,15 @@ ELSE()
 add_definitions("-D_SCL_SECURE_NO_WARNINGS")
 ENDIF ()
 find_package(SDL)
+
+SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
+IF(WIN32)
+	SET(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
+ELSE()
+	SET(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)
+ENDIF()
 add_subdirectory(src)
+add_subdirectory(include)
 add_subdirectory(examples)
 
 

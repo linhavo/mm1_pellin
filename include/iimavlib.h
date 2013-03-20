@@ -5,7 +5,7 @@
  * @author 	Zdenek Travnicek <travnicek@iim.cz>
  * @copyright GNU Public License 3.0
  *
- * This file defines typedefs for simplified use of the library.
+ * This file defines typedefs for simplified use of the library's low level API.
  */
 #ifndef IIMAUDIO_H_
 #define IIMAUDIO_H_

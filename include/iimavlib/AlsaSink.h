@@ -1,10 +1,12 @@
-/*
- * AlsaSink.h
+/**
+ * @file 	AlsaSink.h
  *
- *  Created on: 11.3.2013
- *      Author: neneko
+ * @date 	11.3.2013
+ * @author 	Zdenek Travnicek <travnicek@iim.cz>
+ * @copyright GNU Public License 3.0
+ *
+ * This file declared Alsa-based sink filter
  */
-
 #ifndef ALSASINK_H_
 #define ALSASINK_H_
 
