@@ -49,5 +49,8 @@ IF (BUILD_EXAMPLES)
 		target_link_libraries ( visualization  ${EX_LIBS} )
 		install(TARGETS visualization RUNTIME DESTINATION bin)
 
+		add_executable(sdl_test sdl_test.cpp)
+		target_link_libraries ( sdl_test  ${EX_LIBS} )
+		install(TARGETS sdl_test RUNTIME DESTINATION bin)
 	ENDIF()			
 ENDIF(BUILD_EXAMPLES)
