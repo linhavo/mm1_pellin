@@ -6,23 +6,31 @@ SET (IIMA_SRC Utils.cpp AudioTypes.cpp AudioFilter.cpp AudioSink.cpp
 				WaveFile.cpp WaveSource.cpp WaveSink.cpp
 				filters/SineMultiply.cpp filters/NullFilter.cpp filters/SimpleEchoFilter.cpp
 				
+				
+				../include/iimavlib.h ../include/iimavlib/Utils.h ../include/iimavlib/AudioTypes.h 
+				../include/iimavlib/AudioFilter.h ../include/iimavlib/AudioSink.h
+				../include/iimavlib/WaveFile.h ../include/iimavlib/WaveSource.h ../include/iimavlib/WaveSink.h
+				../include/iimavlib/filters/SineMultiply.h ../include/iimavlib/filters/NullFilter.h 
+				../include/iimavlib/filters/SimpleEchoFilter.h
 				)
-
-
 IF (UNIX)
-SET(IIMA_SRC ${IIMA_SRC} AlsaDevice.cpp AlsaSink.cpp AlsaSource.cpp)
+SET(IIMA_SRC ${IIMA_SRC} AlsaDevice.cpp AlsaSink.cpp AlsaSource.cpp
+				../include/iimavlib/AlsaDevice.h ../include/iimavlib/AlsaSink.h ../include/iimavlib/AlsaSource.h)
 SET(IIMA_LIBS ${IIMA_LIBS} asound)
 ELSEIF(WIN32)
-SET(IIMA_SRC ${IIMA_SRC} WinMMDevice.cpp WinMMSink.cpp WinMMSource.cpp)
+SET(IIMA_SRC ${IIMA_SRC} WinMMDevice.cpp WinMMSink.cpp WinMMSource.cpp
+		../include/iimavlib/WinMMDevice.h ../include/iimavlib/WinMMSink.h ../include/iimavlib/WinMMSource.h)
 ELSEIF(CYGWIN)
-SET(IIMA_SRC ${IIMA_SRC} WinMMDevice.cpp WinMMSink.cpp WinMMSource.cpp)
+SET(IIMA_SRC ${IIMA_SRC} WinMMDevice.cpp WinMMSink.cpp WinMMSource.cpp
+		../include/iimavlib/WinMMDevice.h ../include/iimavlib/WinMMSink.h ../include/iimavlib/WinMMSource.h)
 ELSE()
 MESSAGE("Unknown platform")
-SET(IIMA_SRC ${IIMA_SRC} WinMMDevice.cpp WinMMSink.cpp WinMMSource.cpp)
+SET(IIMA_SRC ${IIMA_SRC} WinMMDevice.cpp WinMMSink.cpp WinMMSource.cpp
+		../include/iimavlib/WinMMDevice.h ../include/iimavlib/WinMMSink.h ../include/iimavlib/WinMMSource.h)
 ENDIF()
 
 IF (SDL_FOUND)
-	SET(IIMA_SRC ${IIMA_SRC} SDLDevice.cpp)
+	SET(IIMA_SRC ${IIMA_SRC} SDLDevice.cpp ../include/iimavlib/SDLDevice.h)
 	SET(IIMA_LIBS ${IIMA_LIBS} ${SDL_LIBRARY})
 	SET(IIMA_INCLUDE ${IIMA_INCLUDE} ${SDL_INCLUDE_DIR})
 ENDIF()
