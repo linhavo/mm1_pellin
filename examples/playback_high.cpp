@@ -1,13 +1,17 @@
-/*
- * playback_high.cpp
+/**
+ * @file 	playback_high.cpp
  *
- *  Created on: 11.3.2013
- *      Author: neneko
+ * @date 	11.3.2013
+ * @author 	Zdenek Travnicek <travnicek@iim.cz>
+ * @copyright GNU Public License 3.0
+ *
+ * Simple example reading a wave file and playing it out using high level API.
  */
 
 
 #include "iimavlib.h"
 #include "iimavlib/WaveSource.h"
+#include "iimavlib/filters/SimpleEchoFilter.h"
 #include "iimavlib/Utils.h"
 #include <string>
 
@@ -34,7 +38,9 @@ int main(int argc, char** argv) try
 	 ****************************************************************** */
 
 	auto chain = filter_chain<WaveSource>(filename)
+						.add<SimpleEchoFilter>(0.2)
 						.add<DefaultSink>(device_id)
+
 						.sink();
 	chain->run();
 

@@ -1,8 +1,11 @@
-/*
- * playthrough_high.cpp
+/**
+ * @file 	playthrough_high.cpp
  *
- *  Created on: 12.3.2013
- *      Author: neneko
+ * @date 	12.3.2013
+ * @author 	Zdenek Travnicek <travnicek@iim.cz>
+ * @copyright GNU Public License 3.0
+ *
+ * Simple example for capturing audio, adding echo and playing it out using high level API.
  */
 
 #include "iimavlib.h"
@@ -31,15 +34,20 @@ int main(int argc, char** argv) try
 
 
 	audio_params_t params(sampling_rate_t::rate_48kHz, sampling_format_t::format_16bit_signed, 1);
+
+	// Create filter chain audio capture -> null -> simple_echo
 	auto filters = filter_chain<PlatformSource>(params,device_in)
 						.add<NullFilter>()
 						.add<SimpleEchoFilter>(0.2);
+
+	// If there's an output file specified, let's add WaveSink filter to the chain
 	if (!out_file.empty()) filters = filters
 						.add<WaveSink>(out_file);
+
+	// And finally add audio sink
 	auto chain = filters.add<PlatformSink>(device_out)
 						.sink();
 
-	chain->set_buffers(4,2048);
 	chain->run();
 
 }
