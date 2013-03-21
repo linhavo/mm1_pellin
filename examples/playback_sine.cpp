@@ -23,14 +23,6 @@ void synthesize(double& t, double frequency, std::size_t rate, std::vector<T>& d
 }
 
 
-
-
-void callback(void *p, int len)
-{
-}
-
-
-
 int main()
 {
 	audio_params_t 		params(sampling_rate_t::rate_44kHz,

@@ -42,7 +42,10 @@ private:
 		const size_t rate_int =convert_rate_to_int(params.rate);
 
 		// Currently only 16bit signed samples are supported
-		assert(params.format == sampling_format_t::format_16bit_signed);
+		if (buffer.params.format != sampling_format_t::format_16bit_signed) {
+			return error_type_t::unsupported;
+		}
+
 
 		// Get pointer to the raw data in the buffer (as a int16_t*)
 		int16_t * data = reinterpret_cast<int16_t*>(&buffer.data[0]);

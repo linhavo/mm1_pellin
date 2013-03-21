@@ -1,7 +1,7 @@
 /**
- * @file 	sdl_window.cpp
+ * @file 	visualization.cpp
  *
- * @date 	23.2.2013
+ * @date 	20.3.2013
  * @author 	Zdenek Travnicek <travnicek@iim.cz>
  * @copyright GNU Public License 3.0
  *
@@ -41,6 +41,11 @@ private:
 	error_type_t do_process(audio_buffer_t& buffer)
 	{
 		if (end_) return error_type_t::failed;
+		// Currently only 16bit signed samples are supported
+		if (buffer.params.format != sampling_format_t::format_16bit_signed) {
+			return error_type_t::unsupported;
+		}
+
 		update_cache(buffer);
 		return error_type_t::ok;
 	}
