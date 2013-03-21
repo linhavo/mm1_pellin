@@ -1,9 +1,12 @@
-/*
- * AlsaSink.cpp
+/**
+ * @file 	AlsaSink.cpp
  *
- *  Created on: 11.3.2013
- *      Author: neneko
+ * @date 	11.3.2013
+ * @author 	Zdenek Travnicek <travnicek@iim.cz>
+ * @copyright GNU Public License 3.0
+ *
  */
+
 
 #include "iimavlib/AlsaSink.h"
 #include "iimavlib/Utils.h"

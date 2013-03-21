@@ -1,8 +1,10 @@
-/*
- * EchoFilter.cpp
+/**
+ * @file 	SimpleEchoFilter.cpp
  *
- *  Created on: 12.3.2013
- *      Author: neneko
+ * @date 	12.3.2013
+ * @author 	Zdenek Travnicek <travnicek@iim.cz>
+ * @copyright GNU Public License 3.0
+ *
  */
 
 #include "iimavlib/filters/SimpleEchoFilter.h"
@@ -42,7 +44,8 @@ error_type_t SimpleEchoFilter::do_process(audio_buffer_t& buffer)
 	if (buffer.params.format != sampling_format_t::format_16bit_signed) {
 		return error_type_t::unsupported;
 	}
-	if (buffer.valid_samples==0) return error_type_t::failed;
+	// Return OK for empty buffer - nothing to do here
+	if (buffer.valid_samples==0) return error_type_t::ok;
 
 	// Some constant values that is convenient to have prepared
 	const size_t frequency = convert_rate_to_int(buffer.params.rate);

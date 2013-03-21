@@ -63,7 +63,7 @@ struct filter_chain {
 		return *this;
 	}
 #else
-	// Visual Studio 2012 stiil has no support for variadic templates.
+	// Visual Studio 2012 still has no support for variadic templates.
 	// So we have to define lots of non-variadic templates....
 	// Anyway, this limits VS support to classes with 5 non-child parameters at most
 	filter_chain():

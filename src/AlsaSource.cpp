@@ -1,8 +1,10 @@
-/*
- * AlsaSource.cpp
+/**
+ * @file 	AlsaSource.cpp
  *
- *  Created on: 12.3.2013
- *      Author: neneko
+ * @date 	12.3.2013
+ * @author 	Zdenek Travnicek <travnicek@iim.cz>
+ * @copyright GNU Public License 3.0
+ *
  */
 
 #include "iimavlib/AlsaSource.h"
