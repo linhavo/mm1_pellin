@@ -15,7 +15,8 @@
 int main()
 {
 	iimavlib::SDLDevice sdl(800,600,"HEY!");
-	iimavlib::SDLDevice::data_type data(800*600,{0,0,0});
+	iimavlib::RGB black = {0,0,0};
+	iimavlib::SDLDevice::data_type data(800*600,black);
 	sdl.start();
 
 	while(sdl.update(data)) {
