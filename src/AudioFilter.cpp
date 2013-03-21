@@ -1,8 +1,10 @@
-/*
- * AudioFilter.cpp
+/**
+ * @file 	AudioFilter.cpp
  *
- *  Created on: 27.2.2013
- *      Author: neneko
+ * @date 	27.2.2013
+ * @author 	Zdenek Travnicek <travnicek@iim.cz>
+ * @copyright GNU Public License 3.0
+ *
  */
 
 #include "iimavlib/AudioFilter.h"
@@ -33,7 +35,12 @@ audio_params_t AudioFilter::get_params() const
 {
 	return do_get_params();
 }
-
+pAudioFilter AudioFilter::get_child(size_t depth)
+{
+	if (!depth) return child_;
+	if (!child_) return pAudioFilter();
+	return child_->get_child(depth-1);
+}
 audio_params_t AudioFilter::do_get_params() const
 {
 	if (child_) {
@@ -41,4 +48,5 @@ audio_params_t AudioFilter::do_get_params() const
 	}
 	return audio_params_t();
 }
+
 }

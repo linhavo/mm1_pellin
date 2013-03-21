@@ -60,6 +60,13 @@ public:
 	 * @return Current parameters
 	 */
 	audio_params_t get_params() const;
+
+	/**
+	 * @brief Return a direct or indirect child of filter
+	 * @param depth Specifies position of the child in the filter chain
+	 * @return pointer to the child or empty pAudioFilter
+	 */
+	pAudioFilter get_child(size_t depth=0);
 private:
 	/**
 	 * @brief Implementation of buffer processing
