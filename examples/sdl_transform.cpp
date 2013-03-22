@@ -33,7 +33,7 @@ template<typename T>void swapt(T &p1,T &p2) {
 }
 
 //zaokrouhleni
-int round(double x) {
+int round_impl(double x) {
 #ifdef SYSTEM_LINUX
 	return std::round(x);
 #else
@@ -61,8 +61,8 @@ template<typename T> void rot0(T&d, T&s, double deg) {
 	
 	for(y=0;y<yMax;y++) {
 		for(x=0;x<xMax;x++) {
-			xn=round(x*cosT+y*sinT);
-			yn=round(y*cosT-x*sinT);
+			xn=round_impl(x*cosT+y*sinT);
+			yn=round_impl(y*cosT-x*sinT);
 			if(xn>=0 && xn<xMax && yn>=0 && yn<yMax) 
 				d[y*xMax+x]=s[yn*xMax+xn];
 		}
@@ -71,6 +71,7 @@ template<typename T> void rot0(T&d, T&s, double deg) {
 
 //rotace okolo stredu
 template<typename T> void rot(T&d, T&s, double deg) {
+	double omega=2*PI*deg/360.0;
 	double cosT=cos(omega), sinT=sin(omega);
 	int xn,yn,x,y;
 	const int cx=xMax/2;
@@ -78,8 +79,8 @@ template<typename T> void rot(T&d, T&s, double deg) {
 
 	for(y=0;y<yMax;y++) {
 		for(x=0;x<xMax;x++) {
-			xn=round(  (x-cx)*cosT+(y-cy)*sinT+cx   );
-			yn=round(  (y-cy)*cosT-(x-cx)*sinT+cy     );
+			xn=round_impl(  (x-cx)*cosT+(y-cy)*sinT+cx   );
+			yn=round_impl(  (y-cy)*cosT-(x-cx)*sinT+cy     );
 			if(xn>=0 && xn<xMax && yn>=0 && yn<yMax) 
 				d[y*xMax+x]=s[yn*xMax+xn];
 		}
@@ -94,8 +95,8 @@ template<typename T> void rotc(T&d, T&s, double deg, int cx=0, int cy=0) {
 
 	for(y=0;y<yMax;y++) {
 		for(x=0;x<xMax;x++) {
-			xn=round(  (x-cx)*cosT+(y-cy)*sinT+cx   );
-			yn=round(  (y-cy)*cosT-(x-cx)*sinT+cy     );
+			xn=round_impl(  (x-cx)*cosT+(y-cy)*sinT+cx   );
+			yn=round_impl(  (y-cy)*cosT-(x-cx)*sinT+cy     );
 			if(xn>=0 && xn<xMax && yn>=0 && yn<yMax) 
 				d[y*xMax+x]=s[yn*xMax+xn];
 		}
@@ -116,8 +117,8 @@ template<typename T> void rotcsub(T&d, T&s, double deg, int cx=0, int cy=0,int x
 
 		for(y=y1;y<y2;y++) {
 			for(x=x1;x<x2;x++) {
-				xn=round(  (x-cx)*cosT+(y-cy)*sinT+cx   ); 
-				yn=round(  (y-cy)*cosT-(x-cx)*sinT+cy     );
+				xn=round_impl(  (x-cx)*cosT+(y-cy)*sinT+cx   ); 
+				yn=round_impl(  (y-cy)*cosT-(x-cx)*sinT+cy     );
 				if(xn>=0 && xn<xMax && yn>=0 && yn<yMax) 
 					d[y*xMax+x]=s[yn*xMax+xn];
 			}

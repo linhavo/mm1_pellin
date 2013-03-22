@@ -23,7 +23,7 @@ const int xMax=500;
 const int yMax=500;
 
 
-int round(double x) {
+int round_impl(double x) {
 #ifdef SYSTEM_LINUX
 	return std::round(x);
 #else
@@ -52,8 +52,8 @@ template<typename T> void rot0(T&d, T&s, double deg) {
 	
 	for(y=0;y<yMax;y++) {
 		for(x=0;x<xMax;x++) {
-			xn=round(x*cosT+y*sinT);
-			yn=round(y*cosT-x*sinT);
+			xn=round_impl(x*cosT+y*sinT);
+			yn=round_impl(y*cosT-x*sinT);
 			
 			if(xn>=0 && xn<xMax && yn>=0 && yn<yMax) 
 				d[y*xMax+x]=s[yn*xMax+xn];
@@ -77,8 +77,8 @@ template<typename T> void rot(T&d, T&s, double deg) {
 		//xn=round(  (0-cx)*cosT+(y-cy)*sinT+cx   );//(-cx + x)*cosT+(y-cy)*sinT+cx 
 		//yn=round(  (y-cy)*cosT-(0-cx)*sinT+cy     ); //(-cy+y)*cosT-(-cx+x)*sinT+cy
 		for(x=0;x<xMax;x++) {
-			xn=round(  (x-cx)*cosT+(y-cy)*sinT+cx   );//(-cx + x)*cosT+(y-cy)*sinT+cx 
-			yn=round(  (y-cy)*cosT-(x-cx)*sinT+cy     ); //(-cy+y)*cosT-(-cx+x)*sinT+cy
+			xn=round_impl(  (x-cx)*cosT+(y-cy)*sinT+cx   );//(-cx + x)*cosT+(y-cy)*sinT+cx
+			yn=round_impl(  (y-cy)*cosT-(x-cx)*sinT+cy     ); //(-cy+y)*cosT-(-cx+x)*sinT+cy
 			if(xn>=0 && xn<xMax && yn>=0 && yn<yMax) 
 				d[y*xMax+x]=s[yn*xMax+xn];
 			else {
@@ -101,8 +101,8 @@ template<typename T> void rotc(T&d, T&s, double deg, int cx=0, int cy=0) {
 		//xn=round(  (0-cx)*cosT+(y-cy)*sinT+cx   );//(-cx + x)*cosT+(y-cy)*sinT+cx 
 		//yn=round(  (y-cy)*cosT-(0-cx)*sinT+cy     ); //(-cy+y)*cosT-(-cx+x)*sinT+cy
 		for(x=0;x<xMax;x++) {
-			xn=round(  (x-cx)*cosT+(y-cy)*sinT+cx   );//(-cx + x)*cosT+(y-cy)*sinT+cx 
-			yn=round(  (y-cy)*cosT-(x-cx)*sinT+cy     ); //(-cy+y)*cosT-(-cx+x)*sinT+cy
+			xn=round_impl(  (x-cx)*cosT+(y-cy)*sinT+cx   );//(-cx + x)*cosT+(y-cy)*sinT+cx
+			yn=round_impl(  (y-cy)*cosT-(x-cx)*sinT+cy     ); //(-cy+y)*cosT-(-cx+x)*sinT+cy
 			if(xn>=0 && xn<xMax && yn>=0 && yn<yMax) 
 				d[y*xMax+x]=s[yn*xMax+xn];
 			else {
@@ -129,8 +129,8 @@ template<typename T> void rotcsub(T&d, T&s, double deg, int cx=0, int cy=0,int x
 			//xn=round(  (0-cx)*cosT+(y-cy)*sinT+cx   );//(-cx + x)*cosT+(y-cy)*sinT+cx 
 			//yn=round(  (y-cy)*cosT-(0-cx)*sinT+cy     ); //(-cy+y)*cosT-(-cx+x)*sinT+cy
 			for(x=x1;x<x2;x++) {
-				xn=round(  (x-cx)*cosT+(y-cy)*sinT+cx   );//(-cx + x)*cosT+(y-cy)*sinT+cx 
-				yn=round(  (y-cy)*cosT-(x-cx)*sinT+cy     ); //(-cy+y)*cosT-(-cx+x)*sinT+cy
+				xn=round_impl(  (x-cx)*cosT+(y-cy)*sinT+cx   );//(-cx + x)*cosT+(y-cy)*sinT+cx
+				yn=round_impl(  (y-cy)*cosT-(x-cx)*sinT+cy     ); //(-cy+y)*cosT-(-cx+x)*sinT+cy
 				if(xn>=0 && xn<xMax && yn>=0 && yn<yMax) 
 					d[y*xMax+x]=s[yn*xMax+xn];
 				else {
