@@ -10,6 +10,7 @@
 #ifndef SDLDEVICE_H_
 #define SDLDEVICE_H_
 #include "PlatformDefs.h"
+#include "keys.h"
 #include <string>
 #include <thread>
 #include <mutex>
@@ -29,7 +30,7 @@ class EXPORT SDLDevice {
 public:
 	typedef std::vector<RGB> data_type;
 	SDLDevice(size_t width, size_t height, const std::string& title = "IIMAudio application");
-	~SDLDevice();
+	virtual ~SDLDevice();
 	bool start();
 	bool stop();
 	template<typename T>
@@ -51,6 +52,8 @@ private:
 	void run();
 	bool process_events();
 	void update_data();
+	bool key_pressed(const int key, bool pressed);
+	virtual bool do_key_pressed(const int key, bool pressed);
 };
 
 template<>
