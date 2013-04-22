@@ -29,7 +29,7 @@ struct sdl_pimpl_t;
 class EXPORT SDLDevice {
 public:
 	typedef std::vector<RGB> data_type;
-	SDLDevice(size_t width, size_t height, const std::string& title = "IIMAudio application");
+	SDLDevice(size_t width, size_t height, const std::string& title = "IIMAudio application", bool fullscreen = false);
 	virtual ~SDLDevice();
 	bool start();
 	bool stop();
@@ -48,6 +48,7 @@ private:
 	std::unique_ptr<sdl_pimpl_t> pimpl_;
 	data_type data_;
 	bool data_changed_;
+	bool fullscreen_;
 	std::atomic<bool> flip_required_;
 
 	void run();

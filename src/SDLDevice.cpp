@@ -26,9 +26,9 @@ struct sdl_pimpl_t {
 namespace {
 	int convert_sdl_keysym_to_key(const SDLKey keysym);
 }
-SDLDevice::SDLDevice(size_t width, size_t height, const std::string& title):
+SDLDevice::SDLDevice(size_t width, size_t height, const std::string& title, bool fullscreen):
 		width_(width),height_(height),title_(title),finish_(false),
-		data_changed_(false),flip_required_(false)
+		data_changed_(false),fullscreen_(fullscreen),flip_required_(false)
 {
 	static_assert(sizeof(RGB)==3,"Wrongly packed RGB struct!");
 	
@@ -68,8 +68,9 @@ void SDLDevice::run()
 {
 	SDL_Init(SDL_INIT_VIDEO);
 	logger[log_level::debug] << "Creating SDL window";
+	int flags = SDL_DOUBLEBUF|(fullscreen_?SDL_FULLSCREEN:0);
 	pimpl_->window_.reset(SDL_SetVideoMode(static_cast<int>(width_), static_cast<int>(height_),
-			24, SDL_DOUBLEBUF));
+			24, flags));
 	if (!pimpl_->window_) {
 		logger[log_level::fatal] << "Failed to create SDL window!";
 		finish_=true;
