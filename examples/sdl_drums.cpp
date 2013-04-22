@@ -24,7 +24,8 @@ namespace iimavlib {
 class Drums: public SDLDevice, public AudioFilter
 {
 public:
-	const RGB black = {0,0,0};
+	static const RGB black;
+
 	Drums(size_t width, size_t height):
 		SDLDevice(width,height,"Drums"),
 		AudioFilter(pAudioFilter()),
@@ -191,6 +192,7 @@ private:
 		return true;
 	}
 };
+const RGB Drums::black = {0, 0, 0};
 }
 
 
