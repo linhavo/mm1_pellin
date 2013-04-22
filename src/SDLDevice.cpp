@@ -110,11 +110,17 @@ bool SDLDevice::process_events()
 		while (SDL_PollEvent(&event)) {
 			switch(event.type) {
 				case SDL_KEYDOWN:
-					if (!key_pressed(convert_sdl_keysym_to_key(event.key.keysym.sym),true)) {
+				case SDL_KEYUP:
+					if (!key_pressed(convert_sdl_keysym_to_key(event.key.keysym.sym),event.key.state == SDL_PRESSED)) {
 						finish_ = true;
 					} break;
-				case SDL_KEYUP:
-					if (!key_pressed(convert_sdl_keysym_to_key(event.key.keysym.sym),false)) {
+				case SDL_MOUSEBUTTONDOWN:
+				case SDL_MOUSEBUTTONUP:
+					if (!mouse_button(event.button.button - 1, event.button.state == SDL_PRESSED, event.button.x, event.button.y)) {
+						finish_ = true;
+					} break;
+				case SDL_MOUSEMOTION:
+					if (!mouse_button(event.motion.x, event.motion.y, event.motion.xrel, event.motion.yrel)) {
 						finish_ = true;
 					} break;
 				case SDL_QUIT:
@@ -145,6 +151,22 @@ bool SDLDevice::do_key_pressed(const int key, bool pressed)
 		logger[log_level::debug] << "ESC pressed.";
 		return false;
 	}
+	return true;
+}
+bool SDLDevice::mouse_moved(const int x, const int y, const int dx, const int dy)
+{
+	return do_mouse_moved(x, y, dx, dy);
+}
+bool SDLDevice::mouse_button(const int key, const bool pressed, const int x, const int y)
+{
+	return do_mouse_button(key, pressed, x, y);
+}
+bool SDLDevice::do_mouse_moved(const int, const int, const int, const int)
+{
+	return true;
+}
+bool SDLDevice::do_mouse_button(const int, const bool, const int, const int)
+{
 	return true;
 }
 

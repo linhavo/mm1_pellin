@@ -55,7 +55,11 @@ private:
 	bool process_events();
 	void update_data();
 	bool key_pressed(const int key, bool pressed);
+	bool mouse_moved(const int x, const int y, const int dx, const int dy);
+	bool mouse_button(const int key, const bool pressed, const int x, const int y);
 	virtual bool do_key_pressed(const int key, bool pressed);
+	virtual bool do_mouse_moved(const int x, const int y, const int dx, const int dy);
+	virtual bool do_mouse_button(const int key, const bool pressed, const int x, const int y);
 };
 
 template<>
