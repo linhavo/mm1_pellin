@@ -133,7 +133,7 @@ bool SDLDevice::process_events()
 
 bool SDLDevice::key_pressed(const int key, bool pressed)
 {
-	std::unique_lock<std::mutex> lock(data_mutex_);
+	//std::unique_lock<std::mutex> lock(data_mutex_);
 	return do_key_pressed(key, pressed);
 }
 
@@ -157,6 +157,10 @@ bool SDLDevice::update(const data_type& data) {
 	return true;
 }
 
+bool SDLDevice::is_stopped() const
+{
+	return finish_;
+}
 
 namespace {
 using namespace keys;

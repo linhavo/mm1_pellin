@@ -35,6 +35,7 @@ public:
 	bool stop();
 	template<typename T>
 	bool update(const std::vector<T>&);
+	bool is_stopped() const;
 private:
 	size_t width_;
 	size_t height_;
