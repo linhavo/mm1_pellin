@@ -85,9 +85,15 @@ private:
 		return true;
 	}
 
+	/**
+	 * Overloaded method for processing mouse buttons.
+	 * @param button Index of button that triggered the event
+	 * @param pressed true if button was pressed, false if released
+	 * @return true, unles some fatal error has occured
+	 */
 	virtual bool do_mouse_button(const int button, const bool pressed, const int, const int)
 	{
-		if (pressed && button < drums_.size()) {
+		if (pressed && static_cast<size_t>(button) < drums_.size()) {
 			std::unique_lock<std::mutex> lock(position_mutex_); // Lock the variables
 			index_ = button;
 			position_ = 0;
@@ -106,7 +112,7 @@ private:
 		uint8_t intensity = 0;
 		{
 			std::unique_lock<std::mutex> lock(position_mutex_); // Lock the variables
-			if (index_ >= 0 && index_ < drums_.size()) {
+			if (index_ >= 0 && static_cast<size_t>(index_) < drums_.size()) {
 				// Calculate the intensity for valid index
 				intensity = static_cast<uint8_t>(255.0 - (2.0*255.0*position_/drums_[index_].size()));
 			}
@@ -138,29 +144,35 @@ private:
 
 		// Get pointer to the raw data in the buffer (as a int16_t*)
 		int16_t * data = reinterpret_cast<int16_t*>(&buffer.data[0]);
-		if (index_ < 0 || (drums_.size()<=index_)) {
+
+		if (index_ < 0 || (drums_.size()<=static_cast<size_t>(index_))) {
+			// If there's no active drum, we just fill the buffer with zeroes
 			std::fill(data,data+buffer.valid_samples*num_channels,0);
 		} else {
 			std::unique_lock<std::mutex> lock(position_mutex_);
+			// Get ref. to the current drum's buffer
 			const auto& drum = drums_[index_];
 			size_t samples = drums_[index_].size()/2; //Divided by 2 because we have 2 samples for channels
 			size_t remaining = buffer.valid_samples;
 			size_t written = 0;
 			if (position_<samples) {
-				const size_t avail = samples - position_;
-				written = (avail>=remaining)?remaining:avail;
-//				logger[log_level::debug] << "Writting " << written << " samples (valid: " << remaining << ")";
-				auto first = drum.cbegin()+position_*2;
-				auto last = (avail>=remaining)?first+remaining*2:drum.cend();
-				std::copy(first,last,data);
-				position_+=written;
+				// We still have some non-copied samples
+				const size_t avail = samples - position_; // How many samples are available current drum
+				written = (avail>=remaining)?remaining:avail; // We will copy this count of samples.
+				auto first = drum.cbegin()+position_*2;		// Iterator to first sample to copy
+				auto last = (avail>=remaining)?first+remaining*2:drum.cend(); // Iterator after the last sample that will be written
+				std::copy(first,last,data); // Copy the samples to the buffer
+				position_+=written; // Advance the drum's buffer position
 				remaining-=written;
 			} else {
+				// We've already copied all the sample, so let's set current drum to none
 				index_ = -1;
 				position_ = 0;
 			}
+			// Fill the rest of the buffer (if there's still some space) with zeroes
 			std::fill(data+written*2, data+(written+remaining)*2, 0);
 		}
+		// Update display (because we changed the position_)
 		update_screen();
 		return error_type_t::ok;
 	}
@@ -173,7 +185,7 @@ private:
 	bool load_file(const std::string filename)
 	{
 		try {
-			WaveFile wav(filename);
+			WaveFile wav(filename);  // Load wave file
 			const audio_params_t params = wav.get_params();
 			if (params.rate != sampling_rate_t::rate_44kHz) throw std::runtime_error("Wrong sampling rate. 44kHz expected.");
 			if (params.format != sampling_format_t::format_16bit_signed) throw std::runtime_error("Wrong sampling format. Signed 16bits expected.");
@@ -197,6 +209,7 @@ const RGB Drums::black = {0, 0, 0};
 
 
 int main()
+try
 {
 	iimavlib::audio_id_t device_id = iimavlib::PlatformDevice::default_device();
 	iimavlib::audio_params_t params;
@@ -207,7 +220,10 @@ int main()
 
 	sink->run();
 }
-
+catch (std::exception& e) {
+	using namespace iimavlib;
+	logger[log_level::fatal] << "The application ended unexpectedly with an error: " << e.what();
+}
 
 
 
