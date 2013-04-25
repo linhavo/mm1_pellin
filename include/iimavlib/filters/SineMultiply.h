@@ -13,7 +13,7 @@
 
 #include "../AudioFilter.h"
 namespace iimavlib {
-class SineMultiply: public AudioFilter {
+class EXPORT SineMultiply: public AudioFilter {
 public:
 	SineMultiply(const pAudioFilter& child, double frequency);
 	virtual ~SineMultiply();
