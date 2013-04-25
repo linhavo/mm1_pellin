@@ -113,9 +113,9 @@ private:
 		}
 		// Set the color based on sample index
 		switch (index_) {
-			case 0: color = RGB{intensity, 0, 0};break; // Red
-			case 1: color = RGB{0, intensity, 0};break; // Green
-			case 2: color = RGB{0, 0, intensity};break; // Blue
+			case 0: color.r = intensity; break; // Red
+			case 1: color.g = intensity; break; // Green
+			case 2: color.b = intensity; break; // Blue
 			default:break;
 		}
 		// Fill the color to out buffer
