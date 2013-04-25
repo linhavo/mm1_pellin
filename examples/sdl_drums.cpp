@@ -186,7 +186,7 @@ private:
 			drums_.push_back(std::move(data));
 		}
 		catch (std::exception &e) {
-			logger[log_level::fatal] << "Failed to load " << filename;
+			logger[log_level::fatal] << "Failed to load " << filename << " (" << e.what() << ")";
 			return false;
 		}
 		return true;

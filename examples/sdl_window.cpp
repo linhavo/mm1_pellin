@@ -21,7 +21,7 @@ int main()
 
 	while(sdl.update(data)) {
 		size_t i=0;
-		std::for_each(data.begin(),data.end(),[&i](iimavlib::RGB&rgb){rgb.r+=i++;});
+		std::for_each(data.begin(),data.end(),[&i](iimavlib::RGB&rgb){rgb.r+=static_cast<uint8_t>(i++);});
 
 #ifdef SYSTEM_LINUX
 		usleep(1000);

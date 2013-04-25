@@ -96,7 +96,7 @@ void SDLDevice::update_data()
 {
 	std::unique_lock<std::mutex> lock(data_mutex_);
 	if (data_changed_) {
-		SDL_Surface* surface = SDL_CreateRGBSurfaceFrom(&data_[0],static_cast<int>(width_),static_cast<int>(height_),24,width_*3,0x0000FF,0x00FF00,0xFF0000,0);
+		SDL_Surface* surface = SDL_CreateRGBSurfaceFrom(&data_[0],static_cast<int>(width_),static_cast<int>(height_),24,static_cast<int>(width_*3),0x0000FF,0x00FF00,0xFF0000,0);
 		SDL_BlitSurface(surface, nullptr, pimpl_->window_.get(), nullptr);
 		SDL_FreeSurface(surface);
 		flip_required_ = true;
@@ -120,7 +120,7 @@ bool SDLDevice::process_events()
 						finish_ = true;
 					} break;
 				case SDL_MOUSEMOTION:
-					if (!mouse_button(event.motion.x, event.motion.y, event.motion.xrel, event.motion.yrel)) {
+					if (!mouse_moved(event.motion.x, event.motion.y, event.motion.xrel, event.motion.yrel)) {
 						finish_ = true;
 					} break;
 				case SDL_QUIT:
