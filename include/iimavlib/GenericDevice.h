@@ -33,11 +33,11 @@ public:
 	 * @param error_code [out] Error code
 	 * @return Number of @em samples read
 	 */
-	virtual size_t 	do_capture_data(uint8_t* data_start, size_t data_size, error_type_t& error_code) = 0;
+	virtual size_t 	do_capture_data(audio_sample_t* data_start, size_t data_size, error_type_t& error_code) = 0;
 
 	virtual error_type_t do_set_buffers(uint16_t count, uint32_t samples) = 0;
 
-	virtual error_type_t do_fill_buffer(const uint8_t* data_start, size_t data_size) = 0;
+	virtual error_type_t do_fill_buffer(const audio_sample_t* data_start, size_t data_size) = 0;
 
 	virtual error_type_t do_start_playback() = 0;
 

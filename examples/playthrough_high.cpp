@@ -33,7 +33,7 @@ int main(int argc, char** argv) try
 	 ****************************************************************** */
 
 
-	audio_params_t params(sampling_rate_t::rate_48kHz, sampling_format_t::format_16bit_signed, 1);
+	audio_params_t params(sampling_rate_t::rate_48kHz);//, sampling_format_t::format_16bit_signed, 1);
 
 	// Create filter chain audio capture -> null -> simple_echo
 	auto filters = filter_chain<PlatformSource>(params,device_in)

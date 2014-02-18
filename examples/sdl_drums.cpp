@@ -46,7 +46,7 @@ public:
 	}
 private:
 	/// Vector of vector to hold audio samples for the drums
-	std::vector<std::vector<int16_t>> drums_;
+	std::vector<std::vector<audio_sample_t>> drums_;
 	/// Video data
 	data_type data_;
 	/// Index of currently playing drum
@@ -97,6 +97,7 @@ private:
 			std::unique_lock<std::mutex> lock(position_mutex_); // Lock the variables
 			index_ = button;
 			position_ = 0;
+			logger[log_level::info] << "Playing " << index_ ;
 		}
 		return true;
 	}
@@ -134,33 +135,34 @@ private:
 	{
 		if (is_stopped()) return error_type_t::failed;
 		const audio_params_t& params = buffer.params;
-		const size_t num_channels = params.num_channels;
+//		const size_t num_channels = params.num_channels;
 
 		// Currently only 16bit signed samples are supported
-		if (buffer.params.format != sampling_format_t::format_16bit_signed ||
-			num_channels != 2) {
-			return error_type_t::unsupported;
-		}
+//		if (buffer.params.format != sampling_format_t::format_16bit_signed ||
+//			num_channels != 2) {
+//			return error_type_t::unsupported;
+//		}
 
 		// Get pointer to the raw data in the buffer (as a int16_t*)
-		int16_t * data = reinterpret_cast<int16_t*>(&buffer.data[0]);
+		auto data = buffer.data.begin();
 
 		if (index_ < 0 || (drums_.size()<=static_cast<size_t>(index_))) {
 			// If there's no active drum, we just fill the buffer with zeroes
-			std::fill(data,data+buffer.valid_samples*num_channels,0);
+			std::fill(data,data+buffer.valid_samples,0);
 		} else {
+			logger[log_level::info] << "Using " << index_ << " from " << position_;
 			std::unique_lock<std::mutex> lock(position_mutex_);
 			// Get ref. to the current drum's buffer
 			const auto& drum = drums_[index_];
-			size_t samples = drums_[index_].size()/2; //Divided by 2 because we have 2 samples for channels
+			size_t samples = drums_[index_].size();
 			size_t remaining = buffer.valid_samples;
 			size_t written = 0;
 			if (position_<samples) {
 				// We still have some non-copied samples
 				const size_t avail = samples - position_; // How many samples are available current drum
 				written = (avail>=remaining)?remaining:avail; // We will copy this count of samples.
-				auto first = drum.cbegin()+position_*2;		// Iterator to first sample to copy
-				auto last = (avail>=remaining)?first+remaining*2:drum.cend(); // Iterator after the last sample that will be written
+				auto first = drum.cbegin()+position_;		// Iterator to first sample to copy
+				auto last = (avail>=remaining)?first+remaining:drum.cend(); // Iterator after the last sample that will be written
 				std::copy(first,last,data); // Copy the samples to the buffer
 				position_+=written; // Advance the drum's buffer position
 				remaining-=written;
@@ -170,7 +172,7 @@ private:
 				position_ = 0;
 			}
 			// Fill the rest of the buffer (if there's still some space) with zeroes
-			std::fill(data+written*2, data+(written+remaining)*2, 0);
+			std::fill(data+written, data+written+remaining, 0);
 		}
 		// Update display (because we changed the position_)
 		update_screen();
@@ -188,12 +190,12 @@ private:
 			WaveFile wav(filename);  // Load wave file
 			const audio_params_t params = wav.get_params();
 			if (params.rate != sampling_rate_t::rate_44kHz) throw std::runtime_error("Wrong sampling rate. 44kHz expected.");
-			if (params.format != sampling_format_t::format_16bit_signed) throw std::runtime_error("Wrong sampling format. Signed 16bits expected.");
-			if (params.num_channels != 2) throw std::runtime_error("Wrong number of channel. Expected stereo file.");
+//			if (params.format != sampling_format_t::format_16bit_signed) throw std::runtime_error("Wrong sampling format. Signed 16bits expected.");
+//			if (params.num_channels != 2) throw std::runtime_error("Wrong number of channel. Expected stereo file.");
 			size_t samples = 44100;
-			std::vector<int16_t> data(samples*2);
+			std::vector<audio_sample_t> data(samples);
 			wav.read_data(data,samples);
-			data.resize(samples*2);
+			data.resize(samples);
 			logger[log_level::info] << "Read " << samples << "samples";
 			drums_.push_back(std::move(data));
 		}
@@ -218,6 +220,7 @@ try
 			.add<iimavlib::PlatformSink>(device_id)
 			.sink();
 
+//	sink->set_buffers(1,128);
 	sink->run();
 }
 catch (std::exception& e) {

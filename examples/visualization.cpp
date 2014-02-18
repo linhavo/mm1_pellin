@@ -26,9 +26,9 @@ public:
 		time_(time),end_(false),changed_(false),last_sample_(0),cache_size_(0)
 	{
 		const audio_params_t& params = get_params();
-		num_channels_ = params.num_channels;
+//		num_channels_ = params.num_channels;
 		cache_size_ = static_cast<size_t>(time_*convert_rate_to_int(params.rate));
-		sample_cache_.resize(cache_size_*num_channels_);
+		sample_cache_.resize(cache_size_);
 		sdl_.start();
 		thread_ = std::thread(std::bind(&Visualization::execute_thread,this));
 	}
@@ -42,9 +42,9 @@ private:
 	{
 		if (end_) return error_type_t::failed;
 		// Currently only 16bit signed samples are supported
-		if (buffer.params.format != sampling_format_t::format_16bit_signed) {
-			return error_type_t::unsupported;
-		}
+//		if (buffer.params.format != sampling_format_t::format_16bit_signed) {
+//			return error_type_t::unsupported;
+//		}
 
 		update_cache(buffer);
 		return error_type_t::ok;
@@ -64,8 +64,8 @@ private:
 
 	void update_cache(const audio_buffer_t& buffer) {
 		std::unique_lock<std::mutex> lock(mutex_);
-		const int16_t *src = reinterpret_cast<const int16_t*>(&buffer.data[0]);
-		size_t src_remaining = buffer.valid_samples*num_channels_;
+		const audio_sample_t *src = &buffer.data[0];
+		size_t src_remaining = buffer.valid_samples;
 		while (src_remaining) {
 			size_t to_copy = std::min(src_remaining, sample_cache_.size()-last_sample_);
 			std::copy_n(src,to_copy,&sample_cache_[0]+last_sample_);
@@ -86,8 +86,8 @@ private:
 			std::unique_lock<std::mutex> lock(mutex_);
 			for (size_t x = 0;x < width_; ++x) {
 				size_t sample_num = x*cache_size_/width_;
-				int16_t sample = sample_cache_[sample_num*num_channels_];
-				size_t y = static_cast<size_t>(height_/2 + static_cast<double>(height_)*sample/std::numeric_limits<int16_t>::max()/2);
+				const auto& sample = sample_cache_[sample_num];
+				size_t y = static_cast<size_t>(height_/2 + static_cast<double>(height_)*sample.left/std::numeric_limits<int16_t>::max()/2);
 				y = std::min(height_-1,std::max(y,static_cast<size_t>(0)));
 				vals.push_back(y);
 			}	
@@ -115,7 +115,7 @@ private:
 	SDLDevice::data_type data_;
 	std::thread thread_;
 	std::mutex mutex_;
-	std::vector<int16_t> sample_cache_;
+	std::vector<audio_sample_t> sample_cache_;
 	size_t width_;
 	size_t height_;
 	double time_;
@@ -123,7 +123,7 @@ private:
 	std::atomic<bool> changed_;
 	size_t last_sample_;
 	size_t cache_size_;
-	size_t num_channels_;
+//	size_t num_channels_;
 };
 
 int main(int argc, char** argv)

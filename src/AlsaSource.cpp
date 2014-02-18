@@ -28,7 +28,7 @@ error_type_t AlsaSource::do_process(audio_buffer_t& buffer)
 {
 	const audio_params_t& params = buffer.params;
 	error_type_t err;
-	size_t captured = device_.do_capture_data(&buffer.data[0],buffer.valid_samples*params.sample_size(),err);
+	size_t captured = device_.do_capture_data(&buffer.data[0], buffer.valid_samples,err);
 	if (err == error_type_t::xrun) {
 		logger[log_level::info] << "An overrun occured!";
 	} else if (err !=error_type_t::ok) {

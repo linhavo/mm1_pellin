@@ -31,11 +31,11 @@ public:
 
 	error_type_t do_start_capture();
 
-	size_t 	do_capture_data(uint8_t* data_start, size_t data_size, error_type_t& error_code);
+	size_t 	do_capture_data(audio_sample_t* data_start, size_t data_size, error_type_t& error_code);
 
 	error_type_t do_set_buffers(uint16_t count, uint32_t samples);
 
-	error_type_t do_fill_buffer(const uint8_t* data_start, size_t data_size);
+	error_type_t do_fill_buffer(const audio_sample_t* data_start, size_t data_size);
 
 	error_type_t do_start_playback();
 
@@ -56,6 +56,11 @@ private:
 	std::vector<audio_buffer_t>	buffers;
 	size_t				first_empty_buffer;
 	size_t				first_full_buffer;
+
+
+	bool				mono_source;
+
+	std::vector<int16_t>mono_capture_buffer;
 
 	static bool check_call(int res, std::string message);
 	static void throw_call(bool res, std::string message);

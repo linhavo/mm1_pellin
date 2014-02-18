@@ -30,7 +30,7 @@ AlsaSink::AlsaSink(const pAudioFilter& child_, AlsaDevice::audio_id_t id):
 void AlsaSink::init_buffers()
 {
 	device_.do_set_buffers(buffer_count_, buffer_size_);
-	buffer_.data.resize(buffer_size_*params_.sample_size(),0);
+	buffer_.data.resize(buffer_size_,0);
 	buffer_.params = params_;
 }
 AlsaSink::~AlsaSink()
@@ -49,7 +49,8 @@ error_type_t AlsaSink::do_run()
 			break;
 		}
 		if (buffer_.valid_samples==0) continue;
-		device_.do_fill_buffer(&buffer_.data[0],buffer_.valid_samples*params_.sample_size());
+		device_.do_fill_buffer(&buffer_.data[0],
+				buffer_.valid_samples);//*params_.sample_size());
 		++i;
 	}
 	device_.do_start_playback();
@@ -60,8 +61,12 @@ error_type_t AlsaSink::do_run()
 			logger[log_level::fatal] << "Failed to update";
 			break;
 		}
+		if (buffer_.data[0].left != 0) {
+			logger[log_level::info] << "Pushing non zero!";
+		}
 		buffer_.valid_samples = buffer_size_;
-		ret = device_.do_fill_buffer(&buffer_.data[0],buffer_.valid_samples*params_.sample_size());
+		ret = device_.do_fill_buffer(&buffer_.data[0]
+				,buffer_.valid_samples);//*params_.sample_size());
 		if (ret == error_type_t::buffer_full) continue;
 		if (ret != error_type_t::ok) {
 			break;

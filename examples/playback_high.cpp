@@ -38,7 +38,7 @@ int main(int argc, char** argv) try
 	 ****************************************************************** */
 
 	auto chain = filter_chain<WaveSource>(filename)
-						.add<SimpleEchoFilter>(0.2)
+//						.add<SimpleEchoFilter>(0.2)
 						.add<DefaultSink>(device_id)
 
 						.sink();

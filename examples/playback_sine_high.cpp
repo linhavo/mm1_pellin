@@ -11,6 +11,7 @@
 
 #include "iimavlib.h"
 #include "iimavlib/WaveSource.h"
+#include "iimavlib/WaveSink.h"
 #include "iimavlib/Utils.h"
 #include "iimavlib/AudioFilter.h"
 #include <string>
@@ -38,24 +39,10 @@ private:
 	{
 		// Prepare few values to save typing (and enable some optimizations)
 		const audio_params_t& params = buffer.params;
-		const size_t num_channels = params.num_channels;
 		const size_t rate_int =convert_rate_to_int(params.rate);
 
-		// Currently only 16bit signed samples are supported
-		if (buffer.params.format != sampling_format_t::format_16bit_signed) {
-			return error_type_t::unsupported;
-		}
-
-
-		// Get pointer to the raw data in the buffer (as a int16_t*)
-		int16_t * data = reinterpret_cast<int16_t*>(&buffer.data[0]);
-
-		// Iterate over all usable samples in the buffer
-		for (size_t sample=0;sample<buffer.valid_samples;++sample) {
-			// And for each sample, iterate over all channels
-			for (size_t channel=0;channel<num_channels;++channel){
-				data[sample*num_channels+channel]=static_cast<int16_t>(max_val*std::sin(time_*frequency_*pi2));
-			}
+		for (auto& sample: buffer.data) {
+			sample = static_cast<int16_t>(max_val*std::sin(time_*frequency_*pi2));
 			time_=time_+1.0/rate_int;
 		}
 		return error_type_t::ok;
@@ -91,6 +78,7 @@ int main(int argc, char** argv) try
 
 	// Create filter chain
 	auto chain = filter_chain<SineGenerator>(frequency)
+						.add<WaveSink>("/tmp/xx.wav")
 						.add<PlatformSink>(device_id)
 						.sink();
 

@@ -15,8 +15,15 @@
 #include <vector>
 #include <string>
 #include <set>
-
+#include <stdexcept>
+#include <type_traits>
+#include "AudioSample.h"
 namespace iimavlib {
+
+constexpr int number_of_channels = 2;
+typedef int16_t sample_format_t;
+
+
 /*!
  * @brief Sample rates usable in the library
  */
@@ -31,16 +38,6 @@ enum class sampling_rate_t: uint8_t {
 	rate_192kHz  //!< rate_192kHz
 };
 
-/*!
- * @brief Sampling formats usable in the library
- */
-enum class sampling_format_t: uint8_t {
-	format_unknown,       //!< format_unknown
-	format_8bit_unsigned, //!< format_8bit_unsigned
-	format_8bit_signed,   //!< format_8bit_signed
-	format_16bit_unsigned,//!< format_16bit_unsigned
-	format_16bit_signed   //!< format_16bit_signed
-};
 
 /*!
  * @brief Actions defined for the devices
@@ -70,10 +67,9 @@ enum class error_type_t: uint8_t {
  * @param rate Sampling rate to convert
  * @return Integer representation of the sampling rate
  */
-EXPORT uint32_t convert_rate_to_int(const sampling_rate_t rate);
 
-EXPORT sampling_rate_t convert_int_to_rate(const size_t irate);
-EXPORT uint32_t get_sample_size(const sampling_format_t format);
+EXPORT uint32_t convert_rate_to_int(const sampling_rate_t rate);
+EXPORT sampling_rate_t convert_int_to_rate(const uint32_t irate);
 
 /*!
  * @brief Converts an error code to a corresponding string value
@@ -82,32 +78,39 @@ EXPORT uint32_t get_sample_size(const sampling_format_t format);
  */
 EXPORT std::string error_string(const error_type_t error);
 EXPORT std::string sampling_rate_string(const sampling_rate_t rate);
-EXPORT std::string sampling_format_string(const sampling_format_t format);
-
 
 
 struct audio_params_t {
 	sampling_rate_t rate;
-	sampling_format_t format;
-	uint8_t num_channels;
 	bool enable_resampling;
-	audio_params_t(sampling_rate_t rate = sampling_rate_t::rate_44kHz, sampling_format_t format=sampling_format_t::format_16bit_signed, uint8_t num_channels=2):
-		rate(rate),format(format),num_channels(num_channels),enable_resampling(true) {}
-	uint16_t sample_size() const { return get_sample_size(format)*num_channels; }
+
+	audio_params_t(sampling_rate_t rate = sampling_rate_t::rate_44kHz):
+		rate(rate),enable_resampling(true) {}
+	uint16_t sample_size() const { return sizeof(int16_t)*2; }
+
+	audio_params_t(uint32_t rate_num):enable_resampling(true) {
+		rate = convert_int_to_rate(rate_num);
+		if (rate == sampling_rate_t::rate_unknown)
+			throw std::runtime_error("Unsupported sampling rate provided");
+	}
 };
 
 struct audio_info_t {
 	std::string name;
-	std::size_t max_channels;
-	std::set<std::pair<sampling_format_t, sampling_rate_t>> supported_formats;
+	std::set<sampling_rate_t> supported_rates;
 	bool default_;
-	audio_info_t():max_channels(0),default_(false) {}
+	audio_info_t():/*max_channels(0),*/default_(false) {}
 };
 
+
+
 struct audio_buffer_t {
-	std::vector<uint8_t> data;
+
+	std::vector<audio_sample_t> data;
+
 	audio_params_t params;
 	std::size_t valid_samples;
+
 // private fields
 	bool empty;
 	uint32_t position;

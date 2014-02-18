@@ -19,7 +19,7 @@ public:
 	virtual ~SimpleEchoFilter();
 private:
 	virtual error_type_t do_process(audio_buffer_t& buffer);
-	std::vector<int16_t> old_samples_;
+	std::vector<audio_sample_t> old_samples_;
 	double delay_;
 	double decay_;
 };
