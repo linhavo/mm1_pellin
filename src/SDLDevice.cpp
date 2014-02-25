@@ -26,13 +26,13 @@ struct sdl_pimpl_t {
 namespace {
 	int convert_sdl_keysym_to_key(const SDLKey keysym);
 }
-SDLDevice::SDLDevice(size_t width, size_t height, const std::string& title, bool fullscreen):
+SDLDevice::SDLDevice(int width, int height, const std::string& title, bool fullscreen):
 		width_(width),height_(height),title_(title),finish_(false),
 		data_changed_(false),fullscreen_(fullscreen),flip_required_(false)
 {
-	static_assert(sizeof(RGB)==3,"Wrongly packed RGB struct!");
+	static_assert(sizeof(rgb_t)==3,"Wrongly packed RGB struct!");
 	
-	data_.resize(width*height);
+	data_.resize(width,height);
 	pimpl_.reset(new sdl_pimpl_t());
 }
 
@@ -96,7 +96,7 @@ void SDLDevice::update_data()
 {
 	std::unique_lock<std::mutex> lock(data_mutex_);
 	if (data_changed_) {
-		SDL_Surface* surface = SDL_CreateRGBSurfaceFrom(&data_[0],static_cast<int>(width_),static_cast<int>(height_),24,static_cast<int>(width_*3),0x0000FF,0x00FF00,0xFF0000,0);
+		SDL_Surface* surface = SDL_CreateRGBSurfaceFrom(&data_.data[0],static_cast<int>(width_),static_cast<int>(height_),24,static_cast<int>(width_*3),0x0000FF,0x00FF00,0xFF0000,0);
 		SDL_BlitSurface(surface, nullptr, pimpl_->window_.get(), nullptr);
 		SDL_FreeSurface(surface);
 		flip_required_ = true;
@@ -170,20 +170,53 @@ bool SDLDevice::do_mouse_button(const int, const bool, const int, const int)
 	return true;
 }
 
-template<>
-bool SDLDevice::update(const data_type& data) {
-	if (finish_) return false;
-	std::unique_lock<std::mutex> lock(data_mutex_);
-	if (data.size()>data_.size()) data_.resize(data.size());
-	std::copy(data.begin(),data.end(),data_.begin());
-	data_changed_ = true;
-	return true;
-}
+//template<>
+//bool SDLDevice::update(const data_type& data) {
+//	if (finish_) return false;
+//	std::unique_lock<std::mutex> lock(data_mutex_);
+//	if (data.size()>data_.size()) data_.resize(data.size());
+//	std::copy(data.begin(),data.end(),data_.begin());
+//	data_changed_ = true;
+//	return true;
+//}
 
 bool SDLDevice::is_stopped() const
 {
 	return finish_;
 }
+
+bool SDLDevice::blit(const video_buffer_t& new_data, rectangle_t position) {
+	if (is_stopped()) return false;
+	std::unique_lock<std::mutex> lock(data_mutex_);
+
+	if (new_data.size.x != 0 || new_data.size.y != 0) throw std::runtime_error("Video buffer has to be placed at 0,0!");
+	if (position.width < 0) {
+		position.width = new_data.size.width;
+	}
+	if (position.height < 0) {
+		position.height = new_data.size.height;
+	}
+
+	// Area of input buffer, that will be copied
+//	position = intersection(new_data.size, position);
+
+	// Area of internal buffer that will be overwritten
+	rectangle_t target = intersection(position, data_.size);
+
+
+	for (int line = 0; line < target.height; ++line) {
+		auto input_iter = new_data.begin() + line * new_data.size.width;
+		auto input_iter_end = input_iter + position.width;
+		auto output_iter = data_.begin() + (line + position.y)* data_.size.width + position.y;
+		std::copy(input_iter, input_iter_end, output_iter);
+	}
+
+
+	data_changed_ = true;
+	return true;
+}
+
+
 
 namespace {
 using namespace keys;

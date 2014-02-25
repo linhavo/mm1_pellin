@@ -6,6 +6,7 @@ SET (IIMA_SRC Utils.cpp AudioTypes.cpp AudioFilter.cpp AudioSink.cpp
 				WaveFile.cpp WaveSource.cpp WaveSink.cpp
 				filters/SineMultiply.cpp filters/NullFilter.cpp 
 				filters/SimpleEchoFilter.cpp
+				video_ops.cpp
 				
 				
 				../include/iimavlib.h ../include/iimavlib/Utils.h ../include/iimavlib/AudioTypes.h 
@@ -13,6 +14,7 @@ SET (IIMA_SRC Utils.cpp AudioTypes.cpp AudioFilter.cpp AudioSink.cpp
 				../include/iimavlib/WaveFile.h ../include/iimavlib/WaveSource.h ../include/iimavlib/WaveSink.h
 				../include/iimavlib/filters/SineMultiply.h ../include/iimavlib/filters/NullFilter.h 
 				../include/iimavlib/filters/SimpleEchoFilter.h
+				../include/iimavlib/video_types.h ../include/iimavlib/video_ops.h
 				)
 IF (UNIX)
 SET(IIMA_SRC ${IIMA_SRC} AlsaDevice.cpp AlsaSink.cpp AlsaSource.cpp
