@@ -48,7 +48,7 @@ template<typename T> void shiftbmp(T&d, T&s, int dx, int dy) {
 		for(x=0;x<xMax;x++) {
 			xn=(x-dx+xMax)%xMax;
 			yn=(y-dy+yMax)%yMax;
-			d[yn*xMax+xn]=s[y*xMax+x];
+			d(xn,yn)=s(x, y);
 		}
 	}
 }
@@ -64,7 +64,7 @@ template<typename T> void rot0(T&d, T&s, double deg) {
 			xn=round_impl(x*cosT+y*sinT);
 			yn=round_impl(y*cosT-x*sinT);
 			if(xn>=0 && xn<xMax && yn>=0 && yn<yMax) 
-				d[y*xMax+x]=s[yn*xMax+xn];
+				d(x,y)=s(xn, yn);
 		}
 	}
 }
@@ -82,7 +82,7 @@ template<typename T> void rot(T&d, T&s, double deg) {
 			xn=round_impl(  (x-cx)*cosT+(y-cy)*sinT+cx   );
 			yn=round_impl(  (y-cy)*cosT-(x-cx)*sinT+cy     );
 			if(xn>=0 && xn<xMax && yn>=0 && yn<yMax) 
-				d[y*xMax+x]=s[yn*xMax+xn];
+				d(x, y)=s(xn, yn);
 		}
 	}
 }
@@ -98,7 +98,7 @@ template<typename T> void rotc(T&d, T&s, double deg, int cx=0, int cy=0) {
 			xn=round_impl(  (x-cx)*cosT+(y-cy)*sinT+cx   );
 			yn=round_impl(  (y-cy)*cosT-(x-cx)*sinT+cy     );
 			if(xn>=0 && xn<xMax && yn>=0 && yn<yMax) 
-				d[y*xMax+x]=s[yn*xMax+xn];
+				d(x,y)=s(xn, yn);
 		}
 	}
 }
@@ -120,7 +120,7 @@ template<typename T> void rotcsub(T&d, T&s, double deg, int cx=0, int cy=0,int x
 				xn=round_impl(  (x-cx)*cosT+(y-cy)*sinT+cx   ); 
 				yn=round_impl(  (y-cy)*cosT-(x-cx)*sinT+cy     );
 				if(xn>=0 && xn<xMax && yn>=0 && yn<yMax) 
-					d[y*xMax+x]=s[yn*xMax+xn];
+					d(x,y)=s(xn, yn);
 			}
 		}
 	}
@@ -130,7 +130,7 @@ template<typename T> void rotcsub(T&d, T&s, double deg, int cx=0, int cy=0,int x
 int main()
 {
 	iimavlib::SDLDevice sdl(xMax,yMax,"TRANSFORM");
-	iimavlib::SDLDevice::data_type data(xMax*yMax),rx(xMax*yMax);
+	iimavlib::video_buffer_t data(xMax, yMax),rx(xMax, yMax);
 	
 	int i=0,j=0;
 	bool swtch=false;
@@ -140,7 +140,7 @@ int main()
 	int cx=xMax/2, cy=yMax/2;
 
 	//inicializace bitmapy
-	std::for_each(data.begin(),data.end(),[&](iimavlib::RGB&rgb){
+	std::for_each(data.begin(),data.end(),[&](iimavlib::rgb_t&rgb){
 			
 		//inicializace - cerne pozadi
 		rgb.r=rgb.g=rgb.b=0;
@@ -167,14 +167,14 @@ int main()
 	//nastartovani noveho vlakna
 	sdl.start();
 	//hlavni vykreslovaci smycka
-	while(sdl.update(data)) {
+	while(sdl.blit(data)) {
 		int i=0,j=0;
 		//prohozeni bitmap v pameti - do jedne se kreslilo a ted se bude zobrazovat 
 		//a do te druhe se ted bude kreslit a v dalsim cyklu se zobrazi
 		std::swap(data,rx);
 
 		//rotace bitmapy
-		rotcsub<iimavlib::SDLDevice::data_type>(data,rx,angle,cx,cy);
+		rotcsub<iimavlib::video_buffer_t>(data,rx,angle,cx,cy);
 		//posunuti bitmapy
 		//shiftbmp<iimavlib::SDLDevice::data_type>(data,rx,1,1);
 		
