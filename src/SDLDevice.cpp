@@ -11,6 +11,7 @@
 #include "SDL.h"
 #include "iimavlib/SDLDevice.h"
 #include "iimavlib/Utils.h"
+#include "iimavlib/video_ops.h"
 #ifdef SYSTEM_LINUX
 #include <unistd.h>
 #endif
@@ -189,27 +190,7 @@ bool SDLDevice::blit(const video_buffer_t& new_data, rectangle_t position) {
 	if (is_stopped()) return false;
 	std::unique_lock<std::mutex> lock(data_mutex_);
 
-	if (new_data.size.x != 0 || new_data.size.y != 0) throw std::runtime_error("Video buffer has to be placed at 0,0!");
-	if (position.width < 0) {
-		position.width = new_data.size.width;
-	}
-	if (position.height < 0) {
-		position.height = new_data.size.height;
-	}
-
-	// Area of input buffer, that will be copied
-//	position = intersection(new_data.size, position);
-
-	// Area of internal buffer that will be overwritten
-	rectangle_t target = intersection(position, data_.size);
-
-
-	for (int line = 0; line < target.height; ++line) {
-		auto input_iter = new_data.begin() + line * new_data.size.width;
-		auto input_iter_end = input_iter + position.width;
-		auto output_iter = data_.begin() + (line + position.y)* data_.size.width + position.y;
-		std::copy(input_iter, input_iter_end, output_iter);
-	}
+	iimavlib::blit(data_, new_data, std::move(position));
 
 
 	data_changed_ = true;
