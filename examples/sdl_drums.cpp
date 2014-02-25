@@ -24,12 +24,12 @@ namespace iimavlib {
 class Drums: public SDLDevice, public AudioFilter
 {
 public:
-	static const RGB black;
+	static const rgb_t black;
 
-	Drums(size_t width, size_t height):
+	Drums(int width, int height):
 		SDLDevice(width,height,"Drums"),
 		AudioFilter(pAudioFilter()),
-	data_(width*height,black),index_(-1),position_(0)
+	data_({0,0,width,height},black),index_(-1),position_(0)
 	{
 		// Load the smaples
 		load_file("../data/drum0.wav");
@@ -48,7 +48,7 @@ private:
 	/// Vector of vector to hold audio samples for the drums
 	std::vector<std::vector<audio_sample_t>> drums_;
 	/// Video data
-	data_type data_;
+	video_buffer_t data_;
 	/// Index of currently playing drum
 	int index_;
 	/// Next sample to be played for current drum
@@ -108,7 +108,7 @@ private:
 	void update_screen()
 	{
 		/// Color to fill the screen with, default to black
-		RGB color = black;
+		rgb_t color = black;
 		/// Intensity of the color (255 at the beginning of the sample and gets darker as the sample continues.)
 		uint8_t intensity = 0;
 		{
@@ -126,9 +126,9 @@ private:
 			default:break;
 		}
 		// Fill the color to out buffer
-		std::fill(data_.begin(), data_.end(), color);
+		data_.clear(color);
 		// And push it to the rendering thread
-		update(data_);
+		blit(data_);
 	}
 
 	error_type_t do_process(audio_buffer_t& buffer)
@@ -206,7 +206,7 @@ private:
 		return true;
 	}
 };
-const RGB Drums::black = {0, 0, 0};
+const rgb_t Drums::black = {0, 0, 0};
 }
 
 
