@@ -57,10 +57,10 @@ IF (BUILD_EXAMPLES)
 #		target_link_libraries ( sdl_transform  ${EX_LIBS} )
 #		install(TARGETS sdl_transform RUNTIME DESTINATION bin)
 #		
-#		add_executable(sdl_cellular_automata sdl_cellular_automata.cpp)
-#		target_link_libraries ( sdl_cellular_automata  ${EX_LIBS} )
-#		install(TARGETS sdl_cellular_automata RUNTIME DESTINATION bin)
-#		
+		add_executable(sdl_cellular_automata sdl_cellular_automata.cpp)
+		target_link_libraries ( sdl_cellular_automata  ${EX_LIBS} )
+		install(TARGETS sdl_cellular_automata RUNTIME DESTINATION bin)
+		
 		add_executable(sdl_drums sdl_drums.cpp)
 		target_link_libraries ( sdl_drums  ${EX_LIBS} )
 		install(TARGETS sdl_drums RUNTIME DESTINATION bin)

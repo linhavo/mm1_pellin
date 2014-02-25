@@ -35,7 +35,7 @@ typedef enum{healthful=0,live=1,ill=2,dead=3,empty=4} ca_state;
 //declaration of one cell (state, age)
 typedef struct{ca_state st; int age;} ca_cell;//nezapomenout inicializovat instanci
 //the table assigning colors to given states of cells declared above (5 states - 5 colors)
-const iimavlib::RGB color_tab[]={{0,255,0},{0,0,255},{255,0,0},{0,0,0},{255,255,255}};
+const iimavlib::rgb_t color_tab[]={{0,255,0},{0,0,255},{255,0,0},{0,0,0},{255,255,255}};
 
 //round double argument
 int round_impl(double x) {
@@ -97,12 +97,12 @@ template<typename T>void eval(T&ca1,T&ca2) {
 
 //based on data from automata (stored in ca) fills cell [i,j] in bitmap (stored in cabm)
 template<typename T1, typename T2>void fill_cell(T1&cabm, T2&ca, int i, int j) {
-	iimavlib::RGB rgb=color_tab[ca[i*cellx+j].st];
+	iimavlib::rgb_t rgb=color_tab[ca[i*cellx+j].st];
 	int sx=j*hx,sy=i*hy,xstop=sx+hx,ystop=sy+hy;
 
 	for(int k=sy;k<ystop;k++)
 		for(int l=sx;l<xstop;l++)
-			cabm[k*xMax+l]=rgb;
+			cabm(k,l)=rgb;
 }
 
 //draw whole new bitmap (cabm) based on data from cellular automata (ca) 
@@ -116,7 +116,7 @@ int main()
 {
 	std::vector<ca_cell> ca1(cellx*celly), ca2(cellx*celly);
 	iimavlib::SDLDevice sdl(xMax,yMax,"CELLULAR");
-	iimavlib::SDLDevice::data_type data(xMax*yMax);
+	iimavlib::video_buffer_t data(xMax, yMax);
 	
 //	int i=0,j=0;
 	
@@ -134,7 +134,7 @@ int main()
 	sdl.start();
 	//the main drawing loop
 //	i=0;
-	while(sdl.update(data)) {
+	while(sdl.blit(data)) {
 		eval(ca1,ca2);
 		draw(data,ca1);
 		std::swap(ca1,ca2);
