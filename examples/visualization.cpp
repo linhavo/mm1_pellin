@@ -11,6 +11,7 @@
 #include "iimavlib/WaveSource.h"
 #include "iimavlib_high_api.h"
 #include "iimavlib/Utils.h"
+#include "iimavlib/video_ops.h"
 
 #ifdef SYSTEM_LINUX
 #include <unistd.h>
@@ -22,7 +23,7 @@ using namespace iimavlib;
 class Visualization: public AudioFilter {
 public:
 	Visualization(const pAudioFilter& child, size_t width, size_t height, double time):
-		AudioFilter(child),sdl_(width, height),data_(width*height),width_(width),height_(height),
+		AudioFilter(child),sdl_(width, height),data_(width,height),width_(width),height_(height),
 		time_(time),end_(false),changed_(false),last_sample_(0),cache_size_(0)
 	{
 		const audio_params_t& params = get_params();
@@ -41,10 +42,6 @@ private:
 	error_type_t do_process(audio_buffer_t& buffer)
 	{
 		if (end_) return error_type_t::failed;
-		// Currently only 16bit signed samples are supported
-//		if (buffer.params.format != sampling_format_t::format_16bit_signed) {
-//			return error_type_t::unsupported;
-//		}
 
 		update_cache(buffer);
 		return error_type_t::ok;
@@ -55,7 +52,7 @@ private:
 			if (changed_) {
 					draw_wave();
 			}
-			if (!sdl_.update(data_)) {
+			if (!sdl_.blit(data_)) {
 				logger[log_level::debug] << "Drawing thread finishing";
 				end_ = true;
 			}
@@ -78,8 +75,8 @@ private:
 
 	void draw_wave() {
 		changed_.store(false);
-		RGB black = {0,0,0};
-		std::fill(data_.begin(),data_.end(),black);
+		rgb_t black = {0,0,0};
+		data_.clear(black);
 		std::vector<size_t> vals;
 		vals.reserve(width_);
 		{
@@ -98,21 +95,11 @@ private:
 		
 	}
 
-	void draw_line(size_t x, size_t y0, size_t y1) {
-		size_t y=y0;
-		if (y0==y1) {
-			data_[x+y*width_].r = 255;
-			data_[x+1+y*width_].r = 255;
-		} else if (y0 < y1) {
-			for (;y<(y1+y0)/2;++y) data_[x+y*width_].r = 255;
-			for (;y<y1;++y) data_[x+1+y*width_].r = 255;
-		} else {
-			for (;y>(y1+y0)/2;--y) data_[x+y*width_].r = 255;
-			for (;y>y1;--y) data_[x+1+y*width_].r = 255;
-		}
+	void draw_line(int x, int y0, int y1) {
+		iimavlib::draw_line(data_, {x,y0}, {x+1,y1}, {255,0,0});
 	}
 	SDLDevice sdl_;
-	SDLDevice::data_type data_;
+	video_buffer_t data_;
 	std::thread thread_;
 	std::mutex mutex_;
 	std::vector<audio_sample_t> sample_cache_;
