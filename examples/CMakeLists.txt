@@ -10,6 +10,10 @@ IF (BUILD_EXAMPLES)
 	target_link_libraries ( playback_wav  ${EX_LIBS} )
 	install(TARGETS playback_wav RUNTIME DESTINATION bin)
 	
+	add_executable(record_wav record_wav.cpp)
+	target_link_libraries (record_wav  ${EX_LIBS} )
+	install(TARGETS record_wav RUNTIME DESTINATION bin)
+	
 	add_executable(playback_sine playback_sine.cpp)
 	target_link_libraries (playback_sine  ${EX_LIBS} )
 	install(TARGETS playback_sine RUNTIME DESTINATION bin)
