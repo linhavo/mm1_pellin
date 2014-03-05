@@ -19,7 +19,7 @@ WaveFile::WaveFile(const std::string& filename, audio_params_t params)
 	if (!file_.is_open()) throw std::runtime_error("Failed to open the output file");
 	header_ = wav_header_t(number_of_channels,
 								convert_rate_to_int(params_.rate),
-								params_.sample_size()*8);
+								16);//params_.sample_size()*8);
 	update(0);
 }
 
