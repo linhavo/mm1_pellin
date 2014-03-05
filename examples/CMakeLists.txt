@@ -6,9 +6,9 @@ IF (BUILD_EXAMPLES)
 	target_link_libraries ( enumerate_devices  ${EX_LIBS} )
 	install(TARGETS enumerate_devices RUNTIME DESTINATION bin)
 	
-	add_executable(playback_high playback_high.cpp)
-	target_link_libraries ( playback_high  ${EX_LIBS} )
-	install(TARGETS playback_high RUNTIME DESTINATION bin)
+	add_executable(playback_wav playback_wav.cpp)
+	target_link_libraries ( playback_wav  ${EX_LIBS} )
+	install(TARGETS playback_wav RUNTIME DESTINATION bin)
 	
 	add_executable(playback_sine_high playback_sine_high.cpp)
 	target_link_libraries ( playback_sine_high  ${EX_LIBS} )
