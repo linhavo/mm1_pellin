@@ -98,7 +98,7 @@ void draw_line_steep(iimavlib::video_buffer_t& data, iimavlib::rectangle_t start
 	for (int row = start.y; row < end.y; ++row) {
 		if (row < 0 || row >= data.size.height) continue;
 		const int x = start.x + x_length * (row - start.y) / y_length;
-		if (x < 0 || x >= data.size.height) continue;
+		if (x < 0 || x >= data.size.width) continue;
 		data(x,row) = color;
 	}
 }
