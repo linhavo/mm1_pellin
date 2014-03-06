@@ -27,16 +27,24 @@ WinMMSource::~WinMMSource()
 error_type_t WinMMSource::do_process(audio_buffer_t& buffer)
 {
 	const audio_params_t& params = buffer.params;
-	error_type_t err;
-	size_t captured = device_.do_capture_data(&buffer.data[0],buffer.valid_samples*params.sample_size(),err);
+	error_type_t err = error_type_t::buffer_empty;
+	
+	size_t captured;
+	while (err == error_type_t::buffer_empty) {
+		captured = device_.do_capture_data(&buffer.data[0],buffer.valid_samples,err);
+	}
+
+
 	if (err == error_type_t::xrun) {
 		logger[log_level::info] << "An overrun occured!";
 	} else if (err !=error_type_t::ok) {
 		logger[log_level::fatal] << "An error occured: " << error_string(err);
 		return error_type_t::ok;
 	}
+	//logger[log_level::info] << "Captured " << captured << " samples ("<<buffer.valid_samples<<")";
 	buffer.valid_samples = captured;
-//	logger[log_level::debug] << "Captured " << captured << " samples";
+	buffer.data.resize(captured);
+	
 	return error_type_t::ok;
 
 }

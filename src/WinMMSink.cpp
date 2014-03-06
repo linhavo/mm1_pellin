@@ -52,15 +52,15 @@ WinMMSink::WinMMSink(const pAudioFilter& child_, WinMMSink::audio_id_t id):
 bool WinMMSink::winmm_open_device()
 {
 	size_t sampling_rate_ 		= convert_rate_to_int(params_.rate);
-	size_t bps_ 				= get_sample_size(params_.format) * 8;
+	size_t bps_ 				= params_.sample_size()* 8;
 
 	WAVEFORMATEX fmt;
 	fmt.wFormatTag		= WAVE_FORMAT_PCM;
-	fmt.nChannels		= static_cast<WORD>(params_.num_channels);
+	fmt.nChannels		= static_cast<WORD>(2/*number_of_channels*/);
 	fmt.nSamplesPerSec	= static_cast<DWORD>(sampling_rate_);
-	fmt.nAvgBytesPerSec	= static_cast<DWORD>(sampling_rate_*params_.num_channels*bps_/8);
-	fmt.nBlockAlign		= static_cast<WORD>(params_.num_channels*bps_/8);
-	fmt.wBitsPerSample	= static_cast<WORD>(bps_);
+	fmt.nAvgBytesPerSec	= static_cast<DWORD>(sampling_rate_*4/*bps_/8*/);
+	fmt.nBlockAlign		= static_cast<WORD>(4);
+	fmt.wBitsPerSample	= static_cast<WORD>(16);
 	fmt.cbSize			= 0;
 	throw_call(waveOutOpen(&out_handle,id_,&fmt,
 		reinterpret_cast<DWORD_PTR>(&win_mm_device_playback_callback),
@@ -127,7 +127,7 @@ void WinMMSink::init_buffers()
 	}
 	buffers_.resize(buffer_count_);
 	for (win_mm_buffer_t& buffer:buffers_) {
-		buffer.buffer_.data.resize(buffer_size_*params_.sample_size(),0);
+		buffer.buffer_.data.resize(buffer_size_,0);
 		buffer.buffer_.params = params_;
 		buffer.buffer_.valid_samples=buffer_size_;
 		winmm_prepare_buffer(buffer);
