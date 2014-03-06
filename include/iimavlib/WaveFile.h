@@ -107,6 +107,8 @@ private:
 	wav_header_t header_;
 	audio_params_t	params_;
 	std::fstream file_;
+	bool mono_source_;
+	std::vector<int16_t> mono_buffer_;
 
 	void update(size_t new_data_size = 0);
 
