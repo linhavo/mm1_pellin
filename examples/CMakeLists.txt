@@ -26,6 +26,10 @@ IF (BUILD_EXAMPLES)
 	target_link_libraries ( playthrough  ${EX_LIBS} )
 	install(TARGETS playthrough RUNTIME DESTINATION bin)
 	
+	add_executable(empty_project empty_project.cpp)
+	target_link_libraries (empty_project  ${EX_LIBS} )
+	install(TARGETS empty_project RUNTIME DESTINATION bin)
+	
 	IF(SDL_FOUND)
 		include_directories(${SDL_INCLUDE_DIR})
 		add_executable(sdl_window sdl_window.cpp)
