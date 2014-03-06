@@ -10,7 +10,11 @@
 #include <algorithm>
 #include <ostream>
 #include <type_traits>
+#include <vector>
+#include <cstdint>
+#ifndef SYSTEM_WINDOWS
 #include <initializer_list>
+#endif
 
 #ifndef VIDEO_TYPES_H_
 #define VIDEO_TYPES_H_
@@ -23,7 +27,7 @@ struct EXPORT rectangle_t {
 
 	rectangle_t(int x, int y, int width = 0, int height = 0):
 		x(x),y(y),width(width),height(height) {}
-	~rectangle_t() noexcept {}
+	~rectangle_t() /*noexcept */{}
 };
 
 inline rectangle_t intersection(rectangle_t rect1, const rectangle_t& rect2)
@@ -41,6 +45,10 @@ struct EXPORT rgb_t {
 	uint8_t r:8;
 	uint8_t g:8;
 	uint8_t b:8;
+
+	rgb_t(uint8_t r=0, uint8_t g = 0, uint8_t b = 0):
+		r(r),g(g),b(b){}
+
 	template<typename T>
 	typename std::enable_if<std::is_arithmetic<T>::value,rgb_t&>::type
 	operator*=(T val) { r*=val; g*=val; b*=val; return *this; }
@@ -62,29 +70,34 @@ operator/(rgb_t rgb, T val) {
 	return rgb;
 }
 struct EXPORT video_buffer_t {
+#ifdef MODERN_COMPILER
 	using data_type = std::vector<rgb_t>;
 	using iterator =  data_type::iterator;
 	using const_iterator =  data_type::const_iterator;
-
+#else // Stupid MSVC compiler
+	typedef std::vector<rgb_t> data_type;
+	typedef data_type::iterator iterator;
+	typedef data_type::const_iterator const_iterator;
+#endif
 	rectangle_t size;
 	std::vector<rgb_t> data;
 
-	video_buffer_t():size{0,0,0,0} {}
+	video_buffer_t():size(0,0,0,0) {}
 
-	video_buffer_t(rectangle_t size, rgb_t color = {0,0,0}):size(size){
+	video_buffer_t(rectangle_t size, rgb_t color = rgb_t()):size(size){
 		resize(size, color);
 	}
-	video_buffer_t(int width, int height, rgb_t color = {0,0,0}):size{0,0,width,height}{
+	video_buffer_t(int width, int height, rgb_t color = rgb_t()):size(0,0,width,height){
 		resize(size, color);
 	}
-	~video_buffer_t() noexcept {}
+	~video_buffer_t() /* noexcept */ {}
 
-	void resize(int width, int height, rgb_t color={0,0,0}) {
-		size = {0, 0, width, height};
+	void resize(int width, int height, rgb_t color= rgb_t()) {
+		size = rectangle_t(0, 0, width, height);
 		data.resize(width * height, color);
 	}
 
-	void resize(rectangle_t rect, rgb_t color = {0,0,0}) {
+	void resize(rectangle_t rect, rgb_t color = rgb_t()) {
 		resize(rect.width, rect.height, color);
 	}
 

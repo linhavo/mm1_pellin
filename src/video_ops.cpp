@@ -9,6 +9,7 @@
 
 #include "iimavlib/video_ops.h"
 #include <cmath>
+#include <numeric>
 
 namespace iimavlib {
 
@@ -50,7 +51,7 @@ void draw_circle(video_buffer_t& data, rectangle_t rectangle, rgb_t color)
 	for (int l = min_line; l < max_line; ++l) {
 		const int 	line 	= l - middle_line;
 
-		const int 	x_diff 	= rectangle.width * std::sqrt(1-std::pow(2.0*line/rectangle.height,2.0)) / 2;
+		const int 	x_diff 	= static_cast<int>(rectangle.width * std::sqrt(1-std::pow(2.0*line/rectangle.height,2.0)) / 2);
 		int 		x0 		= std::max(rectangle.x + rectangle.width / 2 - x_diff, 0);
 		const int 	x1 		= std::min(rectangle.x + rectangle.width / 2 + x_diff, data.size.width);
 		auto 		ptr 	= base_ptr + x0;
@@ -77,16 +78,16 @@ void draw_empty_rectangle(video_buffer_t& data, rectangle_t rectangle, int borde
 	rectangle = intersection(data.size, rectangle);
 
 	// Draw top part
-	draw_rectangle(data, {rectangle.x, rectangle.y, rectangle.width, border}, color);
+	draw_rectangle(data, rectangle_t(rectangle.x, rectangle.y, rectangle.width, border), color);
 	// Draw bottom part
-	draw_rectangle(data, {rectangle.x, rectangle.y+ rectangle.height - border,
-					rectangle.width, border}, color);
+	draw_rectangle(data, rectangle_t(rectangle.x, rectangle.y+ rectangle.height - border,
+					rectangle.width, border), color);
 	// Draw left part
-	draw_rectangle(data, {rectangle.x, rectangle.y + border,
-					border, rectangle.height-2*border}, color);
+	draw_rectangle(data, rectangle_t(rectangle.x, rectangle.y + border,
+					border, rectangle.height-2*border), color);
 	// Draw right part
-	draw_rectangle(data, {rectangle.x + rectangle.width - border, rectangle.y + border,
-					border, rectangle.height- 2* border}, color);
+	draw_rectangle(data, rectangle_t(rectangle.x + rectangle.width - border, rectangle.y + border,
+					border, rectangle.height- 2* border), color);
 }
 
 void draw_line_steep(iimavlib::video_buffer_t& data, iimavlib::rectangle_t start, iimavlib::rectangle_t end, iimavlib::rgb_t color)
@@ -121,8 +122,8 @@ void draw_line_thick(iimavlib::video_buffer_t& data, iimavlib::rectangle_t start
 	const int half_border = border/2;
 	for (int i = 0; i < border; ++i) {
 
-		draw_line(data, {start.x, start.y +i - half_border, 0, 0},
-						{end.x, end.y +i - half_border, 0, 0},color);
+		draw_line(data, rectangle_t(start.x, start.y +i - half_border, 0, 0),
+					rectangle_t(end.x, end.y +i - half_border, 0, 0),color);
 	}
 }
 
