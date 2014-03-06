@@ -60,8 +60,10 @@ error_type_t WaveFile::store_data(const std::vector<audio_sample_t>& data, size_
 {
 	if (!sample_count) sample_count = data.size();
 	const size_t data_size = sample_count*params_.sample_size();
-	update(data_size);
-	file_.write(reinterpret_cast<const char*>(&data[0]),data_size);
+	if (data_size) {
+		update(data_size);
+		file_.write(reinterpret_cast<const char*>(&data[0]),data_size);
+	}
 	return error_type_t::ok;
 }
 
