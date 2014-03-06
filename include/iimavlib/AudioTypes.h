@@ -20,7 +20,7 @@
 #include "AudioSample.h"
 namespace iimavlib {
 
-constexpr int number_of_channels = 2;
+const int number_of_channels = 2;
 typedef int16_t sample_format_t;
 
 

@@ -78,16 +78,16 @@ extern  EXPORT Log logger;
  *
  * Usage std::map<A, B> name_of_map = InitMap<A, B>(a0, b0)(a1, b1)(a2, b2);
  */
-//template<class Key, class Value> class EXPORT InitMap {
-//public:
-//	operator std::map<Key, Value>() { return tmp_map; }
-//	InitMap() {}
-//	InitMap(const Key& key, const Value& value) {tmp_map[key]=value;}
-//	InitMap & operator() (const Key& key, const Value& value) {tmp_map[key]=value;return *this;}
-//protected:
-//	std::map<Key, Value> tmp_map;
-//};
-//
+template<class Key, class Value> class InitMap {
+public:
+	operator std::map<Key, Value>() { return tmp_map; }
+	InitMap() {}
+	InitMap(const Key& key, const Value& value) {tmp_map[key]=value;}
+	InitMap & operator() (const Key& key, const Value& value) {tmp_map[key]=value;return *this;}
+protected:
+	std::map<Key, Value> tmp_map;
+};
+
 //template<class Value> class InitVector {
 //public:
 //	operator std::vector<Value>() { return tmp_vec; }

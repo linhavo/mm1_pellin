@@ -52,8 +52,8 @@ struct audio_sample_t {
 	template<typename T>
 	typename std::enable_if<std::is_arithmetic<T>::value,audio_sample_t&>::type
 	operator*=(T value) {
-		left  *= value;
-		right *= value;
+		left  = static_cast<int16_t>(left * value);
+		right = static_cast<int16_t>(right * value);
 		return *this;
 	}
 	template<typename T>

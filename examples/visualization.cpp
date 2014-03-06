@@ -22,7 +22,7 @@
 using namespace iimavlib;
 class Visualization: public AudioFilter {
 public:
-	Visualization(const pAudioFilter& child, size_t width, size_t height, double time):
+	Visualization(const pAudioFilter& child, int width, int height, double time):
 		AudioFilter(child),sdl_(width, height),data_(width,height),width_(width),height_(height),
 		time_(time),end_(false),changed_(false),last_sample_(0),cache_size_(0)
 	{
@@ -75,36 +75,36 @@ private:
 
 	void draw_wave() {
 		changed_.store(false);
-		rgb_t black = {0,0,0};
+		rgb_t black (0,0,0);
 		data_.clear(black);
-		std::vector<size_t> vals;
+		std::vector<int> vals;
 		vals.reserve(width_);
 		{
 			std::unique_lock<std::mutex> lock(mutex_);
-			for (size_t x = 0;x < width_; ++x) {
+			for (int x = 0;x < width_; ++x) {
 				size_t sample_num = x*cache_size_/width_;
 				const auto& sample = sample_cache_[sample_num];
-				size_t y = static_cast<size_t>(height_/2 + static_cast<double>(height_)*sample.left/std::numeric_limits<int16_t>::max()/2);
-				y = std::min(height_-1,std::max(y,static_cast<size_t>(0)));
+				int y = static_cast<int>(height_/2 + static_cast<double>(height_)*sample.left/std::numeric_limits<int16_t>::max()/2);
+				y = std::min(height_-1,std::max(y,0));
 				vals.push_back(y);
 			}	
 		}
-		for (size_t x = 1;x < width_; ++x) {
+		for (int x = 1;x < width_; ++x) {
 			draw_line(x-1,vals[x-1],vals[x]);
 		}
 		
 	}
 
 	void draw_line(int x, int y0, int y1) {
-		iimavlib::draw_line(data_, {x,y0}, {x+1,y1}, {255,0,0});
+		iimavlib::draw_line(data_, rectangle_t(x,y0), rectangle_t(x+1,y1), rgb_t(255,0,0));
 	}
 	SDLDevice sdl_;
 	video_buffer_t data_;
 	std::thread thread_;
 	std::mutex mutex_;
 	std::vector<audio_sample_t> sample_cache_;
-	size_t width_;
-	size_t height_;
+	int width_;
+	int height_;
 	double time_;
 	std::atomic<bool> end_;
 	std::atomic<bool> changed_;

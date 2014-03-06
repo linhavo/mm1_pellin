@@ -29,7 +29,7 @@ public:
 	Drums(int width, int height):
 		SDLDevice(width,height,"Drums"),
 		AudioFilter(pAudioFilter()),
-	data_({0,0,width,height},black),index_(-1),position_(0)
+	data_(rectangle_t(0,0,width,height),black),index_(-1),position_(0)
 	{
 		// Load the smaples
 		load_file("../data/drum0.wav");
@@ -115,7 +115,7 @@ private:
 			std::unique_lock<std::mutex> lock(position_mutex_); // Lock the variables
 			if (index_ >= 0 && static_cast<size_t>(index_) < drums_.size()) {
 				// Calculate the intensity for valid index
-				intensity = static_cast<uint8_t>(255.0 - (2.0*255.0*position_/drums_[index_].size()));
+				intensity = static_cast<uint8_t>(255.0 - (255.0*position_/drums_[index_].size()));
 			}
 		}
 		// Set the color based on sample index
@@ -135,22 +135,15 @@ private:
 	{
 		if (is_stopped()) return error_type_t::failed;
 		const audio_params_t& params = buffer.params;
-//		const size_t num_channels = params.num_channels;
 
-		// Currently only 16bit signed samples are supported
-//		if (buffer.params.format != sampling_format_t::format_16bit_signed ||
-//			num_channels != 2) {
-//			return error_type_t::unsupported;
-//		}
-
-		// Get pointer to the raw data in the buffer (as a int16_t*)
+		// Get iterator to the data in the buffer
 		auto data = buffer.data.begin();
 
 		if (index_ < 0 || (drums_.size()<=static_cast<size_t>(index_))) {
 			// If there's no active drum, we just fill the buffer with zeroes
 			std::fill(data,data+buffer.valid_samples,0);
 		} else {
-			logger[log_level::info] << "Using " << index_ << " from " << position_;
+			//logger[log_level::info] << "Using " << index_ << " from " << position_;
 			std::unique_lock<std::mutex> lock(position_mutex_);
 			// Get ref. to the current drum's buffer
 			const auto& drum = drums_[index_];
@@ -206,7 +199,7 @@ private:
 		return true;
 	}
 };
-const rgb_t Drums::black = {0, 0, 0};
+const rgb_t Drums::black (0, 0, 0);
 }
 
 

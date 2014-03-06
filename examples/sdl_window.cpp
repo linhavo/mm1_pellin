@@ -20,7 +20,7 @@
 namespace {
 iimavlib::rgb_t iter_color(int i, int iterations)
 {
-	const iimavlib::rgb_t white = {255,255,255};
+	const iimavlib::rgb_t white (255,255,255);
 	const float val = 1 - (i+1.0) / iterations;
 	return white * val * val;
 }
@@ -34,7 +34,7 @@ void mandelbrot(iimavlib::video_buffer_t& data, int iterations)
 {
 	for (int line = 0; line < data.size.height; ++line) {
 		for (int row = 0; row < data.size.width; ++row) {
-			const std::complex<float> z0 {2.0f * row/data.size.width - 1.5f, 2.0f * line/data.size.height - 1.0f};
+			const std::complex<float> z0 (2.0f * row/data.size.width - 1.5f, 2.0f * line/data.size.height - 1.0f);
 			std::complex<float> z = z0;
 			for (int i =0;i<iterations;++i) {
 				z = z*z + z0;
@@ -43,7 +43,7 @@ void mandelbrot(iimavlib::video_buffer_t& data, int iterations)
 					break;
 				}
 			}
-			if (std::abs(z) < 2) data(row, line) = {0,0,0};
+			if (std::abs(z) < 2) data(row, line) = iimavlib::rgb_t(0,0,0);
 		}
 	}
 }
@@ -55,12 +55,12 @@ void mandelbrot(iimavlib::video_buffer_t& data, int iterations)
 int main()
 {
 	iimavlib::SDLDevice sdl(800, 600, "HEY!");
-	iimavlib::rgb_t black = {0,0,0};
+	iimavlib::rgb_t black (0,0,0);
 	iimavlib::video_buffer_t data(sdl.get_size(),black);
 	sdl.start();
 
 	double angle = 0.0;
-	iimavlib::rectangle_t position = {data.size.width/2, data.size.height/2, 128, 128};
+	iimavlib::rectangle_t position (data.size.width/2, data.size.height/2, 128, 128);
 	iimavlib::video_buffer_t bg(data.size,black);
 	mandelbrot(bg,50);
 
@@ -73,15 +73,15 @@ int main()
 		float size = 64 + 64 * (1.0 + sin(angle))*(1.0 +cos(angle));
 		position.width = position.height = size;
 
-		draw_circle (data, position, {255,0,0});
+		draw_circle (data, position, iimavlib::rgb_t(255,0,0));
 
 
 		std::vector<iimavlib::rectangle_t> points;
 		for (int i = 0; i<6;++i) {
-			points.push_back({static_cast<int>(400 + sin(angle+i*6.28/6)*200), static_cast<int>(300 + cos(i*6.28/6)*200)});
+			points.push_back(iimavlib::rectangle_t(static_cast<int>(400 + sin(angle+i*6.28/6)*200), static_cast<int>(300 + cos(i*6.28/6)*200)));
 		}
 
-		draw_polygon(data, points, {255,255,255});
+		draw_polygon(data, points, iimavlib::rgb_t(255,255,255));
 		angle += 0.01;
 
 #ifdef SYSTEM_LINUX

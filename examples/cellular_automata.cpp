@@ -24,15 +24,15 @@
 #include <vector>
 #include <random>
 
-const iimavlib::rectangle_t window_size {0, 0, 800, 800};
-const iimavlib::rectangle_t cell_resolution {0, 0, 100, 100};
-const iimavlib::rgb_t black {0, 0, 0};
+const iimavlib::rectangle_t window_size(0, 0, 800, 800);
+const iimavlib::rectangle_t cell_resolution (0, 0, 100, 100);
+const iimavlib::rgb_t black (0, 0, 0);
 
 namespace automata {
 
 using namespace iimavlib;
 // definition of available states for cells
-enum ca_state {
+EXPORT enum ca_state {
     healthful = 0,
     ill = 2,
     dead = 3,
@@ -40,12 +40,11 @@ enum ca_state {
 };
 
 // the table assigning colors to given states of cells declared above
-const std::map<ca_state, iimavlib::rgb_t> color_tab = {
-    {healthful, { 0, 255, 0 }},
-    {ill, { 255, 0, 0 }},
-    {dead, {0, 0, 0 }},
-    {empty, {255, 255, 255 }}
-};
+const std::map<ca_state, rgb_t> color_tab = InitMap<ca_state, rgb_t>
+	(healthful, rgb_t( 0, 255, 0 ))
+    (ill, rgb_t( 255, 0, 0 ))
+    (dead, rgb_t( 0, 0, 0 ))
+    (empty, rgb_t( 255, 255, 255 ));
 
 // declaration of one cell (state, age)
 struct ca_cell {
@@ -61,7 +60,7 @@ class Automata: public iimavlib::SDLDevice
 {
 public:
 	Automata(rectangle_t window_size, rectangle_t cell_resolution);
-	~Automata() noexcept {}
+	~Automata() /*noexcept */{}
 	void run();
 private:
 	video_buffer_t data_;
@@ -147,7 +146,7 @@ void Automata::eval()
 void Automata::draw()
 {
 	for (const auto& cell: current_cells_) {
-		rectangle_t position = {cell_size_.width*cell.x, cell_size_.height*cell.y,cell_size_.width, cell_size_.height};
+		rectangle_t position (cell_size_.width*cell.x, cell_size_.height*cell.y,cell_size_.width, cell_size_.height);
 		draw_rectangle(data_, position, color_tab.at(cell.state));
     }
 }

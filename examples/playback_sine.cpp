@@ -44,6 +44,7 @@ private:
 			sample = max_val * std::sin(time_ * frequency_ * pi2);
 			time_=time_ + 1.0 / rate_int;
 		}
+		buffer.valid_samples = buffer.data.size();
 		return error_type_t::ok;
 	}
 
@@ -77,7 +78,7 @@ int main(int argc, char** argv) try
 
 	// Create filter chain
 	auto chain = filter_chain<SineGenerator>(frequency)
-						.add<WaveSink>("/tmp/xx.wav")
+						.add<WaveSink>("xx.wav")
 						.add<PlatformSink>(device_id)
 						.sink();
 

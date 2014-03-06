@@ -29,7 +29,7 @@ public:
 	virtual ~SDLDevice();
 	bool start();
 	bool stop();
-	bool blit(const video_buffer_t&, rectangle_t position = {0, 0, -1, -1});
+	bool blit(const video_buffer_t&, rectangle_t position = rectangle_t(0, 0, -1, -1));
 	bool is_stopped() const;
 	rectangle_t get_size() const { return data_.size; }
 private:
