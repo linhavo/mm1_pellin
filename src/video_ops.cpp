@@ -10,6 +10,7 @@
 #include "iimavlib/video_ops.h"
 #include <cmath>
 #include <numeric>
+#include <stdexcept>
 
 namespace iimavlib {
 
@@ -131,7 +132,7 @@ void draw_line_thick(iimavlib::video_buffer_t& data, iimavlib::rectangle_t start
 void draw_polyline(iimavlib::video_buffer_t& data, const std::vector<iimavlib::rectangle_t>& points, iimavlib::rgb_t color)
 {
 	std::accumulate(points.begin()+1, points.end(), points[0],
-		[color, &data](const iimavlib::rectangle_t& rect1, const iimavlib::rectangle_t& rect2)
+		[color, &data](const iimavlib::rectangle_t& rect1, const iimavlib::rectangle_t& rect2)->iimavlib::rectangle_t
 		{draw_line(data,rect1,rect2,color);return rect2;});
 }
 

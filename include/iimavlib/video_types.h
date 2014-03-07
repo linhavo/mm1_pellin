@@ -70,15 +70,10 @@ operator/(rgb_t rgb, T val) {
 	return rgb;
 }
 struct EXPORT video_buffer_t {
-#ifdef MODERN_COMPILER
-	using data_type = std::vector<rgb_t>;
-	using iterator =  data_type::iterator;
-	using const_iterator =  data_type::const_iterator;
-#else // Stupid MSVC compiler
+
 	typedef std::vector<rgb_t> data_type;
 	typedef data_type::iterator iterator;
 	typedef data_type::const_iterator const_iterator;
-#endif
 	rectangle_t size;
 	std::vector<rgb_t> data;
 
