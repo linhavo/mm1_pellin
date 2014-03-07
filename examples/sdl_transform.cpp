@@ -55,8 +55,8 @@ template<typename T> void shiftbmp(T&d, T&s, int dx, int dy) {
 
 //rotace okolo leveho horniho rohu
 template<typename T> void rot0(T&d, T&s, double deg) {
-	double omega=2*PI*deg/360.0;
-	double cosT=cos(omega), sinT=sin(omega);
+	const double omega=2*PI*deg/360.0;
+	const double cosT=cos(omega), sinT=sin(omega);
 	int xn,yn,x,y;
 	
 	for(y=0;y<yMax;y++) {
@@ -71,8 +71,8 @@ template<typename T> void rot0(T&d, T&s, double deg) {
 
 //rotace okolo stredu
 template<typename T> void rot(T&d, T&s, double deg) {
-	double omega=2*PI*deg/360.0;
-	double cosT=cos(omega), sinT=sin(omega);
+	const double omega=2*PI*deg/360.0;
+	const double cosT=cos(omega), sinT=sin(omega);
 	int xn,yn,x,y;
 	const int cx=xMax/2;
 	const int cy=yMax/2;
@@ -89,8 +89,8 @@ template<typename T> void rot(T&d, T&s, double deg) {
 
 //rotace okolo bodu cx,cy
 template<typename T> void rotc(T&d, T&s, double deg, int cx=0, int cy=0) {
-	double omega=2*PI*deg/360.0;
-	double cosT=cos(omega), sinT=sin(omega);
+	const double omega=2*PI*deg/360.0;
+	const double cosT=cos(omega), sinT=sin(omega);
 	int xn,yn,x,y;
 
 	for(y=0;y<yMax;y++) {
@@ -105,9 +105,9 @@ template<typename T> void rotc(T&d, T&s, double deg, int cx=0, int cy=0) {
 
 //rotace sub-mapy x1,y1,x2,y2 okolo bodu cx,cy
 template<typename T> void rotcsub(T&d, T&s, double deg, int cx=0, int cy=0,int x1=0, int y1=0, int x2=xMax, int y2=yMax) {
-	const double PI=3.14159265;
-	double omega=2*PI*deg/360.0;
-	double cosT=cos(omega), sinT=sin(omega);
+
+	const double omega=2*PI*deg/360.0;
+	const double cosT=cos(omega), sinT=sin(omega);
 	int xn,yn,x,y;
 
 	if(x1>=0 && x1<=xMax &&
@@ -168,7 +168,7 @@ int main()
 	sdl.start();
 	//hlavni vykreslovaci smycka
 	while(sdl.blit(data)) {
-		int i=0,j=0;
+//		int i=0,j=0;
 		//prohozeni bitmap v pameti - do jedne se kreslilo a ted se bude zobrazovat 
 		//a do te druhe se ted bude kreslit a v dalsim cyklu se zobrazi
 		std::swap(data,rx);

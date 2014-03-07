@@ -38,11 +38,11 @@ private:
 	error_type_t do_process(audio_buffer_t& buffer)
 	{
 		// Prepare few values to save typing (and enable some optimizations)
-		const size_t rate_int = convert_rate_to_int(buffer.params.rate);
+		const double step = 1.0 / convert_rate_to_int(buffer.params.rate);
 
 		for (auto& sample: buffer.data) {
 			sample = max_val * std::sin(time_ * frequency_ * pi2);
-			time_=time_ + 1.0 / rate_int;
+			time_=time_ + step;
 		}
 		buffer.valid_samples = buffer.data.size();
 		return error_type_t::ok;

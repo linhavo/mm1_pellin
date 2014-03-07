@@ -134,7 +134,7 @@ private:
 	error_type_t do_process(audio_buffer_t& buffer)
 	{
 		if (is_stopped()) return error_type_t::failed;
-		const audio_params_t& params = buffer.params;
+//		const audio_params_t& params = buffer.params;
 
 		// Get iterator to the data in the buffer
 		auto data = buffer.data.begin();
