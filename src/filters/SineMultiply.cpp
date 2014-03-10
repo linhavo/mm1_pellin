@@ -27,7 +27,7 @@ const double pi2 = 8*std::atan(1.0);
 error_type_t SineMultiply::do_process(audio_buffer_t& buffer)
 {
 	const audio_params_t& params = buffer.params;
-	double step = 1.0/convert_rate_to_int(params.rate);
+	const double step = 1.0/convert_rate_to_int(params.rate);
 	for (auto& sample: buffer.data) {
 		sample = sample * std::sin(time_*frequency_*pi2);
 		time_=time_+ step;
