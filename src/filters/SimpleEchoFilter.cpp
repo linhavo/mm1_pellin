@@ -9,6 +9,8 @@
 
 #include "iimavlib/filters/SimpleEchoFilter.h"
 #include "iimavlib/Utils.h"
+#include <algorithm>
+
 namespace iimavlib {
 
 SimpleEchoFilter::SimpleEchoFilter(const pAudioFilter& child, double delay, double decay)
