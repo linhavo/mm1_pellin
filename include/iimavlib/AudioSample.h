@@ -13,7 +13,7 @@
 
 #include <stdexcept>
 #include <type_traits>
-
+namespace iimavlib {
 struct audio_sample_t {
 	audio_sample_t():left(0),right(0) {}
 	audio_sample_t(int16_t val):left(val),right(val) {}
@@ -106,5 +106,5 @@ operator/(T value, audio_sample_t sample)
 }
 
 
-
+}
 #endif /* AUDIOSAMPLE_H_ */
