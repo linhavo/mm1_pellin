@@ -77,7 +77,7 @@ error_type_t WaveFile::read_data(std::vector<audio_sample_t>& data, size_t& samp
 	} else {
 		mono_buffer_.resize(sample_count);
 		file_.read(reinterpret_cast<char*>(&mono_buffer_[0]),sample_count*sizeof(int16_t));
-		size_t sample_count = file_.gcount() / sizeof(int16_t);
+		sample_count = file_.gcount() / sizeof(int16_t);
 		std::copy(mono_buffer_.begin(), mono_buffer_.begin() + sample_count, data.begin());
 	}
 
