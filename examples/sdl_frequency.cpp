@@ -44,7 +44,7 @@ public:
 	{
 		std::unique_lock<std::mutex> lock(frequency_mutex_);
 		// Adjusting time so the function is continuous (this should make the sound nicer)
-		time_ = frequency_ * time_ / frequency;
+		if (frequency > 0.1) time_ = frequency_ * time_ / frequency;
 		frequency_ = frequency;
 	}
 private:
@@ -100,7 +100,7 @@ public:
 	static const rgb_t black;
 
 	Control(const pAudioFilter& child, int width, int height):
-		SDLDevice(width,height,"Frequency control"),
+		SDLDevice(width,height,"Frequency control",true),
 		AudioFilter(child),
 	data_(rectangle_t(0,0,width,height),black),position_(0)
 	{
