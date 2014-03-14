@@ -58,7 +58,6 @@ private:
 			time_=time_ + step;
 		}
 		buffer.valid_samples = buffer.data.size();
-		usleep(1000);
 		return error_type_t::ok;
 	}
 
