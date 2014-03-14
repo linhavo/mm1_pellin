@@ -86,9 +86,7 @@ void SDLDevice::run()
 			SDL_Flip(pimpl_->window_.get());
 			flip_required_ = false;
 		} else {
-#ifdef SYSTEM_LINUX
-			usleep(5000);
-#endif
+			SDL_Delay(5);
 		}
 	}
 	pimpl_->window_.reset();
