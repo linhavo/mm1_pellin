@@ -60,6 +60,8 @@ private:
 
 	bool				mono_source;
 
+	bool 				oversized_buffer_;
+	snd_pcm_uframes_t	hw_buffer_size_;
 	std::vector<int16_t>mono_capture_buffer;
 
 	static bool check_call(int res, std::string message);

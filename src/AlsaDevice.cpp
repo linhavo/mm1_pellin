@@ -19,7 +19,8 @@ namespace iimavlib {
 
 AlsaDevice::AlsaDevice(action_type_t action, audio_id_t id, const audio_params_t& params)
 :GenericDevice(),action_(action),id_(id),params_(params),handle_(nullptr),sample_size_(0),
- first_empty_buffer(0),first_full_buffer(0),mono_source(false)
+ first_empty_buffer(0),first_full_buffer(0),mono_source(false),oversized_buffer_(false),
+ hw_buffer_size_(0)
 {
 
 	switch (action_) {
@@ -40,7 +41,7 @@ AlsaDevice::AlsaDevice(action_type_t action, audio_id_t id, const audio_params_t
 	snd_pcm_sw_params_t *sw_params = nullptr;
 
 	throw_call(snd_pcm_open (&handle_, id.c_str(), stream_type_, 0),
-			"Failed to open device for capture");
+			"Failed to open device");
 
 	logger[log_level::debug] << "Device '" << id << "' opened";
 
@@ -64,8 +65,8 @@ AlsaDevice::AlsaDevice(action_type_t action, audio_id_t id, const audio_params_t
 	throw_call(snd_pcm_hw_params_set_rate_resample(handle_, hw_params, params_.enable_resampling?1:0),
 					"Failed to set resampling");
 
-	throw_call(snd_pcm_hw_params_set_rate_near (handle_, hw_params, &sampling_rate_, &dir),
-			"Failed to set sample rate");
+	throw_call(snd_pcm_hw_params (handle_, hw_params),
+					"Failed to set params");
 
 
 	logger[log_level::info] << "Initialized for " << sampling_rate_ << " Hz";
@@ -85,7 +86,21 @@ AlsaDevice::AlsaDevice(action_type_t action, audio_id_t id, const audio_params_t
 	}
 	logger[log_level::info] << "Initialized for " << static_cast<int>(number_of_channels) << " channels";
 
+//	unsigned int utime = 10000;
+//
+//	throw_call(snd_pcm_hw_params_set_buffer_time_near(handle_, hw_params, &utime, &dir),
+//					"Failed to set buffer time");
+//	logger[log_level::info] << "Buffer time set to " << utime << " us";
 
+	hw_buffer_size_ = sampling_rate_/100;
+	throw_call(snd_pcm_hw_params_set_buffer_size_near(handle_, hw_params, &hw_buffer_size_),
+					"Failed to set buffer size");
+	logger[log_level::info] << "HW buffer size set to " << hw_buffer_size_;
+
+	if (hw_buffer_size_ > sampling_rate_/10) {
+		oversized_buffer_ = true;
+		logger[log_level::info] << "HW buffer size is too large, enabling oversize handling";
+	}
 
 	throw_call(snd_pcm_hw_params (handle_, hw_params),
 				"Failed to set params");
@@ -178,17 +193,23 @@ error_type_t AlsaDevice::do_update(size_t delay)
 	int ret = snd_pcm_wait(handle_, delay);
 	if (!ret) return error_type_t::busy;
 	size_t frames_free = snd_pcm_avail(handle_);
-	logger[log_level::info] << "Available frames " << frames_free;
+//	logger[log_level::info] << "Available frames " << frames_free;
 	if (!frames_free) return error_type_t::invalid;
+
+	if (oversized_buffer_) {
+		if (frames_free < (hw_buffer_size_ - sampling_rate_/100)) {
+			usleep(100);
+			return error_type_t::busy;
+		}
+	}
 
 	snd_pcm_sframes_t write_frames = std::min(frames_free,buf.data.size()-buf.position);
 
-	if (buf.data[0].left != 0) {
-		snd_pcm_sframes_t delay;
-		snd_pcm_delay(handle_, &delay);
-		logger[log_level::info] << "Queuing non zero (" << write_frames << " frames), buffer " << first_full_buffer << ", position: " << buf.position << ", delay " << delay << " frames";
-//		if (delay > 8000)
-	}
+//	if (buf.data[0].left != 0) {
+//		snd_pcm_sframes_t delay;
+//		snd_pcm_delay(handle_, &delay);
+//		logger[log_level::info] << "Queuing non zero (" << write_frames << " frames), buffer " << first_full_buffer << ", position: " << buf.position << ", delay " << delay << " frames";
+//	}
 	write_frames = snd_pcm_writei(handle_,reinterpret_cast<void*>(&buf.data[buf.position]),write_frames);
 	if (write_frames<0) {
 		int ret = 0;

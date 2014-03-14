@@ -61,9 +61,9 @@ error_type_t AlsaSink::do_run()
 			logger[log_level::fatal] << "Failed to update";
 			break;
 		}
-		if (buffer_.data[0].left != 0) {
-			logger[log_level::info] << "Pushing non zero!";
-		}
+//		if (buffer_.data[0].left != 0) {
+//			logger[log_level::info] << "Pushing non zero!";
+//		}
 		buffer_.valid_samples = buffer_size_;
 		ret = device_.do_fill_buffer(&buffer_.data[0]
 				,buffer_.valid_samples);//*params_.sample_size());
