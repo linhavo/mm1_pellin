@@ -123,6 +123,7 @@ int main(int argc, char** argv)
 	audio_id_t device_out = PlatformDevice::default_device();
 	double time = 50;
 	if (argc>2) time = simple_cast<double>(argv[2]);
+	if (argc>3) device_out= simple_cast<audio_id_t>(argv[3]);
 	auto chain = filter_chain<WaveSource>(filename)
 			.add<Visualization>(800,600,time/1000.0)
 			.add<PlatformSink>(device_out)

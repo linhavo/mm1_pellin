@@ -97,5 +97,5 @@ int main(int argc, char** argv) try
 }
 catch (std::exception& e)
 {
-	logger[log_level::fatal] << "ERROR: An error occured during program run: " << e.what();
+	logger[log_level::fatal] << "ERROR: An error occurred during program run: " << e.what();
 }
