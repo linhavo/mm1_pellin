@@ -205,8 +205,7 @@ error_type_t AlsaDevice::do_update(size_t delay)
 	if (!frames_free) return error_type_t::invalid;
 
 	if (oversized_buffer_) {
-		logger[log_level::info] << "free: " << frames_free << ", hw: " << hw_buffer_size_;
-			if (frames_free < (hw_buffer_size_ - sampling_rate_/10)) {
+		if (frames_free < (hw_buffer_size_ - sampling_rate_/10)) {
 			usleep(100);
 			return error_type_t::busy;
 		}
