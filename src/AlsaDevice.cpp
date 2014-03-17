@@ -108,7 +108,7 @@ AlsaDevice::AlsaDevice(action_type_t action, audio_id_t id, const audio_params_t
 	check_call(snd_pcm_hw_params_get_buffer_size(hw_params, &hw_buffer_size_),
 							"Failed to get buffer size");
 
-	if (hw_buffer_size_ > sampling_rate_/10) {
+	if (hw_buffer_size_ > sampling_rate_/100) {
 		oversized_buffer_ = true;
 		logger[log_level::info] << "HW buffer size is too large, enabling oversize handling";
 	}
@@ -205,7 +205,8 @@ error_type_t AlsaDevice::do_update(size_t delay)
 	if (!frames_free) return error_type_t::invalid;
 
 	if (oversized_buffer_) {
-		if (frames_free < (hw_buffer_size_ - sampling_rate_/100)) {
+		logger[log_level::info] << "free: " << frames_free << ", hw: " << hw_buffer_size_;
+			if (frames_free < (hw_buffer_size_ - sampling_rate_/10)) {
 			usleep(100);
 			return error_type_t::busy;
 		}
