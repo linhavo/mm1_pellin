@@ -65,8 +65,8 @@ AlsaDevice::AlsaDevice(action_type_t action, audio_id_t id, const audio_params_t
 	throw_call(snd_pcm_hw_params_set_rate_resample(handle_, hw_params, params_.enable_resampling?1:0),
 					"Failed to set resampling");
 
-	throw_call(snd_pcm_hw_params (handle_, hw_params),
-					"Failed to set params");
+	throw_call(snd_pcm_hw_params_set_rate_near (handle_, hw_params, &sampling_rate_, &dir),
+			"Failed to set sample rate");
 
 
 	logger[log_level::info] << "Initialized for " << sampling_rate_ << " Hz";
@@ -92,18 +92,26 @@ AlsaDevice::AlsaDevice(action_type_t action, audio_id_t id, const audio_params_t
 //					"Failed to set buffer time");
 //	logger[log_level::info] << "Buffer time set to " << utime << " us";
 
-	hw_buffer_size_ = sampling_rate_/100;
-	throw_call(snd_pcm_hw_params_set_buffer_size_near(handle_, hw_params, &hw_buffer_size_),
-					"Failed to set buffer size");
-	logger[log_level::info] << "HW buffer size set to " << hw_buffer_size_;
+//	hw_buffer_size_ = sampling_rate_/100;
+//	throw_call(snd_pcm_hw_params_set_buffer_size_near(handle_, hw_params, &hw_buffer_size_),
+//					"Failed to set buffer size");
+//	logger[log_level::info] << "HW buffer size set to " << hw_buffer_size_;
+
+//	check_call(snd_pcm_hw_params_get_buffer_size(hw_params, &hw_buffer_size_),
+//						"Failed to get buffer size");
+
+
+
+	throw_call(snd_pcm_hw_params (handle_, hw_params),
+				"Failed to set params");
+
+	check_call(snd_pcm_hw_params_get_buffer_size(hw_params, &hw_buffer_size_),
+							"Failed to get buffer size");
 
 	if (hw_buffer_size_ > sampling_rate_/10) {
 		oversized_buffer_ = true;
 		logger[log_level::info] << "HW buffer size is too large, enabling oversize handling";
 	}
-
-	throw_call(snd_pcm_hw_params (handle_, hw_params),
-				"Failed to set params");
 
 	snd_pcm_hw_params_free (hw_params);
 
