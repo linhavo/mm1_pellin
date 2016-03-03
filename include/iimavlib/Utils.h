@@ -72,6 +72,7 @@ public:
 };
 extern  EXPORT Log logger;
 
+#ifndef MODERN_COMPILER
 
 /*!
  * @brief Ancillary class for initializing std::map
@@ -80,23 +81,23 @@ extern  EXPORT Log logger;
  */
 template<class Key, class Value> class InitMap {
 public:
-	operator std::map<Key, Value>() { return tmp_map; }
+	operator std::map<Key, Value>() {
+		return tmp_map;
+	}
 	InitMap() {}
-	InitMap(const Key& key, const Value& value) {tmp_map[key]=value;}
-	InitMap & operator() (const Key& key, const Value& value) {tmp_map[key]=value;return *this;}
+	InitMap(Key key, Value value) {
+		tmp_map.insert(std::make_pair(std::move(key), std::move(value)));
+	}
+	InitMap & operator() (Key key, Value value) {
+		tmp_map.insert(std::make_pair(std::move(key), std::move(value)));
+		return *this;
+	}
 protected:
 	std::map<Key, Value> tmp_map;
 };
 
-//template<class Value> class InitVector {
-//public:
-//	operator std::vector<Value>() { return tmp_vec; }
-//	InitVector() {}
-//	InitVector(const Value& val) { tmp_vec.push_back(val); }
-//	InitVector & operator() (const Value& val) {tmp_vec.push_back(val); return *this;}
-//protected:
-//	std::vector<Value> tmp_vec;
-//};
+
+#endif
 
 template<typename Out, typename In>
 Out simple_cast(In&& src)

@@ -29,19 +29,75 @@ first get_from_map_reverse(const std::map<first,second> &map_, const second& key
 	return it->first;
 }
 
-}
+#ifdef MODERN_COMPILER
 
-namespace {
-std::map<sampling_rate_t, uint32_t> rates_to_int = InitMap<sampling_rate_t, uint32_t>
-(sampling_rate_t::rate_8kHz,	8000)
-(sampling_rate_t::rate_11kHz, 	11025)
-(sampling_rate_t::rate_22kHz, 	22050)
-(sampling_rate_t::rate_44kHz, 	44100)
-(sampling_rate_t::rate_48kHz, 	48000)
-(sampling_rate_t::rate_96kHz, 	96000)
-(sampling_rate_t::rate_192kHz, 192000)
+const std::map<sampling_rate_t, uint32_t> rates_to_int = {
+			{sampling_rate_t::rate_8kHz,	8000},
+			{sampling_rate_t::rate_11kHz, 	11025},
+			{sampling_rate_t::rate_22kHz, 	22050},
+			{sampling_rate_t::rate_44kHz, 	44100},
+			{sampling_rate_t::rate_48kHz, 	48000},
+			{sampling_rate_t::rate_96kHz, 	96000},
+			{sampling_rate_t::rate_192kHz, 192000}
+};
+
+const std::map<sampling_rate_t, std::string> sampling_rate_strings = {
+			{sampling_rate_t::rate_unknown,		"Unknown sampling rate"},
+			{sampling_rate_t::rate_8kHz,		"8.000 Hz"},
+			{sampling_rate_t::rate_11kHz,		"11.025 Hz"},
+			{sampling_rate_t::rate_22kHz,		"22.050 Hz"},
+			{sampling_rate_t::rate_44kHz,		"44.100 Hz"},
+			{sampling_rate_t::rate_48kHz,		"48.000 Hz"},
+			{sampling_rate_t::rate_96kHz,		"96.000 Hz"},
+			{sampling_rate_t::rate_192kHz,		"192.000 Hz"},
+};
+
+const  std::map<error_type_t, std::string> error_strings = {
+			{error_type_t::ok, 			"OK"},
+			{error_type_t::failed, 		"Failed"},
+			{error_type_t::xrun, 		"Under/Overrun occurred"},
+			{error_type_t::invalid,     "Invalid state"},
+			{error_type_t::buffer_full, "Buffer full"},
+			{error_type_t::buffer_empty,"Buffer empty"},
+			{error_type_t::busy,        "Device busy"},
+			{error_type_t::unsupported,	"Unsupported"}
+};
+
+
+#else
+// We're stuck with VS2012...
+
+const std::map<sampling_rate_t, uint32_t> rates_to_int = InitMap<sampling_rate_t, uint32_t>
+			(sampling_rate_t::rate_8kHz,	8000)
+			(sampling_rate_t::rate_11kHz, 	11025)
+			(sampling_rate_t::rate_22kHz, 	22050)
+			(sampling_rate_t::rate_44kHz, 	44100)
+			(sampling_rate_t::rate_48kHz, 	48000)
+			(sampling_rate_t::rate_96kHz, 	96000)
+			(sampling_rate_t::rate_192kHz, 192000)
 ;
 
+const std::map<sampling_rate_t, std::string> sampling_rate_strings = InitMap<sampling_rate_t, std::string>
+			(sampling_rate_t::rate_unknown,		"Unknown sampling rate")
+			(sampling_rate_t::rate_8kHz,		"8.000 Hz")
+			(sampling_rate_t::rate_11kHz,		"11.025 Hz")
+			(sampling_rate_t::rate_22kHz,		"22.050 Hz")
+			(sampling_rate_t::rate_44kHz,		"44.100 Hz")
+			(sampling_rate_t::rate_48kHz,		"48.000 Hz")
+			(sampling_rate_t::rate_96kHz,		"96.000 Hz")
+			(sampling_rate_t::rate_192kHz,		"192.000 Hz");
+
+const std::map<error_type_t, std::string> error_strings = InitMap<error_type_t, std::string>
+			(error_type_t::ok, 			"OK")
+			(error_type_t::failed, 		"Failed")
+			(error_type_t::xrun, 		"Under/Overrun occurred")
+			(error_type_t::invalid,     "Invalid state")
+			(error_type_t::buffer_full, "Buffer full")
+			(error_type_t::buffer_empty,"Buffer empty")
+			(error_type_t::busy,        "Device busy")
+			(error_type_t::unsupported,	"Unsupported");
+
+#endif
 }
 
 uint32_t convert_rate_to_int(const sampling_rate_t rate) {
@@ -52,34 +108,11 @@ sampling_rate_t convert_int_to_rate(const uint32_t irate)
 	return get_from_map_reverse(rates_to_int, irate, sampling_rate_t::rate_unknown);
 }
 
-namespace {
-	std::map<sampling_rate_t, std::string> sampling_rate_strings = InitMap<sampling_rate_t, std::string>
-(sampling_rate_t::rate_unknown,		"Unknown sampling rate")
-(sampling_rate_t::rate_8kHz,		"8.000 Hz")
-(sampling_rate_t::rate_11kHz,		"11.025 Hz")
-(sampling_rate_t::rate_22kHz,		"22.050 Hz")
-(sampling_rate_t::rate_44kHz,		"44.100 Hz")
-(sampling_rate_t::rate_48kHz,		"48.000 Hz")
-(sampling_rate_t::rate_96kHz,		"96.000 Hz")
-(sampling_rate_t::rate_192kHz,		"192.000 Hz");
-
-}
 std::string sampling_rate_string(const sampling_rate_t rate)
 {
 	return get_from_map(sampling_rate_strings, rate, "Unknown");
 }
 
-namespace {
-std::map<error_type_t, std::string> error_strings = InitMap<error_type_t, std::string>
-(error_type_t::ok, 			"OK")
-(error_type_t::failed, 		"Failed")
-(error_type_t::xrun, 		"Under/Overrun occurred")
-(error_type_t::invalid,     "Invalid state")
-(error_type_t::buffer_full, "Buffer full")
-(error_type_t::buffer_empty,"Buffer empty")
-(error_type_t::busy,        "Device busy")
-(error_type_t::unsupported,	"Unsupported");
-}
 
 std::string error_string(const error_type_t error)
 {
