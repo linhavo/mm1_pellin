@@ -19,6 +19,9 @@
 #define WIN32_MEAN_AND_LEAN
 #define NOMINMAX
 #define SYSTEM_WINDOWS 1
+#if _MSC_VER >= 1900
+#define MODERN_COMPILER 1
+#endif
 //#define noexcept throw()
 // Disable warning about dllexport specs
 #pragma warning(disable: 4251)
