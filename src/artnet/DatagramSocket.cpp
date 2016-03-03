@@ -32,7 +32,7 @@ Socket(SOCK_DGRAM)
 	std::cerr << "Connecting to server\n";
 	in.sin_family = AF_INET;
 	in.sin_port = htons(port);
-	in.sin_addr.s_addr = inet_addr(ip.c_str());
+	inet_pton(AF_INET, ip.c_str(), &in);
 	if (connect (socket_,reinterpret_cast<const sockaddr*>(&in),sizeof(in))==-1) {
 		std::cerr << "Failed with code " << errno << "\n";
 		throw std::runtime_error("Failed to connect to server");
