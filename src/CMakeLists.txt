@@ -9,12 +9,21 @@ SET (IIMA_SRC Utils.cpp AudioTypes.cpp AudioFilter.cpp AudioSink.cpp
 				video_ops.cpp
 				
 				
+				artnet/Socket.cpp
+				artnet/DatagramSocket.cpp
+				artnet/ARTNet.cpp
+				
+				
+				
 				../include/iimavlib.h ../include/iimavlib/Utils.h ../include/iimavlib/AudioTypes.h 
 				../include/iimavlib/AudioFilter.h ../include/iimavlib/AudioSink.h
 				../include/iimavlib/WaveFile.h ../include/iimavlib/WaveSource.h ../include/iimavlib/WaveSink.h
 				../include/iimavlib/filters/SineMultiply.h ../include/iimavlib/filters/NullFilter.h 
 				../include/iimavlib/filters/SimpleEchoFilter.h
 				../include/iimavlib/video_types.h ../include/iimavlib/video_ops.h
+				../include/iimavlib/artnet/ARTNet.h
+				../include/iimavlib/artnet/DatagramSocket.h
+				../include/iimavlib/artnet/Socket.h
 				)
 IF (UNIX)
 SET(IIMA_SRC ${IIMA_SRC} AlsaDevice.cpp AlsaSink.cpp AlsaSource.cpp
