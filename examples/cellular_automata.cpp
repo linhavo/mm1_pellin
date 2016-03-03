@@ -38,14 +38,23 @@ EXPORT enum ca_state {
     dead = 3,
     empty = 4
 };
+#ifdef MODERN_COMPILER
+// the table assigning colors to given states of cells declared above
+const std::map<ca_state, rgb_t> color_tab = {
+	{healthful, { 0, 255, 0 }},
+    {ill, { 255, 0, 0 }},
+    {dead, { 0, 0, 0}},
+    {empty, {255, 255, 255 }}
+    };
 
+#else
 // the table assigning colors to given states of cells declared above
 const std::map<ca_state, rgb_t> color_tab = InitMap<ca_state, rgb_t>
 	(healthful, rgb_t( 0, 255, 0 ))
     (ill, rgb_t( 255, 0, 0 ))
     (dead, rgb_t( 0, 0, 0 ))
     (empty, rgb_t( 255, 255, 255 ));
-
+#endif
 // declaration of one cell (state, age)
 struct ca_cell {
     ca_state state;

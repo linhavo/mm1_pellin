@@ -69,8 +69,29 @@ private:
 
 
 namespace {
+#ifdef MODERN_COMPILER
 // mapping of keys to notes (Notes C4 - C6)
-std::map<char, double> notes =iimavlib::InitMap<char,double>
+const std::map<char, double> notes = {
+{'a', 261.63}, // C4
+{'s', 293.66}, // D4
+{'d', 329.63}, // E4
+{'f', 349.23}, // F4
+{'g', 392.00}, // G4
+{'h', 440.00}, // A4
+{'j', 493.88}, // B4
+{'k', 523.25}, // C5
+{'l', 587.33}, // D5
+{'z', 659.25}, // E5
+{'x', 698.46}, // F5
+{'c', 783.99}, // G5
+{'v', 880.00}, // A5
+{'b', 987.77}, // B5
+{'n', 1046.50}, // C6
+{'m', 1174.66}, //D6
+};
+#else
+
+const std::map<char, double> notes =iimavlib::InitMap<char,double>
 ('a', 261.63) // C4
 ('s', 293.66) // D4
 ('d', 329.63) // E4
@@ -87,6 +108,7 @@ std::map<char, double> notes =iimavlib::InitMap<char,double>
 ('b', 987.77) // B5
 ('n', 1046.50) // C6
 ('m', 1174.66); //D6
+#endif
 }
 
 
@@ -100,7 +122,7 @@ public:
 	static const rgb_t black;
 
 	Control(const pAudioFilter& child, int width, int height):
-		SDLDevice(width,height,"Frequency control",true),
+		SDLDevice(width,height,"Frequency control",false),
 		AudioFilter(child),
 	data_(rectangle_t(0,0,width,height),black),position_(0)
 	{
