@@ -72,7 +72,7 @@ public:
 };
 extern  EXPORT Log logger;
 
-#ifndef MODERN_COMPILER
+//#ifndef MODERN_COMPILER
 
 /*!
  * @brief Ancillary class for initializing std::map
@@ -97,7 +97,7 @@ protected:
 };
 
 
-#endif
+//#endif
 
 template<typename Out, typename In>
 Out simple_cast(In&& src)
