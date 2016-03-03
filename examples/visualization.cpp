@@ -64,7 +64,7 @@ private:
 		const audio_sample_t *src = &buffer.data[0];
 		size_t src_remaining = buffer.valid_samples;
 		while (src_remaining) {
-			size_t to_copy = std::min(src_remaining, sample_cache_.size()-last_sample_);
+			const size_t to_copy = std::min(src_remaining, sample_cache_.size()-last_sample_);
 			std::copy_n(src,to_copy,&sample_cache_[0]+last_sample_);
 			last_sample_+=to_copy;
 			if (last_sample_ >= sample_cache_.size()) last_sample_ = 0;

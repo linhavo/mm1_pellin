@@ -31,16 +31,16 @@ public:
 
 	error_type_t do_start_capture();
 
-	size_t 	do_capture_data(audio_sample_t* data_start, size_t data_size, error_type_t& error_code);
+	size_t 	do_capture_data(audio_sample_t* data_start, size_t data_size, error_type_t& error_code) override;
 
-	error_type_t do_set_buffers(uint16_t count, uint32_t samples);
+	error_type_t do_set_buffers(uint16_t count, uint32_t samples) override;
 
-	error_type_t do_fill_buffer(const audio_sample_t* data_start, size_t data_size);
+	error_type_t do_fill_buffer(const audio_sample_t* data_start, size_t data_size) override;
 
-	error_type_t do_start_playback();
+	error_type_t do_start_playback() override;
 
-	error_type_t do_update(size_t delay = 10);
-	audio_params_t do_get_params() const;
+	error_type_t do_update(size_t delay = 10) override;
+	audio_params_t do_get_params() const override;
 
 	static std::map<audio_id_t, audio_info_t> do_enumerate_capture_devices();
 	static std::map<audio_id_t, audio_info_t> do_enumerate_playback_devices();

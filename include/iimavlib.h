@@ -7,6 +7,7 @@
  *
  * This file defines typedefs for simplified use of the library's low level API.
  */
+
 #ifndef IIMAUDIO_H_
 #define IIMAUDIO_H_
 
@@ -14,6 +15,7 @@
 #include "iimavlib/AudioDevice.h"
 #include "iimavlib/AudioPolicies.h"
 namespace iimavlib {
+
 typedef AudioDevice<iimavlib::action_type_t::action_capture,SingleThreaded> CaptureDevice;
 typedef AudioDevice<iimavlib::action_type_t::action_playback,SingleThreaded> PlaybackDevice;
 typedef AudioDevice<iimavlib::action_type_t::action_capture,MultiThreaded> MultithreadedCaptureDevice;
