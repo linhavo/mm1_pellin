@@ -19,6 +19,7 @@ namespace iimavlib {
 class EXPORT GenericDevice
 {
 public:
+#ifdef MODERN_COMPILER
 	/*!
 	 * Default ctor
 	 */
@@ -27,7 +28,9 @@ public:
 	 * Default dtor
 	 */
 	virtual ~GenericDevice() = default;
-
+#else
+	virtual ~GenericDevice() {}
+#endif
 	/*!
 	 * @brief Starts the capture
 	 *
