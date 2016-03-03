@@ -21,7 +21,7 @@ namespace {
 iimavlib::rgb_t iter_color(int i, int iterations)
 {
 	const iimavlib::rgb_t white (255,255,255);
-	const float val = 1 - (i+1.0) / iterations;
+	const float val = 1 - (i+1.0f) / iterations;
 	return white * val * val;
 }
 
@@ -67,11 +67,11 @@ int main()
 	while(sdl.blit(data)) {
 		data = bg;
 
-		position.x = 400 - 64 + std::cos(angle) * 200;
-		position.y = 300 - 64 + std::sin(angle) * 150;
+		position.x = static_cast<int>(400 - 64 + std::cos(angle) * 200);
+		position.y = static_cast<int>(300 - 64 + std::sin(angle) * 150);
 
-		float size = 64 + 64 * (1.0 + sin(angle))*(1.0 +cos(angle));
-		position.width = position.height = size;
+		const auto size = 64 + 64 * (1.0 + sin(angle))*(1.0 +cos(angle));
+		position.width = position.height = static_cast<int>(size);
 
 		draw_circle (data, position, iimavlib::rgb_t(255,0,0));
 

@@ -41,7 +41,7 @@ private:
 		const double step = 1.0 / convert_rate_to_int(buffer.params.rate);
 
 		for (auto& sample: buffer.data) {
-			sample = max_val * std::sin(time_ * frequency_ * pi2);
+			sample = static_cast<uint16_t>(max_val * std::sin(time_ * frequency_ * pi2));
 			time_=time_ + step;
 		}
 		buffer.valid_samples = buffer.data.size();

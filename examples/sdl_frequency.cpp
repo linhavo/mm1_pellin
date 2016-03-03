@@ -54,7 +54,7 @@ private:
 		const double step = 1.0 / convert_rate_to_int(buffer.params.rate);
 		std::unique_lock<std::mutex> lock(frequency_mutex_);
 		for (auto& sample: buffer.data) {
-			sample = amplitude_ * std::sin(time_ * frequency_ * pi2);
+			sample = static_cast<uint16_t>(amplitude_ * std::sin(time_ * frequency_ * pi2));
 			time_=time_ + step;
 		}
 		buffer.valid_samples = buffer.data.size();
@@ -108,8 +108,8 @@ public:
 		rgb_t color (0,0,255);
 		for (int x=0;x<width;++x) {
 			double pos = static_cast<double>(x)/width;
-			color.r = pos * 255;
-			color.g = (1.0 - pos) * 255;
+			color.r = static_cast<uint8_t>(pos * 255);
+			color.g = static_cast<uint8_t>((1.0 - pos) * 255);
 			iimavlib::draw_line(data_,rectangle_t(x,0), rectangle_t(x,height/2), color);
 		}
 		blit(data_);
@@ -132,7 +132,7 @@ private:
 	void set_frequency(double freq) {
 		auto generator = std::dynamic_pointer_cast<Generator>(get_child(0));
 		generator->set_frequency(freq);
-		position_=freq/2;
+		position_ = static_cast<size_t>(freq/2);
 	}
 
 	/**
@@ -173,7 +173,7 @@ private:
 				position_ = x;
 			}
 			auto generator = std::dynamic_pointer_cast<Generator>(get_child(0));
-			generator->set_frequency(position_*2);
+			generator->set_frequency(static_cast<double>(position_*2));
 			update_screen();
 		}
 		return true;
@@ -189,7 +189,10 @@ private:
 
 		{
 			std::unique_lock<std::mutex> lock(position_mutex_); // Lock the variables
-			iimavlib::draw_line(data_,rectangle_t(position_,data_.size.height/2), rectangle_t(position_,data_.size.height), rgb_t(255,255,0));
+			iimavlib::draw_line(data_,
+				rectangle_t(static_cast<int>(position_), data_.size.height / 2),
+				rectangle_t(static_cast<int>(position_), data_.size.height),
+				rgb_t(255, 255, 0));
 		}
 
 		// And push it to the rendering thread

@@ -40,7 +40,18 @@ inline rectangle_t intersection(rectangle_t rect1, const rectangle_t& rect2)
 	rect1.y 	= y;
 	return rect1;
 }
-
+template<typename Type1, typename Type2>
+inline Type1 mult_and_clamp(Type1 a, Type2 b)
+{
+	auto x = a * b;
+	if (x > std::numeric_limits<Type1>::max()) {
+		return std::numeric_limits<Type1>::max();
+	}
+	if (x < std::numeric_limits<Type1>::min()) {
+		return std::numeric_limits<Type1>::min();
+	}
+	return static_cast<Type1>(x);
+}
 struct EXPORT rgb_t {
 	uint8_t r:8;
 	uint8_t g:8;
@@ -51,7 +62,11 @@ struct EXPORT rgb_t {
 
 	template<typename T>
 	typename std::enable_if<std::is_arithmetic<T>::value,rgb_t&>::type
-	operator*=(T val) { r*=val; g*=val; b*=val; return *this; }
+	operator*=(T val) { 
+		r = mult_and_clamp(r, val);
+		g = mult_and_clamp(g, val);
+		b = mult_and_clamp(b, val);
+		return *this; }
 	template<typename T>
 	typename std::enable_if<std::is_arithmetic<T>::value,rgb_t&>::type
 	operator/=(T val) { r/=val; g/=val; b/=val; return *this; }
