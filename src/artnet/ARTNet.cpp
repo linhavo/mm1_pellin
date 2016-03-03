@@ -13,9 +13,15 @@ namespace iimavlib {
 namespace artnet {
 
 namespace {
+#ifdef MODERN_COMPILER
 	constexpr uint16_t max_values = 512;
 	constexpr uint16_t header_size = 18;
 	constexpr uint16_t sequence_offset = 12;
+#else
+	const uint16_t max_values = 512;
+	const uint16_t header_size = 18;
+	const uint16_t sequence_offset = 12;
+#endif
 #ifdef MODERN_COMPILER
 	const std::array<uint8_t,header_size> default_artnet_header
 	{{'A','r','t','-','N','e','t',0, // Magic

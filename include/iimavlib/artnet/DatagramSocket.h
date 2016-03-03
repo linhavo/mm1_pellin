@@ -34,7 +34,7 @@ public:
 	DatagramSocket(DatagramSocket&&);
 
 	DatagramSocket& operator=(DatagramSocket&&);
-#ifndef THEREMIN_WINDOWS
+#ifdef MODERN_COMPILER
 	DatagramSocket(const DatagramSocket&) = delete;
 	DatagramSocket& operator=(const DatagramSocket&) = delete;
 #endif

@@ -119,7 +119,7 @@ bool Socket::send(const uint8_t* data, size_t size)
 size_t Socket::receive(uint8_t* data, size_t size)
 {
 	// Explicit cast needed for windows sockets
-	ssize_t read = ::recv(socket_, reinterpret_cast<char*>(data), static_cast<int>(size), 0);
+	const auto read = ::recv(socket_, reinterpret_cast<char*>(data), static_cast<int>(size), 0);
 	if (read < 0) throw std::runtime_error("Failed to read from socket");
 	return read;
 }

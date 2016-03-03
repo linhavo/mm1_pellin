@@ -17,7 +17,9 @@
 
 #ifdef SYSTEM_WINDOWS
 #include <cstdint>
-//#define noexcept throw()
+#ifndef MODERN_COMPILER
+#define noexcept throw()
+#endif
 //typedef int64_t ssize_t;
 #endif
 
@@ -41,7 +43,7 @@ public:
 	virtual ~Socket() noexcept;
 	Socket(Socket&&);
 	Socket& operator=(Socket&&);
-#ifndef THEREMIN_WINDOWS
+#ifndef SYSTEM_WINDOWS
 	Socket(const Socket&) = delete;
 	Socket& operator=(const Socket&) = delete;
 #endif
