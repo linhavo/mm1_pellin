@@ -29,7 +29,7 @@ public:
 	virtual ~AlsaDevice();
 	static audio_id_t default_device();
 
-	error_type_t do_start_capture();
+	error_type_t do_start_capture() override;
 
 	size_t 	do_capture_data(audio_sample_t* data_start, size_t data_size, error_type_t& error_code) override;
 
