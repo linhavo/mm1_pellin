@@ -20,7 +20,7 @@ public:
 	~Packet() noexcept;
 	uint8_t& operator[] (uint16_t index);
 	uint8_t operator[] (uint16_t index) const;
-
+	size_t size() const;
 	bool send(Socket& socket);
 private:
 	std::vector<uint8_t> data_;

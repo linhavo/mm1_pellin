@@ -84,5 +84,10 @@ bool Packet::send(Socket& socket)
 
 
 }
+
+size_t Packet::size() const
+{
+	return data_.size() - header_size;
+}
 }
 }
