@@ -45,11 +45,11 @@
 #undef PACKED_POST
 #endif
 
-#ifdef __linux__
+#ifdef SYSTEM_LINUX
 #define PACKED_PRE
 #define PACKED __attribute__((packed))
 #else
-#ifdef _WIN32
+#ifdef SYSTEM_WINDOWS
 #define PACKED_PRE __pragma (pack (push,1))
 #define PACKED __pragma (pack (pop))
 #else
