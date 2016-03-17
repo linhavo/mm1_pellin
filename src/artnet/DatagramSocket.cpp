@@ -1,9 +1,12 @@
-/*
- * DatagramSocket.cpp
+/*!
+ * @file 		DatagramSocket.cpp
+ * @author 		Zdenek Travnicek <travnicek@iim.cz>
+ * @date 		30.1.2014
+ * @copyright	Institute of Intermedia, 2014 - 2016
+ * 				GNU Public License 3.0
  *
- *  Created on: 30.1.2014
- *      Author: neneko
  */
+
 #include "iimavlib/artnet/DatagramSocket.h"
 #ifdef SYSTEM_WINDOWS
 #pragma comment(lib, "ws2_32.lib")

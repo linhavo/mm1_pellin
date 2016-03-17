@@ -1,9 +1,9 @@
 /*!
- * @file 		Net.cpp
+ * @file 		Socket.cpp
  * @author 		Zdenek Travnicek <travnicek@iim.cz>
  * @date 		13.11.2013
- * @copyright	Institute of Intermedia, 2013
- * 				Distributed under BSD license (see LICENSE.txt)
+ * @copyright	Institute of Intermedia, 2013 - 2016
+ * 				GNU Public License 3.0
  *
  */
 

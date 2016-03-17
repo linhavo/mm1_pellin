@@ -1,9 +1,12 @@
-/*
- * DatagramSocket.h
+/*!
+ * @file 		DatagramSocket.h
+ * @author 		Zdenek Travnicek <travnicek@iim.cz>
+ * @date 		30.1.2014
+ * @copyright	Institute of Intermedia, 2014 - 2016
+ * 				GNU Public License 3.0
  *
- *  Created on: 30.1.2014
- *      Author: neneko
  */
+
 
 #ifndef STREAMSOCKET_H_
 #define STREAMSOCKET_H_
