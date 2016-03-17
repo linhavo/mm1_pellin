@@ -1,9 +1,12 @@
-/*
- * ARTNet.cpp
+/**
+ * @file 	ARTNet.cpp
  *
- *  Created on: 30.1.2014
- *      Author: neneko
+ * @date 	30.1.2014
+ * @author 	Zdenek Travnicek <travnicek@iim.cz>
+ * @copyright GNU Public License 3.0
+ *
  */
+
 
 #include "iimavlib/artnet/ARTNet.h"
 #include <array>

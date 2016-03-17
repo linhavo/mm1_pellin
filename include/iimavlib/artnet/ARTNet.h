@@ -1,9 +1,12 @@
-/*
- * ARTNet.h
+/**
+ * @file 	ARTNet.h
  *
- *  Created on: 30.1.2014
- *      Author: neneko
+ * @date 	30.1.2014
+ * @author 	Zdenek Travnicek <travnicek@iim.cz>
+ * @copyright GNU Public License 3.0
+ *
  */
+
 
 #ifndef ARTNET_H_
 #define ARTNET_H_
