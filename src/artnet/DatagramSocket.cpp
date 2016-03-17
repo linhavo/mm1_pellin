@@ -14,9 +14,10 @@
 #include <poll.h>
 #include <unistd.h>
 #endif
-
+#include "iimavlib/Utils.h"
 #include <iostream>
 #include <stdexcept>
+#include <cstring>
 
 namespace iimavlib {
 namespace artnet {
@@ -29,12 +30,15 @@ Socket(SOCK_DGRAM)
 {
 	struct sockaddr_in in;
 
-	std::cerr << "Connecting to server\n";
+	logger[log_level::debug] << "Connecting to server";
 	in.sin_family = AF_INET;
 	in.sin_port = htons(port);
-	inet_pton(AF_INET, ip.c_str(), &in);
-	if (connect (socket_,reinterpret_cast<const sockaddr*>(&in),sizeof(in))==-1) {
-		std::cerr << "Failed with code " << errno << "\n";
+	auto ret = ::inet_pton(AF_INET, ip.c_str(), &in.sin_addr);
+	if (ret < 0) {
+		logger[log_level::fatal] << "Failed to parse IP address " << ip;
+	}
+	if (::connect (socket_,reinterpret_cast<const sockaddr*>(&in),sizeof(in))==-1) {
+		logger[log_level::fatal] << "Failed with code " << errno << "(" << std::strerror(errno) << ")";
 		throw std::runtime_error("Failed to connect to server");
 	}
 }

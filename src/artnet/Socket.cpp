@@ -8,6 +8,7 @@
  */
 
 #include "iimavlib/artnet/Socket.h"
+#include "iimavlib/Utils.h"
 #ifdef SYSTEM_WINDOWS
 #pragma comment(lib, "ws2_32.lib")
 #else
@@ -20,6 +21,7 @@
 
 #include <iostream>
 #include <stdexcept>
+#include <cstring>
 
 
 namespace iimavlib {
@@ -53,15 +55,15 @@ Socket::socket_type prepare_socket(uint16_t port, int type = SOCK_STREAM)
 	init_wsa();
 #endif
 	struct sockaddr_in out;
-	std::cerr << "Creating socket" << "\n";
-	Socket::socket_type sock = socket(AF_INET, type, 0);
+	logger[log_level::debug] << "Creating socket";
+	Socket::socket_type sock = ::socket(AF_INET, type, 0);
 	if (!sock) throw std::runtime_error("Failed to allocate socket");
 	out.sin_family = AF_INET;
 	out.sin_port = htons(port);
 	out.sin_addr.s_addr = INADDR_ANY;
 	std::cerr << "Binding socket " << "\n";
 	if (::bind(sock,reinterpret_cast<const sockaddr*>(&out),sizeof(out))==-1) {
-		std::cerr << "Failed with code " << errno << "\n";
+		logger[log_level::fatal] << "Failed with code " << errno << "(" << std::strerror(errno) << ")";
 		throw std::runtime_error("Failed to bind socket");
 	}
 	return sock;
@@ -70,7 +72,7 @@ Socket::socket_type prepare_socket(uint16_t port, int type = SOCK_STREAM)
 
 Socket::Socket(int type, uint16_t listen_port):socket_(-1)
 {
-	std::cerr << "Creating socket" << "\n";
+	logger[log_level::debug] << "Creating socket";
 	socket_ = prepare_socket(listen_port, type);
 }
 
@@ -99,7 +101,7 @@ Socket& Socket::operator=(Socket&& other)
 void Socket::close() noexcept
 {
 	if (socket_>0) {
-		std::cerr << "Deleting socket\n";
+		logger[log_level::debug] << "Deleting socket";
 #ifndef SYSTEM_WINDOWS
 		::close(socket_);
 #else
