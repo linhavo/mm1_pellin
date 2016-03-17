@@ -1,5 +1,5 @@
 /**
- * @file 	sdl_drums.cpp
+ * @file 	sdl_frequency.cpp
  *
  * @date 	21.4.2013
  * @author 	Zdenek Travnicek <travnicek@iim.cz>
@@ -54,7 +54,7 @@ private:
 		const double step = 1.0 / convert_rate_to_int(buffer.params.rate);
 		std::unique_lock<std::mutex> lock(frequency_mutex_);
 		for (auto& sample: buffer.data) {
-			sample = static_cast<uint16_t>(amplitude_ * std::sin(time_ * frequency_ * pi2));
+			sample = static_cast<int16_t>(amplitude_ * std::sin(time_ * frequency_ * pi2));
 			time_=time_ + step;
 		}
 		buffer.valid_samples = buffer.data.size();

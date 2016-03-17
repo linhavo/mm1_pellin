@@ -23,6 +23,7 @@ using namespace iimavlib;
 namespace {
 // Max value for int16_t
 const double max_val = std::numeric_limits<int16_t>::max();
+
 // Value of 2*PI
 const double pi2 = 8.0*std::atan(1.0);
 }
@@ -41,7 +42,7 @@ private:
 		const double step = 1.0 / convert_rate_to_int(buffer.params.rate);
 
 		for (auto& sample: buffer.data) {
-			sample = static_cast<uint16_t>(max_val * std::sin(time_ * frequency_ * pi2));
+			sample = static_cast<int16_t>(max_val * std::sin(time_ * frequency_ * pi2));
 			time_=time_ + step;
 		}
 		buffer.valid_samples = buffer.data.size();
