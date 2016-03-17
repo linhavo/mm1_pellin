@@ -7,13 +7,14 @@
  *
  */
 
+#include "iimavlib/artnet/DatagramSocket.h"
 #include "iimavlib/SDLDevice.h"
 #include "iimavlib/Utils.h"
 #include "iimavlib/WaveFile.h"
 #include "iimavlib/AudioFilter.h"
 #include "iimavlib_high_api.h"
 #include "iimavlib/artnet/ARTNet.h"
-#include "iimavlib/artnet/DatagramSocket.h"
+
 #ifdef SYSTEM_LINUX
 #include <unistd.h>
 #endif
