@@ -63,7 +63,7 @@ Socket::socket_type prepare_socket(uint16_t port, int type = SOCK_STREAM)
 	out.sin_addr.s_addr = INADDR_ANY;
 	std::cerr << "Binding socket " << "\n";
 	if (::bind(sock,reinterpret_cast<const sockaddr*>(&out),sizeof(out))==-1) {
-		logger[log_level::fatal] << "Failed with code " << errno << "(" << std::strerror(errno) << ")";
+		logger[log_level::fatal] << "Failed with code " << errno << "(" << get_err_string(errno) << ")";
 		throw std::runtime_error("Failed to bind socket");
 	}
 	return sock;
@@ -135,6 +135,21 @@ bool Socket::ready_to_receive()
 	return WSAPoll(&pfd, 1, 0) > 0;
 #endif
 }
+
+
+
+std::string get_err_string(int err)
+{
+#ifdef SYSTEM_WINDOWS
+	char s[1000];
+	strerror_s(s, sizeof(s), err);
+	return s;
+#else
+	return std::strerror(err);
+#endif
+}
+
+
 }
 }
 

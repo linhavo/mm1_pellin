@@ -111,6 +111,9 @@ protected:
 	socket_type socket_;
 };
 
+
+EXPORT std::string get_err_string(int err);
+
 }
 
 }

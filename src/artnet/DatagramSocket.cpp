@@ -41,7 +41,7 @@ Socket(SOCK_DGRAM)
 		logger[log_level::fatal] << "Failed to parse IP address " << ip;
 	}
 	if (::connect (socket_,reinterpret_cast<const sockaddr*>(&in),sizeof(in))==-1) {
-		logger[log_level::fatal] << "Failed with code " << errno << "(" << std::strerror(errno) << ")";
+		logger[log_level::fatal] << "Failed with code " << errno << "(" << get_err_string(errno) << ")";
 		throw std::runtime_error("Failed to connect to server");
 	}
 }
