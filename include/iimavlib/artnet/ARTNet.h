@@ -17,7 +17,7 @@
 namespace iimavlib {
 namespace artnet {
 
-class Packet {
+class EXPORT Packet {
 public:
 	Packet();
 	~Packet() noexcept;

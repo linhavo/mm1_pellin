@@ -18,7 +18,7 @@ namespace iimavlib {
 namespace artnet {
 
 
-class DatagramSocket: public Socket
+class EXPORT DatagramSocket: public Socket
 {
 public:
 	/*!

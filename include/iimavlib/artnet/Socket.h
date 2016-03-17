@@ -32,7 +32,7 @@
 namespace iimavlib {
 namespace artnet {
 
-class Socket {
+class EXPORT Socket {
 public:
 #ifdef SYSTEM_WINDOWS
 	typedef SOCKET socket_type;
