@@ -51,7 +51,7 @@ void init_wsa()
 
 Socket::socket_type prepare_socket(uint16_t port, int type = SOCK_STREAM)
 {
-#ifdef THEREMIN_WINDOWS
+#ifdef SYSTEM_WINDOWS
 	init_wsa();
 #endif
 	struct sockaddr_in out;
