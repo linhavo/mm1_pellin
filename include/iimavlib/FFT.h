@@ -79,23 +79,23 @@ complexarray_t<T> FFT<T>::FFT1D(const simplearray_t<T> &ab) {
 	} else {
 		simplearray_t<T> samples_odd;
 		samples_odd.reserve(N / 2);
-		for(auto i = 0; i < N; i += 2)
+		for(auto i = 0u; i < N; i += 2)
 			samples_odd.push_back(ab[i]);
 		auto coefficients_odd = FFT1D(samples_odd);
 
 		simplearray_t<T> samples_even;
 		samples_even.reserve(N / 2);
-		for(auto i = 1; i < N; i += 2)
+		for(auto i = 1u; i < N; i += 2)
 			samples_even.push_back(ab[i]);
 		auto coefficients_even = FFT1D(samples_even);
 
 		complexarray_t<T> f;
-		for(auto n = 0; n < N; n++) {
+		for(auto n = 0u; n < N; n++) {
 			f.push_back(std::exp(pi * n / N * std::complex<T>(0, -2)));
 		}
 
 		complexarray_t<T> result(N, 0);
-		for(auto i = 0; i < N / 2; ++i) {
+		for(auto i = 0u; i < N / 2; ++i) {
 			result[i] = coefficients_odd[i] + f[i] * coefficients_even[i];
 			result[i + N / 2] = coefficients_odd[i] + f[i + N / 2] * coefficients_even[i];
 		}
