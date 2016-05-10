@@ -30,6 +30,10 @@ IF (BUILD_EXAMPLES)
 	target_link_libraries (empty_project  ${EX_LIBS} )
 	install(TARGETS empty_project RUNTIME DESTINATION bin)
 	
+	add_executable(sdl_spectrum sdl_spectrum.cpp)
+	target_link_libraries (sdl_spectrum  ${EX_LIBS} )
+	install(TARGETS sdl_spectrum RUNTIME DESTINATION bin)
+	
 	IF(SDL_FOUND)
 		include_directories(${SDL_INCLUDE_DIR})
 		add_executable(sdl_window sdl_window.cpp)

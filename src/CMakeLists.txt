@@ -24,6 +24,7 @@ SET (IIMA_SRC Utils.cpp AudioTypes.cpp AudioFilter.cpp AudioSink.cpp
 				../include/iimavlib/artnet/ARTNet.h
 				../include/iimavlib/artnet/DatagramSocket.h
 				../include/iimavlib/artnet/Socket.h
+				../include/iimavlib/ArrayTypes.h ../include/iimavlib/FFT.h ../include/iimavlib/AudioFFT.h
 				)
 IF (UNIX)
 SET(IIMA_SRC ${IIMA_SRC} AlsaDevice.cpp AlsaSink.cpp AlsaSource.cpp
