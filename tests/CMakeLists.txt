@@ -7,4 +7,4 @@ add_executable(test_iimavlib
 		)
 target_link_libraries ( test_iimavlib  ${EX_LIBS} )
 #install(TARGETS enumerate_devices RUNTIME DESTINATION bin)
-
+add_test(test_iimavlib ${EXECUTABLE_OUTPUT_PATH}/test_iimavlib)

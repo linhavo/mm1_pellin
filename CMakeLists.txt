@@ -43,5 +43,6 @@ add_subdirectory(examples)
 
 
 IF(BUILD_TESTS)
+	enable_testing()
 	add_subdirectory(tests)
 ENDIF()
