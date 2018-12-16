@@ -22,6 +22,7 @@
 #endif
 #include <algorithm>
 #include <atomic>
+#include <functional>
 
 using namespace iimavlib;
 class Spectrum: public AudioFilter {

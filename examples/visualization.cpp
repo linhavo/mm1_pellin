@@ -18,6 +18,7 @@
 #endif
 #include <algorithm>
 #include <atomic>
+#include <functional>
 
 using namespace iimavlib;
 class Visualization: public AudioFilter {

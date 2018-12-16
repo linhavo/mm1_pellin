@@ -17,7 +17,7 @@
 #include <unistd.h>
 #endif
 #include <algorithm>
-
+#include <cmath>
 
 
 namespace frequency {
