@@ -18,6 +18,7 @@ project (iimav)
 
 OPTION (BUILD_SHARED_LIBS "Build shared libraries." ON)
 OPTION (BUILD_EXAMPLES "Build example applications" ON)
+OPTION (BUILD_TESTS "Build unit tests" OFF)
 
 #SET(CMAKE_BUILD_TYPE RelWithDebInfo)
 
@@ -41,3 +42,7 @@ add_subdirectory(include)
 add_subdirectory(examples)
 
 
+IF(BUILD_TESTS)
+	enable_testing()
+	add_subdirectory(tests)
+ENDIF()
