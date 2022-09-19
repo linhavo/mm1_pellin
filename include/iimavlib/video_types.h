@@ -12,6 +12,7 @@
 #include <type_traits>
 #include <vector>
 #include <cstdint>
+#include <limits>
 #ifndef SYSTEM_WINDOWS
 #include <initializer_list>
 #endif
