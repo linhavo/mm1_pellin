@@ -1,1 +1,6 @@
+# Build artifacts
 build/
+
+# Visual Studio Code + plugins generated directories
+.cache/
+.vscode/
