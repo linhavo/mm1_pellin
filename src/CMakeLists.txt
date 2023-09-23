@@ -13,8 +13,6 @@ SET (IIMA_SRC Utils.cpp AudioTypes.cpp AudioFilter.cpp AudioSink.cpp
 				artnet/DatagramSocket.cpp
 				artnet/ARTNet.cpp
 				
-				
-				
 				../include/iimavlib.h ../include/iimavlib/Utils.h ../include/iimavlib/AudioTypes.h 
 				../include/iimavlib/AudioFilter.h ../include/iimavlib/AudioSink.h
 				../include/iimavlib/WaveFile.h ../include/iimavlib/WaveSource.h ../include/iimavlib/WaveSink.h
@@ -24,22 +22,29 @@ SET (IIMA_SRC Utils.cpp AudioTypes.cpp AudioFilter.cpp AudioSink.cpp
 				../include/iimavlib/artnet/ARTNet.h
 				../include/iimavlib/artnet/DatagramSocket.h
 				../include/iimavlib/artnet/Socket.h
+				../include/iimavlib/midi/MidiTypes.h
+				../include/iimavlib/midi/MidiGenericDevice.h
+				../include/iimavlib/midi/MidiDevice.h
 				../include/iimavlib/ArrayTypes.h ../include/iimavlib/FFT.h ../include/iimavlib/AudioFFT.h
 				)
 IF (UNIX)
-SET(IIMA_SRC ${IIMA_SRC} AlsaDevice.cpp AlsaSink.cpp AlsaSource.cpp
-				../include/iimavlib/AlsaDevice.h ../include/iimavlib/AlsaSink.h ../include/iimavlib/AlsaSource.h)
+SET(IIMA_SRC ${IIMA_SRC} AlsaDevice.cpp AlsaSink.cpp AlsaSource.cpp midi/MidiAlsa.cpp
+				../include/iimavlib/AlsaDevice.h ../include/iimavlib/AlsaSink.h ../include/iimavlib/AlsaSource.h
+				../include/iimavlib/midi/MidiAlsa.h)
 SET(IIMA_LIBS ${IIMA_LIBS} asound)
 ELSEIF(WIN32)
 SET(IIMA_SRC ${IIMA_SRC} WinMMDevice.cpp WinMMSink.cpp WinMMSource.cpp
-		../include/iimavlib/WinMMDevice.h ../include/iimavlib/WinMMSink.h ../include/iimavlib/WinMMSource.h)
+		../include/iimavlib/WinMMDevice.h ../include/iimavlib/WinMMSink.h ../include/iimavlib/WinMMSource.h
+		../include/iimavlib/midi/MidiWin.h)
 ELSEIF(CYGWIN)
 SET(IIMA_SRC ${IIMA_SRC} WinMMDevice.cpp WinMMSink.cpp WinMMSource.cpp
-		../include/iimavlib/WinMMDevice.h ../include/iimavlib/WinMMSink.h ../include/iimavlib/WinMMSource.h)
+		../include/iimavlib/WinMMDevice.h ../include/iimavlib/WinMMSink.h ../include/iimavlib/WinMMSource.h
+		../include/iimavlib/midi/MidiWin.h)
 ELSE()
-MESSAGE("Unknown platform")
+MESSAGE("Unknown platform, assuming Windows")
 SET(IIMA_SRC ${IIMA_SRC} WinMMDevice.cpp WinMMSink.cpp WinMMSource.cpp
-		../include/iimavlib/WinMMDevice.h ../include/iimavlib/WinMMSink.h ../include/iimavlib/WinMMSource.h)
+		../include/iimavlib/WinMMDevice.h ../include/iimavlib/WinMMSink.h ../include/iimavlib/WinMMSource.h
+		../include/iimavlib/midi/MidiWin.h)
 ENDIF()
 
 IF (SDL_FOUND)
@@ -53,7 +58,7 @@ link_directories ( ${IIMA_LINK} )
 include_directories ( ${IIMA_INCLUDE} )
 target_link_libraries ( iimav ${IIMA_LIBS})
 
-SET_TARGET_PROPERTIES( iimav PROPERTIES SOVERSION 1 VERSION 1.1.0 )
+SET_TARGET_PROPERTIES( iimav PROPERTIES SOVERSION 1 VERSION 1.2.0 )
 install(TARGETS iimav 		RUNTIME DESTINATION bin
 							LIBRARY DESTINATION lib 
 							ARCHIVE DESTINATION lib)
