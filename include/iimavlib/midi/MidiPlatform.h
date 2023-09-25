@@ -12,10 +12,10 @@
 
 #include "../PlatformDefs.h"
 #ifdef _WIN32
-#include "MidiWinMMDevice.h"
+#include "MidiWinMM.h"
 namespace iimavlib {
 namespace midi {
-typedef iimavlib::midi::MidiWinMMDevice MidiPlatformDevice;
+typedef iimavlib::midi::MidiWinMM MidiPlatformDevice;
 }
 }
 #else

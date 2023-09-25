@@ -13,14 +13,15 @@
 #include "iimavlib/midi/MidiDevice.h"
 
 using namespace iimavlib;
+using namespace midi;
 
 int main()
 {
 	logger[log_level::info] << "Input devices:";
-	for (auto dev: midi::Midi::do_enumerate_input_devices()) 
-		logger[log_level::info] << "Device: '" << dev.first.first << "," << dev.first.second << "': " << dev.second.name;
+	for (auto dev: Midi::do_enumerate_input_devices()) 
+		logger[log_level::info] << "  Device: '" << dev.first << "': " << dev.second.name;
 	logger[log_level::info] << "Playback devices:";
-	for (auto dev: midi::Midi::do_enumerate_output_devices())
-		logger[log_level::info] << "Device: '" << dev.first.first << "," << dev.first.second << "': " << dev.second.name;
+	for (auto dev: Midi::do_enumerate_output_devices())
+		logger[log_level::info] << "  Device: '" << dev.first << "': " << dev.second.name;
 }
 

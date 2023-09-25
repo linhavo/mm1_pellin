@@ -11,7 +11,6 @@
 #define MIDIDEVICE_H_
 
 #include "../PlatformDefs.h"
-#include "iimavlib/midi/MidiAlsa.h"
 #include "iimavlib/midi/MidiTypes.h"
 #include "iimavlib/midi/MidiPlatform.h"
 #include <string>
@@ -22,9 +21,9 @@ namespace iimavlib {
 namespace midi {
 
 template<class Device = MidiPlatformDevice>
-class EXPORT MidiDevice : private Device {
+class MidiDevice : private Device {
 public:
-    typedef typename MidiAlsa::midi_id_t midi_id_t;
+    typedef typename Device::midi_id_t midi_id_t;
 
     MidiDevice(const std::string& name) : Device(name) {};
     virtual ~MidiDevice() {};
