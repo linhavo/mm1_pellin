@@ -20,7 +20,7 @@ typedef iimavlib::midi::MidiWinMM MidiPlatformDevice;
 }
 #else
 #ifdef __linux__
-#include "iimavlib/midi/MidiAlsa.h"
+#include "MidiAlsa.h"
 namespace iimavlib {
 namespace midi {
 typedef iimavlib::midi::MidiAlsa MidiPlatformDevice;

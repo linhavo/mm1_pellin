@@ -11,8 +11,8 @@
 #define MIDIDEVICE_H_
 
 #include "../PlatformDefs.h"
-#include "iimavlib/midi/MidiTypes.h"
-#include "iimavlib/midi/MidiPlatform.h"
+#include "MidiTypes.h"
+#include "MidiPlatform.h"
 #include <string>
 #include <map>
 

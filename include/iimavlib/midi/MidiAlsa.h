@@ -10,12 +10,13 @@
 #ifndef MIDIALSA_H_
 #define MIDIALSA_H_
 
-#include "iimavlib/PlatformDefs.h"
-#include "iimavlib/midi/MidiGenericDevice.h"
+#include "../PlatformDefs.h"
+#include "MidiGenericDevice.h"
 #include <alsa/seq_event.h>
 #include <atomic>
 #include <map>
 #include <mutex>
+#include <ostream>
 #include <string>
 #include <alsa/asoundlib.h>
 #include <thread>
@@ -67,5 +68,7 @@ private:
 }
 
 }
+
+std::ostream& operator<<(std::ostream& stream, const iimavlib::midi::MidiAlsa::midi_id_t& value);
 
 #endif

@@ -10,8 +10,8 @@
 #ifndef MIDIGENERICDEVIDE_H_
 #define MIDIGENERICDEVIDE_H_
 
-#include "iimavlib/PlatformDefs.h"
-#include "iimavlib/midi/MidiTypes.h"
+#include "../PlatformDefs.h"
+#include "MidiTypes.h"
 
 namespace iimavlib {
 

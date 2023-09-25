@@ -233,3 +233,8 @@ void MidiAlsa::enumerate_midi_devices(std::map<midi_id_t, midi_info_t>& map, int
 }
 
 }
+
+std::ostream& operator<<(std::ostream& stream, const iimavlib::midi::MidiAlsa::midi_id_t& value)
+{
+    return stream << "(" << value.first << "," << value.second << ")";
+}
