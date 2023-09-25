@@ -16,6 +16,7 @@
 #include "iimavlib/midi/MidiTypes.h"
 #include "iimavlib_high_api.h"
 #include <cstdint>
+#include <mutex>
 #ifdef SYSTEM_LINUX
 #include <unistd.h>
 #endif
@@ -64,20 +65,41 @@ private:
 	/// Mutex to lock @em index_ and @em position_
 	std::mutex position_mutex_;
 
+	/**
+	 * Overloaded method for noteon event handling
+	*/
 	void on_noteon(const midi::note_t& note) {
-		logger[log_level::info] << "Note: " << static_cast<int>(note.channel) << ", " << static_cast<int>(note.note) << ", " << static_cast<int>(note.velocity);
+		std::unique_lock<std::mutex> lock(position_mutex_); // Lock the variables
 
-		if (note.note % 2 == 0) {
-			do_key_pressed('a', true);
-		}
-		else {
-			do_key_pressed('b', true);
-		}
+		// Print information about the received note
+		logger[log_level::info] << "Note: " << static_cast<int>(note.channel) << ", " << static_cast<int>(note.note) << ", " << static_cast<int>(note.velocity);
+		// Select a drum based on the received note
+		int idx = note.note % 3;
+		logger[log_level::info] << "Drum " << idx;
+		index_ 		= idx;
+		position_	= 0;
 	}
 
+	/**
+	 * Overloaded method for noteoff event handling
+	*/
+	void on_noteoff(const midi::note_t&) {
+		// Stop playing when a noteoff event is received
+		std::unique_lock<std::mutex> lock(position_mutex_);
+		index_    = -1;
+		position_ = 0;
+	}
+
+	/**
+	 * Overloaded method for control event handling
+	*/
 	void on_control(const midi::control_t& control) {
+		// Play drum 2 on any control event (these are usually many in sequence, so not the best for directly starting playback)
 		logger[log_level::info] << "Control: " << static_cast<int>(control.channel) << ", " << static_cast<int>(control.param) << ", " << static_cast<int>(control.value);
-		do_key_pressed('c', true);
+		logger[log_level::info] << "Drum 2";
+		std::unique_lock<std::mutex> lock(position_mutex_); // Lock the variables
+		index_ 		= 2;
+		position_	= 0;
 	}
 
 	/**
@@ -92,17 +114,6 @@ private:
 				// If key Q or ESCAPE was pressed, we want to exit the program
 				case 'q':
 				case keys::key_escape: return false;
-				// Keys A, B and C should trigger drums 0, 1 and 2
-				case 'a':
-				case 'b':
-				case 'c':
-					{
-						int idx = key - 'a'; // Index of current key (0 for a, 1 for b, 2 for c)
-						logger[log_level::info] << "Drum " << idx;
-						std::unique_lock<std::mutex> lock(position_mutex_); // Lock the variables
-						index_ 		= idx;
-						position_	= 0;
-					} break;
 			}
 		}
 		update_screen(); // Update the screen　iimediately to reflect the keypress
