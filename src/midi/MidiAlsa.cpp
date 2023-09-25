@@ -8,7 +8,9 @@
  */
 
 #include "iimavlib/midi/MidiAlsa.h"
+#include "iimavlib/AlsaError.h"
 #include "iimavlib/Utils.h"
+#include <alloca.h>
 #include <alsa/seq.h>
 #include <alsa/seq_event.h>
 #include <alsa/seqmid.h>
@@ -18,6 +20,7 @@
 #include <mutex>
 #include <sstream>
 #include <stdint.h>
+#include <sys/poll.h>
 #include <thread>
 
 namespace iimavlib {
@@ -26,8 +29,8 @@ namespace midi {
 
 MidiAlsa::MidiAlsa(const std::string &name)
 {
-    snd_seq_open(&seq_handle_, "default", SND_SEQ_OPEN_DUPLEX, SND_SEQ_NONBLOCK);
-    snd_seq_set_client_name(seq_handle_, name.c_str());
+    throw_call(snd_seq_open(&seq_handle_, "default", SND_SEQ_OPEN_DUPLEX, SND_SEQ_NONBLOCK), "Failed to open ALSA MIDI sequencer");
+    check_call(snd_seq_set_client_name(seq_handle_, name.c_str()), "Failed to rename MIDI client");
 
     in_port_handle_ = snd_seq_create_simple_port(seq_handle_, "listen:in", 
         SND_SEQ_PORT_CAP_WRITE | SND_SEQ_PORT_CAP_SUBS_WRITE, 
@@ -39,7 +42,7 @@ MidiAlsa::MidiAlsa(const std::string &name)
 
 MidiAlsa::~MidiAlsa()
 {
-    snd_seq_close(seq_handle_);
+    check_call(snd_seq_close(seq_handle_), "Failed to close ALSA MIDI sequencer");
 }
 
 void MidiAlsa::open_all_inputs()
@@ -54,12 +57,12 @@ void MidiAlsa::open_all_inputs()
 
 void MidiAlsa::open_input(const midi_id_t& device)
 {
-    snd_seq_connect_from(seq_handle_, in_port_handle_, device.first, device.second);
+    check_call(snd_seq_connect_from(seq_handle_, in_port_handle_, device.first, device.second), "Failed to connect to a MIDI input");
 }
 
 void MidiAlsa::open_output(const midi_id_t& device)
 {
-    snd_seq_connect_to(seq_handle_, out_port_handle_, device.first, device.second);
+    check_call(snd_seq_connect_to(seq_handle_, out_port_handle_, device.first, device.second), "Failed to connect to a MIDI output");
 }
 
 void MidiAlsa::start()
@@ -91,8 +94,13 @@ void MidiAlsa::run()
     snd_seq_event_t *ev;
     int midi_remains;
 
+    nfds_t seq_nfds = snd_seq_poll_descriptors_count(seq_handle_, POLLIN);
+    struct pollfd *seq_fds = reinterpret_cast<struct pollfd*>(alloca(sizeof(struct pollfd) * seq_nfds));
+    throw_call(snd_seq_poll_descriptors(seq_handle_, seq_fds, seq_nfds, POLLIN), "Failed to get ALSA MIDI poll descriptors");
+
     while (!finish_)
     {
+        poll(seq_fds, seq_nfds, 5);
         while ((midi_remains = snd_seq_event_input(seq_handle_, &ev)) > 0) {
             switch (ev->type) {
                 case snd_seq_event_type::SND_SEQ_EVENT_NOTEON:
@@ -129,7 +137,6 @@ void MidiAlsa::run()
             logger[log_level::fatal] << "Error receiving midi. Bailing out.";
             finish_ = true;
         }
-        std::this_thread::sleep_for(std::chrono::milliseconds(5));
     }
 }
 
@@ -152,7 +159,7 @@ void MidiAlsa::send_noteon(const note_t& note)
     ev.data.note.note = note.note;
     ev.data.note.velocity = note.velocity;
 
-    snd_seq_event_output_direct(seq_handle_, &ev);
+    check_call(snd_seq_event_output_direct(seq_handle_, &ev), "Failed to send MIDI noteon event");
 }
 
 void MidiAlsa::send_noteoff(const note_t& note)
@@ -162,7 +169,7 @@ void MidiAlsa::send_noteoff(const note_t& note)
     ev.data.note.note = note.note;
     ev.data.note.off_velocity = note.velocity;
 
-    snd_seq_event_output_direct(seq_handle_, &ev);
+    check_call(snd_seq_event_output_direct(seq_handle_, &ev), "Failed to send MIDI noteoff event");
 }
 
 void MidiAlsa::send_control(const control_t& control)
@@ -172,7 +179,7 @@ void MidiAlsa::send_control(const control_t& control)
     ev.data.control.param = control.param;
     ev.data.control.value = control.value;
 
-    snd_seq_event_output_direct(seq_handle_, &ev);
+    check_call(snd_seq_event_output_direct(seq_handle_, &ev), "Failed to send MIDI control event");
 }
 
 std::map<MidiAlsa::midi_id_t, midi_info_t> MidiAlsa::do_enumerate_input_devices()
@@ -192,7 +199,7 @@ std::map<MidiAlsa::midi_id_t, midi_info_t> MidiAlsa::do_enumerate_output_devices
 void MidiAlsa::enumerate_midi_devices(std::map<midi_id_t, midi_info_t>& map, int capabilities, int port_type)
 {
     snd_seq_t* handle;
-    snd_seq_open(&handle, "default", SND_SEQ_OPEN_DUPLEX, 0);
+    throw_call(snd_seq_open(&handle, "default", SND_SEQ_OPEN_DUPLEX, 0), "Failed to open MIDI sequencer");
 
     snd_seq_client_info_t *info;
     snd_seq_client_info_alloca(&info);
@@ -227,7 +234,7 @@ void MidiAlsa::enumerate_midi_devices(std::map<midi_id_t, midi_info_t>& map, int
         }
     }
 
-    snd_seq_close(handle);
+    check_call(snd_seq_close(handle), "Failed to close MIDI sequencer");
 }
 
 }

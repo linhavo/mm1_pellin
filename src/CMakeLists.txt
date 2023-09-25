@@ -28,9 +28,9 @@ SET (IIMA_SRC Utils.cpp AudioTypes.cpp AudioFilter.cpp AudioSink.cpp
 				../include/iimavlib/ArrayTypes.h ../include/iimavlib/FFT.h ../include/iimavlib/AudioFFT.h
 				)
 IF (UNIX)
-SET(IIMA_SRC ${IIMA_SRC} AlsaDevice.cpp AlsaSink.cpp AlsaSource.cpp midi/MidiAlsa.cpp
+SET(IIMA_SRC ${IIMA_SRC} AlsaDevice.cpp AlsaSink.cpp AlsaSource.cpp AlsaError.cpp midi/MidiAlsa.cpp
 				../include/iimavlib/AlsaDevice.h ../include/iimavlib/AlsaSink.h ../include/iimavlib/AlsaSource.h
-				../include/iimavlib/midi/MidiAlsa.h)
+				../include/iimavlib/AlsaError.h ../include/iimavlib/midi/MidiAlsa.h)
 SET(IIMA_LIBS ${IIMA_LIBS} asound)
 ELSEIF(WIN32)
 SET(IIMA_SRC ${IIMA_SRC} WinMMDevice.cpp WinMMSink.cpp WinMMSource.cpp WinMMError.cpp midi/MidiWinMM.cpp

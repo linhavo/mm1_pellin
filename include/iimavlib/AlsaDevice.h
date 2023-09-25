@@ -64,10 +64,6 @@ private:
 	snd_pcm_uframes_t	hw_buffer_size_;
 	std::vector<int16_t>mono_capture_buffer;
 
-	static bool check_call(int res, std::string message);
-	static void throw_call(bool res, std::string message);
-	static void throw_call(int res, std::string message);
-
 	static void enumerate_hw_devices(std::map<audio_id_t, audio_info_t>&map_, snd_pcm_stream_t type_);
 
 };

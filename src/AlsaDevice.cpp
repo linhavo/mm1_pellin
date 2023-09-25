@@ -8,6 +8,7 @@
  */
 
 #include "iimavlib/AlsaDevice.h"
+#include "iimavlib/AlsaError.h"
 #include "iimavlib/Utils.h"
 #include <stdexcept>
 #include <iostream>
@@ -148,26 +149,6 @@ AlsaDevice::~AlsaDevice()
 AlsaDevice::audio_id_t AlsaDevice::default_device()
 {
 	return std::string("default");
-}
-
-bool AlsaDevice::check_call(int res, std::string message)
-{
-	if (res < 0) {
-		logger[log_level::fatal] << message << ": " << snd_strerror(res);
-		return false;
-	}
-	return true;
-}
-void AlsaDevice::throw_call(int res, std::string message)
-{
-	if (!check_call(res,message)) throw std::runtime_error(message+" ("+std::string(snd_strerror(res))+")");
-}
-void AlsaDevice::throw_call(bool res, std::string message)
-{
-	if (!res) {
-		logger[log_level::fatal] << message;
-		throw std::runtime_error(message);
-	}
 }
 
 error_type_t AlsaDevice::do_start_capture()
