@@ -33,18 +33,18 @@ SET(IIMA_SRC ${IIMA_SRC} AlsaDevice.cpp AlsaSink.cpp AlsaSource.cpp midi/MidiAls
 				../include/iimavlib/midi/MidiAlsa.h)
 SET(IIMA_LIBS ${IIMA_LIBS} asound)
 ELSEIF(WIN32)
-SET(IIMA_SRC ${IIMA_SRC} WinMMDevice.cpp WinMMSink.cpp WinMMSource.cpp midi/MidiWinMM.cpp
+SET(IIMA_SRC ${IIMA_SRC} WinMMDevice.cpp WinMMSink.cpp WinMMSource.cpp WinMMError.cpp midi/MidiWinMM.cpp
 		../include/iimavlib/WinMMDevice.h ../include/iimavlib/WinMMSink.h ../include/iimavlib/WinMMSource.h
-		../include/iimavlib/midi/MidiWinMM.h)
+		../include/iimavlib/WinMMError.h ../include/iimavlib/midi/MidiWinMM.h)
 ELSEIF(CYGWIN)
-SET(IIMA_SRC ${IIMA_SRC} WinMMDevice.cpp WinMMSink.cpp WinMMSource.cpp midi/MidiWinMM.cpp
+SET(IIMA_SRC ${IIMA_SRC} WinMMDevice.cpp WinMMSink.cpp WinMMSource.cpp WinMMError.cpp midi/MidiWinMM.cpp
 		../include/iimavlib/WinMMDevice.h ../include/iimavlib/WinMMSink.h ../include/iimavlib/WinMMSource.h
-		../include/iimavlib/midi/MidiWinMM.h)
+		../include/iimavlib/WinMMError.h ../include/iimavlib/midi/MidiWinMM.h)
 ELSE()
 MESSAGE("Unknown platform, assuming Windows")
-SET(IIMA_SRC ${IIMA_SRC} WinMMDevice.cpp WinMMSink.cpp WinMMSource.cpp midi/MidiWinMM.cpp
+SET(IIMA_SRC ${IIMA_SRC} WinMMDevice.cpp WinMMSink.cpp WinMMSource.cpp WinMMError.cpp midi/MidiWinMM.cpp
 		../include/iimavlib/WinMMDevice.h ../include/iimavlib/WinMMSink.h ../include/iimavlib/WinMMSource.h
-		../include/iimavlib/midi/MidiWinMM.h)
+		../include/iimavlib/WinMMError.h ../include/iimavlib/midi/MidiWinMM.h)
 ENDIF()
 
 IF (SDL_FOUND)

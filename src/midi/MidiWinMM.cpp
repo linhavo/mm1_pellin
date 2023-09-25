@@ -1,5 +1,6 @@
 #include "iimavlib/midi/MidiWinMM.h"
 #include "iimavlib/Utils.h"
+#include "iimavlib/WinMMError.h"
 #include <functional>
 
 namespace iimavlib
@@ -27,14 +28,14 @@ MidiWinMM::~MidiWinMM()
 {
 	for (HMIDIIN handle : open_inputs_)
 	{
-		midiInStop(handle);
-		midiInClose(handle);
+		check_call(midiInStop(handle), "Failed to stop an open MIDI device");
+		check_call(midiInClose(handle), "Failed to close an open input MIDI device");
 	}
 	open_inputs_.clear();
 
 	for (HMIDIOUT handle : open_outputs_)
 	{
-		midiOutClose(handle);
+		check_call(midiOutClose(handle), "Failed to close an open output MIDI device");
 	}
 	open_outputs_.clear();
 }
@@ -52,15 +53,20 @@ void MidiWinMM::open_all_inputs()
 void MidiWinMM::open_input(const midi_id_t& device)
 {
 	HMIDIIN handle;
-	midiInOpen(&handle, device, reinterpret_cast<DWORD_PTR>(&win_mm_mim_callback), reinterpret_cast<DWORD_PTR>(this), CALLBACK_FUNCTION);
-	midiInStart(handle);
+	if (check_call(midiInOpen(&handle,
+		device,
+		reinterpret_cast<DWORD_PTR>(&win_mm_mim_callback),
+		reinterpret_cast<DWORD_PTR>(this),
+		CALLBACK_FUNCTION), "Failed to open an input MIDI device")) {
+		check_call(midiInStart(handle), "Failed to start an open input MIDI device");
+	}
 	open_inputs_.insert(handle);
 }
 
 void MidiWinMM::open_output(const midi_id_t& device)
 {
 	HMIDIOUT handle;
-	midiOutOpen(&handle, device, NULL, reinterpret_cast<DWORD_PTR>(this), CALLBACK_NULL);
+	check_call(midiOutOpen(&handle, device, NULL, reinterpret_cast<DWORD_PTR>(this), CALLBACK_NULL), "Failed to open an output MIDI device");
 	open_outputs_.insert(handle);
 }
 
@@ -217,7 +223,7 @@ void MidiWinMM::send_encoded_midi(DWORD_PTR midi_data)
 {
 	for (HMIDIOUT handle : open_outputs_)
 	{
-		midiOutShortMsg(handle, static_cast<DWORD>(midi_data));
+		check_call(midiOutShortMsg(handle, static_cast<DWORD>(midi_data)), "Failed to send a MIDI message");
 	}
 }
 

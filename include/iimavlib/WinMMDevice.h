@@ -81,9 +81,6 @@ private:
 	void init_in_buffer(WAVEHDR& hdr);
 	void init_out_buffer(WAVEHDR& hdr);
 	void init_playback(WAVEFORMATEX& fmt);
-	static bool check_call(MMRESULT res, std::string message);
-	static void throw_call(bool res, std::string message);
-	static void throw_call(MMRESULT res, std::string message);
 };
 
 }
