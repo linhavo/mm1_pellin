@@ -10,6 +10,7 @@
 #ifndef MIDITYPES_H_
 #define MIDITYPES_H_
 
+#include <cmath>
 #include <cstdint>
 #include <string>
 namespace iimavlib {
@@ -56,6 +57,16 @@ inline note_name note_to_name(const uint8_t note)
 inline uint8_t name_to_note(const note_name name)
 {
     return static_cast<uint8_t>(name);
+}
+
+inline float note_to_freq(const uint8_t note)
+{
+    return std::pow(2.f, (note - 69) / 12.f) * 440.f;
+}
+
+inline float name_to_freq(const note_name name)
+{
+    return note_to_freq(name_to_note(name));
 }
 
 }
