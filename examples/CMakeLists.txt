@@ -38,6 +38,10 @@ IF (BUILD_EXAMPLES)
 	target_link_libraries (sdl_spectrum  ${EX_LIBS} )
 	install(TARGETS sdl_spectrum RUNTIME DESTINATION bin)
 	
+	add_executable(midi_sine midi_sine.cpp)
+	target_link_libraries (midi_sine  ${EX_LIBS} )
+	install(TARGETS playback_sine RUNTIME DESTINATION bin)
+	
 	IF(SDL_FOUND)
 		include_directories(${SDL_INCLUDE_DIR})
 		add_executable(sdl_window sdl_window.cpp)
