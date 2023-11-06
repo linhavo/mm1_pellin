@@ -14,6 +14,7 @@
 #include <iimavlib/Utils.h>
 #include <iimavlib/keys.h>
 #include <mutex>
+#include <cmath>
 
 
 using namespace iimavlib;
@@ -27,6 +28,12 @@ const double max_val = std::numeric_limits<int16_t>::max();
 const double pi2 = 8.0 * std::atan(1.0);
 }
 
+/**
+ * An interface to enable or disable a filter in a thread-safe manner.
+ * Uses a mutex to facilitate an atomic toggle. Calls the virtual method
+ * reinitialize when the filter is enabled again to allow resetting time or
+ * any other variable.
+ */
 class ToggleableFilter
 {
 public:
@@ -50,6 +57,11 @@ private:
 	std::mutex enabled_mutex_;
 };
 
+/**
+ * Simple sine wave generator. See the playback_sine.cpp example for details.
+ * This class additionally implements disabling, which means we have to clear
+ * the sample buffer when not generating, otherwise it will contain old/garbage data.
+ */
 class SineGenerator : public AudioFilter, public ToggleableFilter
 {
 public:
@@ -60,6 +72,7 @@ public:
 
 	error_type_t do_process(audio_buffer_t& buffer) override
 	{
+		// If disabled, clear the output buffer
 		if (!is_enabled())
 		{
 			for (auto& sample : buffer.data)
@@ -89,6 +102,13 @@ private:
 	}
 };
 
+/**
+ * Since there can only be one true generator and everything else processes its signal,
+ * this class adds the generated square wave (if it is enabled) to the already generated
+ * output of the sine generator. This means it cannot be first in the filter chain.
+ * It could be generalized to allow having it first by implementing another constructor
+ * (same as the sine generator) and saving whether it is the first generator.
+ */
 class SquareAdder : public AudioFilter, public ToggleableFilter
 {
 public:
@@ -99,11 +119,14 @@ public:
 
 	error_type_t do_process(audio_buffer_t& buffer) override
 	{
+		// If disabled, just skip processing and leave existing data alone
 		if (!is_enabled()) return error_type_t::ok;
 
 		const double step = 1.0 / convert_rate_to_int(buffer.params.rate);
 
 		for (auto& sample : buffer.data) {
+			// Insead of overwriting sample data, add out own generated signal to it, so the original
+			// signal doesn't get lost.
 			sample += static_cast<int16_t>(std::copysignl(max_val, std::sin(time_ * frequency_ * pi2)));
 			time_ = time_ + step;
 		}
@@ -121,6 +144,12 @@ private:
 	}
 };
 
+/**
+ * Example class facilitating the control of two separate signal generators (appended above this controller in the chain).
+ * The controller accesses its instruments by going up the filter chain. It expects the specified number of generators set
+ * in the constructor to implement the ToggleableFilter interface. It then uses these interfaces to enable/disable generators
+ * as per user input on the current timeline.
+ */
 class Control : public SDLDevice, public AudioFilter
 {
 public:
@@ -151,14 +180,18 @@ private:
 
 	void draw_sequence()
 	{
+		// Set up our display colors
 		const rgb_t enabled_color = {20, 200, 50};
 		const rgb_t disabled_color = {20, 20, 20};
 
+		// What's the size of each sequencer step (width) and of each instrument row (height)
 		const int step_size = data_.size.width / steps_;
 		const int inst_size = data_.size.height / instruments_;
 
+		// How far we are through the current loop
 		double loop_fraction = time_ / loop_length_;
 
+		// Draw all rectangles representing each sequencer step + instrument
 		for (int i = 0; i < steps_; ++i)
 		{
 			for (int j = 0; j < instruments_; ++j)
@@ -168,6 +201,7 @@ private:
 			}
 		}
 
+		// Draw a moving cursor to indicate current progress through the loop
 		draw_line(data_, rectangle_t(static_cast<int>(loop_fraction * data_.size.width), 0), rectangle_t(static_cast<int>(loop_fraction * data_.size.width), data_.size.height), rgb_t(255, 255, 0));
 		blit(data_);
 	}
@@ -177,31 +211,43 @@ private:
 		return static_cast<int>(steps_ * time_ / loop_length_);
 	}
 
+	/**
+	 * Overrides the parent method. This is where we perform the actual actions of enabling/disabling generators.
+	 * We also trigger a redraw here.
+	 */
 	error_type_t do_process(audio_buffer_t& buffer) override
 	{
 		if (is_stopped()) return error_type_t::failed;
 		// Not touching the data, simply passing it through
-		// But update graphics
+		// But update graphics and control generators
 
+		// Update our loop time (and loop it if appropriate)
 		time_ += buffer.valid_samples * 1.0 / convert_rate_to_int(buffer.params.rate);
 		if (time_ > loop_length_) time_ -= loop_length_;
 		draw_sequence();
 
+		// Get our current step and check if we want any generators enabled
 		int cur_step = current_step();
 		if (cur_step != last_step_)
 		{
 			for (int i = 0; i < instruments_; ++i)
 			{
+				// If we want a generator enabled, enable it, otherwise it gets disabled
 				std::shared_ptr<ToggleableFilter> filter = std::dynamic_pointer_cast<ToggleableFilter>(get_child(i));
 				filter->set_enabled(sequence_[cur_step * instruments_ + i]);
 			}
+
+			// We only enable/disable at step boundary to save some processing, so we have to remember which step we just processed
 			last_step_ = cur_step;
 		}
 
 		return error_type_t::ok;
 	}
 
-
+	/**
+	 * Overrides the key press handling method. We have to handle a quit key ourselves (or pass it to the parent class).
+	 * Otherwise, when a specific key is pressed, toggle a generator at the current sequencer step.
+	 */
 	bool do_key_pressed(const int key, bool pressed) override
 	{
 		if (!pressed)
