@@ -25,6 +25,7 @@
 #include <algorithm>
 #include <atomic>
 #include <functional>
+#include "../src/video_ops.cpp"
 
 
 using namespace iimavlib;
@@ -166,15 +167,19 @@ public:
 	Control(const pAudioFilter& child, int width, int height, int instruments, int steps, float loop_length) : SDLDevice(width, height, "Sequencer"), 
 		AudioFilter(child), instruments_(instruments), steps_(steps), last_step_(-1), loop_length_(loop_length), time_(0.0f), data_(width, height)
 	{
+		timespec_ = 50.0f/1000.0f;
 		sequence_.resize(instruments * steps, false);
-		time_ = 50.0f;
+		
 		const audio_params_t& params = get_params();
-		cache_size_ = static_cast<size_t>(time_ * convert_rate_to_int(params.rate));
+		cache_size_ = static_cast<size_t>(timespec_ * convert_rate_to_int(params.rate));
 		cache_size_ = static_cast<size_t>(pow(2, ceil(log2(cache_size_))) * 2);
 		logger[log_level::info] << "Cache size: " << cache_size_;
 		sample_cache_.resize(cache_size_);
 		barwidth = 40;
 		x_count = 0;
+		height_ = height/2;
+		width_ = width;
+
 		thread_ = std::thread(std::bind(&Control::execute_thread, this));
 		time_elapsed = 0.000f;
 		whole = (1800.000f / cache_size_);
@@ -182,7 +187,9 @@ public:
 
 		magic_constant = 1.0f / 16384.0f / max_int16_value;
 
+
 		start();
+
 	}
 
 	~Control()
@@ -191,6 +198,8 @@ public:
 	}
 
 private:
+
+	double timespec_;	
 	int instruments_;
 	int steps_;
 	int last_step_;
@@ -247,10 +256,12 @@ private:
 			last_sample_ += to_copy;
 			if (last_sample_ >= sample_cache_.size()) last_sample_ = 0;
 			src_remaining -= to_copy;
-			//coefficient_array_entire[ind] = fft.FFT1D(sample_cache_.begin(), sample_cache_.end());
 		}
 		changed_.store(true);
 	}
+
+
+
 
 	void draw_wave() {
 		// Max value for int16_t
@@ -262,9 +273,7 @@ private:
 		{
 			std::unique_lock<std::mutex> lock(mutex_);
 			coefficient_array = fft.FFT1D(sample_cache_.begin(), sample_cache_.end());
-			time_elapsed += time_;
-
-
+			time_elapsed += timespec_;
 		}
 
 		const auto unique_coefficients = (coefficient_array.size() + 1) / 2;
@@ -290,7 +299,7 @@ private:
 			}
 			draw_bars(int(time_elapsed * whole * 100) % width_, y, colr);
 		}
-
+		//sample_cache_.clear();
 	}
 
 
@@ -308,7 +317,7 @@ private:
 
 		// What's the size of each sequencer step (width) and of each instrument row (height)
 		const int step_size = data_.size.width / steps_;
-		const int inst_size = data_.size.height / instruments_;
+		const int inst_size = (data_.size.height / 2) / instruments_;
 
 		// How far we are through the current loop
 		double loop_fraction = time_ / loop_length_;
@@ -318,16 +327,15 @@ private:
 		{
 			for (int j = 0; j < instruments_; ++j)
 			{
-				const rectangle_t rect = {i * step_size, j * inst_size, step_size, inst_size};
+				const rectangle_t rect = {i * step_size, (j * inst_size) + (data_.size.height / 2), step_size, inst_size};
 				draw_rectangle(data_, rect, sequence_[i * instruments_ + j] ? enabled_color : disabled_color);
 			}
 		}
 
 		// Draw a moving cursor to indicate current progress through the loop
-		draw_line(data_, rectangle_t(static_cast<int>(loop_fraction * data_.size.width), 0), rectangle_t(static_cast<int>(loop_fraction * data_.size.width), data_.size.height), rgb_t(255, 255, 0));
+		draw_line(data_, rectangle_t(static_cast<int>(loop_fraction * data_.size.width), (data_.size.height / 2)), rectangle_t(static_cast<int>(loop_fraction * data_.size.width), (data_.size.height)), rgb_t(255, 255, 0));
 		blit(data_);
 	}
-
 	inline int current_step()
 	{
 		return static_cast<int>(steps_ * time_ / loop_length_);
@@ -346,9 +354,9 @@ private:
 		// Update our loop time (and loop it if appropriate)
 		time_ += buffer.valid_samples * 1.0 / convert_rate_to_int(buffer.params.rate);
 		if (time_ > loop_length_) time_ -= loop_length_;
-		//draw_sequence();
-		update_cache(buffer);
+		draw_sequence();
 
+		update_cache(buffer);
 
 		// Get our current step and check if we want any generators enabled
 		int cur_step = current_step();
@@ -364,6 +372,7 @@ private:
 			// We only enable/disable at step boundary to save some processing, so we have to remember which step we just processed
 			last_step_ = cur_step;
 		}
+
 
 		return error_type_t::ok;
 	}
@@ -399,7 +408,7 @@ try
 
 	auto sink = iimavlib::filter_chain<SineGenerator>(440.0)
 		.add<SquareAdder>(780.0)
-		.add<Control>(800, 200, 2, 20, 5.0f)
+		.add<Control>(800, 400, 2, 20, 5.0f)
 		.add<iimavlib::PlatformSink>(device_id)
 		.sink();
 
