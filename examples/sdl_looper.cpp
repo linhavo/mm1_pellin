@@ -167,7 +167,7 @@ public:
 	Control(const pAudioFilter& child, int width, int height, int instruments, int steps, float loop_length) : SDLDevice(width, height, "Sequencer"), 
 		AudioFilter(child), instruments_(instruments), steps_(steps), last_step_(-1), loop_length_(loop_length), time_(0.0f), data_(width, height)
 	{
-		timespec_ = 50.0f/1000.0f;
+		timespec_ = 10.0f/1000.0f;
 		sequence_.resize(instruments * steps, false);
 		
 		const audio_params_t& params = get_params();
@@ -182,7 +182,6 @@ public:
 
 		thread_ = std::thread(std::bind(&Control::execute_thread, this));
 		time_elapsed = 0.000f;
-		whole = (1800.000f / cache_size_);
 		const auto max_int16_value = std::numeric_limits<int16_t>::max();
 
 		magic_constant = 1.0f / 16384.0f / max_int16_value;
@@ -273,11 +272,11 @@ private:
 		{
 			std::unique_lock<std::mutex> lock(mutex_);
 			coefficient_array = fft.FFT1D(sample_cache_.begin(), sample_cache_.end());
-			time_elapsed += timespec_;
 		}
 
 		const auto unique_coefficients = (coefficient_array.size() + 1) / 2;
 
+		double loop_fraction = time_ / loop_length_;
 
 		for (int y = 0; y < height_; ++y) {
 			const size_t coefficient_number = y * unique_coefficients / height_;
@@ -297,7 +296,7 @@ private:
 					colr[i] = 255;
 				}
 			}
-			draw_bars(int(time_elapsed * whole * 100) % width_, y, colr);
+			draw_bars(static_cast<int>(loop_fraction * data_.size.width), y, colr);
 		}
 		//sample_cache_.clear();
 	}
@@ -306,7 +305,6 @@ private:
 	void draw_bars(int x, int y, std::vector<int> colr) {
 		rectangle_t rectangle = intersection(data_.size, rectangle_t(x, y, barwidth / 20, height_ - y));
 		iimavlib::draw_rectangle(data_, rectangle_t(rectangle.x, rectangle.y, rectangle.width, 3), rgb_t(colr[0], colr[1], colr[2]));
-
 	}
 
 	void draw_sequence()
@@ -408,6 +406,7 @@ try
 
 	auto sink = iimavlib::filter_chain<SineGenerator>(440.0)
 		.add<SquareAdder>(780.0)
+		/*.add<SquareAdder>(880.0)*/
 		.add<Control>(800, 400, 2, 20, 5.0f)
 		.add<iimavlib::PlatformSink>(device_id)
 		.sink();
