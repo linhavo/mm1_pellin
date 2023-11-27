@@ -293,7 +293,7 @@ private:
  * in the constructor to implement the ToggleableFilter interface. It then uses these interfaces to enable/disable generators
  * as per user input on the current timeline.
  */
-class Control : public SDLDevice, public AudioFilter
+class Control : public SDLDevice, public midi::Midi, public AudioFilter
 {
 public:
 	Control(const pAudioFilter &child, int width, int height, int instruments, int steps, float loop_length) : SDLDevice(width, height, "Sequencer"),
@@ -319,6 +319,10 @@ public:
 		magic_constant = 1.0f / 16384.0f / max_int16_value;
 
 		start();
+
+		// MIDI
+		midi::Midi::start();
+		open_all_inputs();
 	}
 
 	~Control()
@@ -552,6 +556,21 @@ private:
 		sequence_[cur_step * instruments_ + filter_index] = !sequence_[cur_step * instruments_ + filter_index];
 
 		return true;
+	}
+
+
+	// MIDI ---
+
+	/**
+	 * Overloaded method for control event handling
+	*/
+	void on_control(const midi::control_t& control) {
+		// Play drum 2 on any control event (these are usually many in sequence, so not the best for directly starting playback)
+		logger[log_level::info] << "Control: " << static_cast<int>(control.channel) << ", " << static_cast<int>(control.param) << ", " << static_cast<int>(control.value);
+		logger[log_level::info] << "Drum 2";
+		std::unique_lock<std::mutex> lock(position_mutex_); // Lock the variables
+		index_ = 2;
+		position_ = 0;
 	}
 };
 
