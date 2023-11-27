@@ -12,6 +12,9 @@
 #include "iimavlib/WaveSource.h"
 #include "iimavlib/filters/SineMultiply.h"
 
+#include "iimavlib/midi/MidiDevice.h"
+#include "iimavlib/midi/MidiTypes.h"
+
 #include <iimavlib/SDLDevice.h>
 #include <iimavlib/AudioFilter.h>
 #include <iimavlib_high_api.h>
@@ -66,6 +69,7 @@ private:
 	bool enabled_ = false;
 	std::mutex enabled_mutex_;
 };
+
 
 /**
  * Simple sine wave generator. See the playback_sine.cpp example for details.
@@ -318,7 +322,7 @@ public:
 
 		magic_constant = 1.0f / 16384.0f / max_int16_value;
 
-		start();
+		SDLDevice::start();
 
 		// MIDI
 		midi::Midi::start();
@@ -327,7 +331,8 @@ public:
 
 	~Control()
 	{
-		stop();
+		SDLDevice::stop();
+		midi::Midi::stop();
 	}
 
 private:
@@ -352,6 +357,14 @@ private:
 	float time_elapsed;
 	float whole;
 	float magic_constant;
+
+	/// MIDI ---
+	/// Mutex to lock @em index_ and @em position_
+	std::mutex position_mutex_;
+	/// Index of currently playing drum
+	int index_;
+	/// Next sample to be played for current drum
+	size_t position_;
 
 	AudioFFT<float> fft;
 
@@ -484,7 +497,7 @@ private:
 	 */
 	error_type_t do_process(audio_buffer_t &buffer) override
 	{
-		if (is_stopped())
+		if (SDLDevice::is_stopped())
 			return error_type_t::failed;
 		// Not touching the data, simply passing it through
 		// But update graphics and control generators
