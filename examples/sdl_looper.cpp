@@ -381,6 +381,7 @@ private:
 			if (changed_)
 			{
 				draw_wave();
+				draw_sequence();
 			}
 			if (!blit(data_))
 			{
@@ -506,7 +507,6 @@ private:
 		time_ += buffer.valid_samples * 1.0 / convert_rate_to_int(buffer.params.rate);
 		if (time_ > loop_length_)
 			time_ -= loop_length_;
-		draw_sequence();
 
 		update_cache(buffer);
 
@@ -524,6 +524,8 @@ private:
 			// We only enable/disable at step boundary to save some processing, so we have to remember which step we just processed
 			last_step_ = cur_step;
 		}
+
+
 
 		return error_type_t::ok;
 	}
