@@ -70,6 +70,87 @@ private:
 	std::mutex enabled_mutex_;
 };
 
+class MIDIFrequencyGenerator : public AudioFilter, public midi::Midi, public ToggleableFilter
+{
+public:
+	MIDIFrequencyGenerator() : AudioFilter(pAudioFilter()), ToggleableFilter(), frequency_(0), time_(0.0), amplitude_(0.0)
+	{
+		midi::Midi::start();
+		midi::Midi::open_all_inputs();
+	
+	}
+	~MIDIFrequencyGenerator()
+	{
+
+		midi::Midi::stop();
+	}
+
+	error_type_t do_process(audio_buffer_t& buffer) override
+	{
+		logger[log_level::info] << "MIDI Frequency Generator";
+		// If disabled, clear the output buffer
+		if (!is_enabled())
+		{
+			logger[log_level::info] << "Disabled";	
+			for (auto& sample : buffer.data)
+			{
+				sample = 0;
+			}
+			return error_type_t::ok;
+		}
+
+		const double step = 1.0 / convert_rate_to_int(buffer.params.rate);
+
+		for (auto& sample : buffer.data)
+		{
+			sample = static_cast<int16_t>(max_val * std::sin(time_ * frequency_ * pi2));
+			time_ = time_ + step;
+		}
+		buffer.valid_samples = buffer.data.size();
+		return error_type_t::ok;
+	}
+private:
+
+	/// MIDI ---
+	/// Mutex to lock @em index_ and @em position_
+	std::mutex position_mutex_;
+	/*/// Index of currently playing drum
+	int index_;
+	/// Next sample to be played for current drum
+	size_t position_;*/
+
+	double frequency_;
+	double amplitude_;
+	double time_;
+
+
+	void reinitialize() override
+	{
+		time_ = 0.0f;
+	}
+
+	// MIDI ---
+
+	/**
+	 * Overloaded method for control event handling
+	*/
+	void on_control(const midi::control_t& control) {
+		// Play drum 2 on any control event (these are usually many in sequence, so not the best for directly starting playback)
+		logger[log_level::info] << "Control: " << static_cast<int>(control.channel) << ", " << static_cast<int>(control.param) << ", " << static_cast<int>(control.value);
+		logger[log_level::info] << "Drum 2";
+		std::unique_lock<std::mutex> lock(position_mutex_); // Lock the variables
+		if (control.channel > 13)
+		{
+			frequency_ = control.value;
+		}
+		else {
+			amplitude_ = control.value;
+		}
+		// Playing from sdl_drums_midi.cpp
+		// index_ = 2;
+		//position_ = 0;
+	}
+};
 
 /**
  * Simple sine wave generator. See the playback_sine.cpp example for details.
@@ -79,16 +160,16 @@ private:
 class SineGenerator : public AudioFilter, public ToggleableFilter
 {
 public:
-	SineGenerator(float frequency) : AudioFilter(pAudioFilter()), ToggleableFilter(), frequency_(frequency), time_(0.0f)
+	SineGenerator(const pAudioFilter& child, float frequency) : AudioFilter(pAudioFilter()), ToggleableFilter(), frequency_(frequency), time_(0.0f)
 	{
 	}
 
-	error_type_t do_process(audio_buffer_t &buffer) override
+	error_type_t do_process(audio_buffer_t& buffer) override
 	{
 		// If disabled, clear the output buffer
 		if (!is_enabled())
 		{
-			for (auto &sample : buffer.data)
+			for (auto& sample : buffer.data)
 			{
 				sample = 0;
 			}
@@ -97,7 +178,7 @@ public:
 
 		const double step = 1.0 / convert_rate_to_int(buffer.params.rate);
 
-		for (auto &sample : buffer.data)
+		for (auto& sample : buffer.data)
 		{
 			sample = static_cast<int16_t>(max_val * std::sin(time_ * frequency_ * pi2));
 			time_ = time_ + step;
@@ -123,12 +204,12 @@ public:
 	{
 	}
 
-	error_type_t do_process(audio_buffer_t &buffer) override
+	error_type_t do_process(audio_buffer_t& buffer) override
 	{
 		// If disabled, clear the output buffer
 		if (!is_enabled())
 		{
-			for (auto &sample : buffer.data)
+			for (auto& sample : buffer.data)
 			{
 				sample = 0;
 			}
@@ -137,7 +218,7 @@ public:
 
 		const double step = 1.0 / convert_rate_to_int(buffer.params.rate);
 
-		for (auto &sample : buffer.data)
+		for (auto& sample : buffer.data)
 		{
 			// Generate a sawtooth wave sample
 			sample = static_cast<int16_t>(max_val * (2.0 * (time_ * frequency_ - std::floor(time_ * frequency_ + 0.5))));
@@ -168,11 +249,11 @@ private:
 class SquareAdder : public AudioFilter, public ToggleableFilter
 {
 public:
-	SquareAdder(const pAudioFilter &child, float frequency) : AudioFilter(child), frequency_(frequency), time_(0.0f)
+	SquareAdder(const pAudioFilter& child, float frequency) : AudioFilter(child), frequency_(frequency), time_(0.0f)
 	{
 	}
 
-	error_type_t do_process(audio_buffer_t &buffer) override
+	error_type_t do_process(audio_buffer_t& buffer) override
 	{
 		// If disabled, just skip processing and leave existing data alone
 		if (!is_enabled())
@@ -180,7 +261,7 @@ public:
 
 		const double step = 1.0 / convert_rate_to_int(buffer.params.rate);
 
-		for (auto &sample : buffer.data)
+		for (auto& sample : buffer.data)
 		{
 			// Insead of overwriting sample data, add out own generated signal to it, so the original
 			// signal doesn't get lost.
@@ -204,11 +285,11 @@ private:
 class SawtoothAdder : public AudioFilter, public ToggleableFilter
 {
 public:
-	SawtoothAdder(const pAudioFilter &child, float frequency) : AudioFilter(child), frequency_(frequency), time_(0.0f)
+	SawtoothAdder(const pAudioFilter& child, float frequency) : AudioFilter(child), frequency_(frequency), time_(0.0f)
 	{
 	}
 
-	error_type_t do_process(audio_buffer_t &buffer) override
+	error_type_t do_process(audio_buffer_t& buffer) override
 	{
 		// If disabled, just skip processing and leave existing data alone
 		if (!is_enabled())
@@ -216,7 +297,7 @@ public:
 
 		const double step = 1.0 / convert_rate_to_int(buffer.params.rate);
 
-		for (auto &sample : buffer.data)
+		for (auto& sample : buffer.data)
 		{
 			// Instead of overwriting sample data, add our own generated signal to it, so the original
 			// signal doesn't get lost.
@@ -249,11 +330,11 @@ private:
 class TriangleAdder : public AudioFilter, public ToggleableFilter
 {
 public:
-	TriangleAdder(const pAudioFilter &child, float frequency) : AudioFilter(child), frequency_(frequency), time_(0.0f)
+	TriangleAdder(const pAudioFilter& child, float frequency) : AudioFilter(child), frequency_(frequency), time_(0.0f)
 	{
 	}
 
-	error_type_t do_process(audio_buffer_t &buffer) override
+	error_type_t do_process(audio_buffer_t& buffer) override
 	{
 		// If disabled, just skip processing and leave existing data alone
 		if (!is_enabled())
@@ -261,7 +342,7 @@ public:
 
 		const double step = 1.0 / convert_rate_to_int(buffer.params.rate);
 
-		for (auto &sample : buffer.data)
+		for (auto& sample : buffer.data)
 		{
 			// Instead of overwriting sample data, add our own generated signal to it, so the original
 			// signal doesn't get lost.
@@ -300,13 +381,13 @@ private:
 class Control : public SDLDevice, public midi::Midi, public AudioFilter
 {
 public:
-	Control(const pAudioFilter &child, int width, int height, int instruments, int steps, float loop_length) : SDLDevice(width, height, "Sequencer"),
-																											   AudioFilter(child), instruments_(instruments), steps_(steps), last_step_(-1), loop_length_(loop_length), time_(0.0f), data_(width, height)
+	Control(const pAudioFilter& child, int width, int height, int instruments, int steps, float loop_length) : SDLDevice(width, height, "Sequencer"),
+		AudioFilter(child), instruments_(instruments), steps_(steps), last_step_(-1), loop_length_(loop_length), time_(0.0f), data_(width, height)
 	{
 		timespec_ = 10.0f / 1000.0f;
 		sequence_.resize(instruments * steps, false);
 
-		const audio_params_t &params = get_params();
+		const audio_params_t& params = get_params();
 		cache_size_ = static_cast<size_t>(timespec_ * convert_rate_to_int(params.rate));
 		cache_size_ = static_cast<size_t>(pow(2, ceil(log2(cache_size_))) * 2);
 		logger[log_level::info] << "Cache size: " << cache_size_;
@@ -358,14 +439,6 @@ private:
 	float whole;
 	float magic_constant;
 
-	/// MIDI ---
-	/// Mutex to lock @em index_ and @em position_
-	std::mutex position_mutex_;
-	/// Index of currently playing drum
-	int index_;
-	/// Next sample to be played for current drum
-	size_t position_;
-
 	AudioFFT<float> fft;
 
 	/// Video data
@@ -393,10 +466,10 @@ private:
 		SDL_SaveBMP(surface, "screenshot.bmp");
 	}
 
-	void update_cache(const audio_buffer_t &buffer)
+	void update_cache(const audio_buffer_t& buffer)
 	{
 		std::unique_lock<std::mutex> lock(mutex_);
-		const audio_sample_t *src = &buffer.data[0];
+		const audio_sample_t* src = &buffer.data[0];
 		size_t src_remaining = buffer.valid_samples;
 
 		while (src_remaining)
@@ -438,7 +511,7 @@ private:
 
 			auto yycol = static_cast<int>(255 * (coefficient));
 
-			std::vector<int> colr = {1, 0, 0};
+			std::vector<int> colr = { 1, 0, 0 };
 			colr[0] = int(yycol);
 			colr[2] = int(50 * y / height_);
 			for (auto i = 0; i < 3; i++)
@@ -463,8 +536,8 @@ private:
 	void draw_sequence()
 	{
 		// Set up our display colors
-		const rgb_t enabled_color = {20, 200, 50};
-		const rgb_t disabled_color = {20, 20, 20};
+		const rgb_t enabled_color = { 20, 200, 50 };
+		const rgb_t disabled_color = { 20, 20, 20 };
 
 		// What's the size of each sequencer step (width) and of each instrument row (height)
 		const int step_size = data_.size.width / steps_;
@@ -478,7 +551,7 @@ private:
 		{
 			for (int j = 0; j < instruments_; ++j)
 			{
-				const rectangle_t rect = {i * step_size, (j * inst_size) + (data_.size.height / 2), step_size, inst_size};
+				const rectangle_t rect = { i * step_size, (j * inst_size) + (data_.size.height / 2), step_size, inst_size };
 				draw_rectangle(data_, rect, sequence_[i * instruments_ + j] ? enabled_color : disabled_color);
 			}
 		}
@@ -496,7 +569,7 @@ private:
 	 * Overrides the parent method. This is where we perform the actual actions of enabling/disabling generators.
 	 * We also trigger a redraw here.
 	 */
-	error_type_t do_process(audio_buffer_t &buffer) override
+	error_type_t do_process(audio_buffer_t& buffer) override
 	{
 		if (SDLDevice::is_stopped())
 			return error_type_t::failed;
@@ -556,7 +629,7 @@ private:
 			return false;
 
 		// Define the QWERTZ layout
-		std::vector<int> qwertz_keys = {keys::key_w, keys::key_e, keys::key_r, keys::key_t, keys::key_z, keys::key_u, keys::key_i, keys::key_o, keys::key_p};
+		std::vector<int> qwertz_keys = { keys::key_w, keys::key_e, keys::key_r, keys::key_t, keys::key_z, keys::key_u, keys::key_i, keys::key_o, keys::key_p };
 
 		// Find the key in the QWERTZ layout
 		auto it = std::find(qwertz_keys.begin(), qwertz_keys.end(), key);
@@ -574,22 +647,9 @@ private:
 	}
 
 
-	// MIDI ---
-
-	/**
-	 * Overloaded method for control event handling
-	*/
-	void on_control(const midi::control_t& control) {
-		// Play drum 2 on any control event (these are usually many in sequence, so not the best for directly starting playback)
-		logger[log_level::info] << "Control: " << static_cast<int>(control.channel) << ", " << static_cast<int>(control.param) << ", " << static_cast<int>(control.value);
-		logger[log_level::info] << "Drum 2";
-		std::unique_lock<std::mutex> lock(position_mutex_); // Lock the variables
-		index_ = 2;
-		position_ = 0;
-	}
 };
 
-int main(int argc, char **argv)
+int main(int argc, char** argv)
 try
 {
 	iimavlib::audio_id_t device_id = iimavlib::PlatformDevice::default_device();
@@ -600,18 +660,19 @@ try
 		device_id = iimavlib::simple_cast<iimavlib::audio_id_t>(argv[1]);
 	}
 
-	auto sink = iimavlib::filter_chain<SineGenerator>(440.0)
-					.add<SquareAdder>(580.0)
-					// .add<TriangleAdder>(380.0)
-					// .add<SawtoothAdder>(120.0)
-					.add<TriangleAdder>(100.0)
-					.add<Control>(800, 400, 3, 16, 5.0f)
-					.add<iimavlib::PlatformSink>(device_id)
-					.sink();
+	auto sink = iimavlib::filter_chain<MIDIFrequencyGenerator>()
+		.add<SineGenerator>(440.0)
+		.add<SquareAdder>(580.0)
+		// .add<TriangleAdder>(380.0)
+		// .add<SawtoothAdder>(120.0)
+		.add<TriangleAdder>(100.0)
+		.add<Control>(800, 400, 3, 16, 5.0f)
+		.add<iimavlib::PlatformSink>(device_id)
+		.sink();
 
 	sink->run();
 }
-catch (std::exception &e)
+catch (std::exception& e)
 {
 	using namespace iimavlib;
 	logger[log_level::fatal] << "The application ended unexpectedly with an error: " << e.what();
