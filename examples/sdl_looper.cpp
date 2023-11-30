@@ -11,6 +11,7 @@
 #include "SDL/SDL_video.h"
 #include "iimavlib/WaveSource.h"
 #include "iimavlib/filters/SineMultiply.h"
+#include "iimavlib/filters/SimpleEchoFilter.h"
 
 #include "iimavlib/midi/MidiDevice.h"
 #include "iimavlib/midi/MidiTypes.h"
@@ -23,6 +24,13 @@
 #include <iimavlib/keys.h>
 #include <mutex>
 #include <cmath>
+#define _USE_MATH_DEFINES
+#include <math.h>
+
+#include <complex>
+#include <vector>
+
+
 
 #include <algorithm>
 #include <atomic>
@@ -31,14 +39,6 @@
 
 using namespace iimavlib;
 
-namespace
-{
-	// Max value for int16_t
-	const double max_val = std::numeric_limits<int16_t>::max();
-
-	// Value of 2*PI
-	const double pi2 = 8.0 * std::atan(1.0);
-}
 
 /**
  * An interface to enable or disable a filter in a thread-safe manner.
@@ -69,6 +69,434 @@ private:
 	bool enabled_ = false;
 	std::mutex enabled_mutex_;
 };
+
+class MySimpleEchoFilter : public AudioFilter, public ToggleableFilter
+{
+public:
+	MySimpleEchoFilter(const pAudioFilter& child, double delay, double decay)
+		:AudioFilter(child), delay_(delay), decay_(decay)
+	{
+
+	}
+	MySimpleEchoFilter::~MySimpleEchoFilter()
+	{
+
+	}
+	/**
+	 * Adds 'echo' to the @em dest buffer, by adding weighted values from @em src.
+	 * @tparam T type of the samples. Should be signed.
+	 * @param dest Destination buffer to add echo to.
+	 * @param src Source buffer to read old values for echo.
+	 * @param count Number of samples to read.
+	 * @param decay Weighting of old and new values.
+	 */
+	template<typename T>
+	void add_echo(T dest, T src, size_t count, double decay)
+	{
+
+		for (size_t sample = 0; sample < count; ++sample) {
+			*dest = (decay * *src++) + ((1.0 - decay) * *dest);
+			dest++;
+		}
+	}
+private:
+	std::vector<audio_sample_t> old_samples_;
+	double delay_;
+	double decay_;
+	double time_;
+	error_type_t MySimpleEchoFilter::do_process(audio_buffer_t& buffer)
+	{
+		if (!is_enabled())
+			return error_type_t::ok;
+		// Return OK for empty buffer - nothing to do here
+		if (buffer.valid_samples == 0) return error_type_t::ok;
+
+		// Some constant values that is convenient to have prepared
+		const size_t frequency = convert_rate_to_int(buffer.params.rate);
+		const size_t delay_samples = static_cast<size_t>(frequency * delay_);
+
+
+		// Make sure old_samples_ is large enough
+		old_samples_.resize(delay_samples, 0);
+
+		// Pointer to the buffer after type conversion to int16_t
+		const auto data = buffer.data.begin();
+
+		// Calculate how many samples from old_samples we're gonna use
+		const size_t from_old = std::min(buffer.valid_samples, delay_samples);
+
+		// And add echo to them (from old_samples_)
+		add_echo(data, old_samples_.begin(), from_old, decay_);
+
+		// if buffer.valid_samples is lesser or equal than delay_samples, we already have processed all the samples
+		if (buffer.valid_samples <= delay_samples) {
+			// Move unused part of the buffer to the beginning
+			std::copy(old_samples_.begin() + from_old, old_samples_.end(), old_samples_.begin());
+			// Resize old_samples_ to the size of valid data in it
+			old_samples_.resize(std::distance(old_samples_.begin() + from_old, old_samples_.end()));
+			// And insert samples from processed buffer
+			old_samples_.insert(old_samples_.end(), data, data + buffer.valid_samples);
+		}
+		else {
+			// Our input buffer was larger then old_samples_, that means we still need to add echo to some samples
+			//logger[log_level::debug] << "Too large input buffer or too small delay, not tested";
+			// Add echo to the rest of input buffer
+			add_echo(data + from_old, data, (buffer.valid_samples - from_old), decay_);
+			// We have no valid old samples
+			old_samples_.resize(0);
+			// Copy samples to old_samples_ from input buffer
+			old_samples_.insert(old_samples_.end(),
+				data + (buffer.valid_samples - delay_samples),
+				data + buffer.valid_samples);
+		}
+		return error_type_t::ok;
+	};
+	void reinitialize() override
+	{
+		time_ = 0.0f;
+	}
+};
+class MySimpleReverbFilter : public AudioFilter, public ToggleableFilter
+{
+public:
+	MySimpleReverbFilter(const pAudioFilter& child, double reverb_factor, double decay)
+		: AudioFilter(child), reverb_factor_(reverb_factor), decay_(decay)
+	{
+
+	}
+
+	~MySimpleReverbFilter()
+	{
+			
+	}
+
+	template<typename T>
+	void add_reverb(T dest, T src, size_t count, double decay, audio_buffer_t& buffer)
+	{
+		//const double feedback1 = 0.6;
+		//const double feedback2 = 0.3;
+		//const double feedback3 = 0.1;
+		//const size_t delay1 = static_cast<size_t>(convert_rate_to_int(buffer.params.rate) * 0.02);
+		//const size_t delay2 = static_cast<size_t>(convert_rate_to_int(buffer.params.rate) * 0.04);
+		//const size_t delay3 = static_cast<size_t>(convert_rate_to_int(buffer.params.rate) * 0.06);
+
+		//for (size_t sample = 0; sample < count; ++sample) {
+		//	// Delay Line 1
+		//	const audio_sample_t delayed1 = old_samples_[0];
+		//	old_samples_[0] = *src + feedback1 * delayed1;
+
+		//	// Delay Line 2
+		//	const audio_sample_t delayed2 = old_samples_[1];
+		//	old_samples_[1] = delayed1 + feedback2 * delayed2;
+
+		//	// Delay Line 3
+		//	const audio_sample_t delayed3 = old_samples_[2];
+		//	old_samples_[2] = delayed2 + feedback3 * delayed3;
+
+		//	// Combine delayed samples and apply decay
+		//	*dest = (decay * (*src++ + delayed1 + delayed2 + delayed3)) + ((1.0 - decay) * *dest);
+		//	dest++;
+		//}
+		const double feedback = 0.1; // Adjust as needed
+		const size_t delay1 = static_cast<size_t>(convert_rate_to_int(buffer.params.rate) * 0.03); // Adjust delay times
+		const size_t delay2 = static_cast<size_t>(convert_rate_to_int(buffer.params.rate) * 0.05);
+
+		for (size_t sample = 0; sample < count; ++sample) {
+			// Delay Line 1
+			const audio_sample_t delayed1 = old_samples_[0];
+			old_samples_[0] = *src + feedback * delayed1;
+
+			// Delay Line 2
+			const audio_sample_t delayed2 = old_samples_[1];
+			old_samples_[1] = delayed1 + feedback * delayed2;
+
+			// Combine delayed samples and apply decay
+			*dest = (decay * (*src++ + delayed1 + delayed2)) + ((1.0 - decay) * *dest);
+			dest++;
+		}
+	}
+
+private:
+	std::vector<audio_sample_t> old_samples_;
+	double decay_;
+	double reverb_factor_;
+	double time_;
+
+
+	error_type_t MySimpleReverbFilter::do_process(audio_buffer_t& buffer) override
+	{
+		if (!is_enabled())
+			return error_type_t::ok;
+
+		if (buffer.valid_samples == 0)
+			return error_type_t::ok;
+
+		const size_t frequency = convert_rate_to_int(buffer.params.rate);
+		const size_t delay_samples = static_cast<size_t>(frequency * reverb_factor_);
+
+		old_samples_.resize(delay_samples, 0);
+
+		const auto data = buffer.data.begin();
+
+		const size_t from_old = std::min(buffer.valid_samples, delay_samples);
+
+		add_reverb(data, old_samples_.begin(), from_old, decay_,  buffer);
+
+		if (buffer.valid_samples <= delay_samples) {
+			std::copy(old_samples_.begin() + from_old, old_samples_.end(), old_samples_.begin());
+			old_samples_.resize(std::distance(old_samples_.begin() + from_old, old_samples_.end()));
+			old_samples_.insert(old_samples_.end(), data, data + buffer.valid_samples);
+		}
+		else {
+			add_reverb(data + from_old, data, (buffer.valid_samples - from_old), decay_,  buffer);
+			old_samples_.resize(0);
+			old_samples_.insert(old_samples_.end(),
+				data + (buffer.valid_samples - delay_samples),
+				data + buffer.valid_samples);
+		}
+
+		return error_type_t::ok;
+	}
+	void reinitialize() override
+	{
+		time_ = 0.0f;
+	}
+	
+};
+
+//template <class T>
+//simplearray_t<T> IDFT1D(const complexarray_t<T>& ab) {
+//	const auto N = ab.size();
+//
+//	if (N == 0 || (N & (N - 1))) {
+//		throw std::runtime_error("IDFT Error: the input number of samples must be a power of 2!");
+//	}
+//	else if (N <= 8) {
+//		// Assuming you have a DFT1D function for the base case
+//		// Replace with your actual implementation of IDFT1D for N <= 8
+//		// return DFT1D(ab);
+//		simplearray_t<T> realInput;
+//		realInput.reserve(N * 2);
+//		for (const auto& val : ab) {
+//			realInput.push_back(val.real());
+//			realInput.push_back(val.imag());
+//		}
+//		AudioFFT<float> fft;
+//		std::vector<audio_sample_t> s = realInput;
+//		simplearray_t<T> result = fft.FFT1D(s.begin(), s.end()); 
+//
+//
+//		return result;
+//	}
+//	else {
+//		complexarray_t<T> coefficients_odd;
+//		coefficients_odd.reserve(N / 2);
+//		for (auto i = 0u; i < N; i += 2)
+//			coefficients_odd.push_back(ab[i]);
+//		auto samples_odd = IDFT1D(coefficients_odd);
+//
+//		complexarray_t<T> coefficients_even;
+//		coefficients_even.reserve(N / 2);
+//		for (auto i = 1u; i < N; i += 2)
+//			coefficients_even.push_back(ab[i]);
+//		auto samples_even = IDFT1D(coefficients_even);
+//
+//		complexarray_t<T> f;
+//		for (auto n = 0u; n < N; n++) {
+//			f.push_back(std::exp(std::complex<T>(0, 2 * M_PI * n / N))); // Corrected the sign
+//		}
+//
+//		simplearray_t<T> result(N, 0);
+//		for (auto i = 0u; i < N / 2; ++i) {
+//			result[i] = samples_odd[i] + f[i].real() * samples_even[i];
+//			result[i + N / 2] = samples_odd[i] - f[i + N / 2].real() * samples_even[i]; // Change the sign
+//		}
+//		return result;
+//	}
+//}
+//
+//template <class T>
+//simplearray_t<T> IFFT1D(const complexarray_t<T>& ab) {
+//	const auto N = ab.size();
+//
+//	if (N == 0 || (N & (N - 1))) {
+//
+//		throw std::runtime_error("IFFT Error: the input number of samples must be a power of 2!");
+//	}
+//	else if (N <= 8) {
+//		// Assuming you have a DFT1D function for the base case
+//		return IDFT1D(ab);
+//	}
+//	else {
+//
+//		complexarray_t<T> coefficients_odd;
+//		coefficients_odd.reserve(N / 2);
+//		for (auto i = 0u; i < N; i += 2)
+//			coefficients_odd.push_back(ab[i]);
+//
+//		simplearray_t<T> samples_odd = IFFT1D(coefficients_odd);
+//
+//		complexarray_t<T> coefficients_even;
+//		coefficients_even.reserve(N / 2);
+//		for (auto i = 1u; i < N; i += 2)
+//			coefficients_even.push_back(ab[i]);
+//		auto samples_even = IFFT1D(coefficients_even);
+//
+//		complexarray_t<T> f;
+//		for (auto n = 0u; n < N; n++) {
+//			f.push_back(std::exp(std::complex<T>(0, -2 * M_PI * static_cast<T>(n) / N))); // Corrected the sign and type
+//		}
+//
+//
+//
+//		simplearray_t<T> result(N, 0);
+//		for (auto i = 0u; i < N / 2; ++i) {
+//			result[i] = samples_odd[i] + f[i].real() * samples_even[i];
+//			result[i + N / 2] = samples_odd[i] + f[i + N / 2].real() * samples_even[i];
+//		}
+//		return result;
+//	}
+//}
+//
+//class MySimpleLowPassFilter : public AudioFilter, public ToggleableFilter
+//{
+//public:
+//	MySimpleLowPassFilter(const pAudioFilter& child, double lfoFrequency, double maxCutoff)
+//		: AudioFilter(child), lfoFrequency_(lfoFrequency), maxCutoff_(maxCutoff)
+//	{
+//		float timespec_ = 10.0f / 1000.0f;
+//
+//		const audio_params_t& params = get_params();
+//		cache_size_ = static_cast<size_t>(timespec_ * convert_rate_to_int(params.rate));
+//		cache_size_ = static_cast<size_t>(pow(2, ceil(log2(cache_size_))) * 2);
+//		logger[log_level::info] << "Cache size: " << cache_size_;
+//		
+//		sample_cache_.resize(cache_size_);
+//		time_ = 0.0;
+//		last_sample_ = 0.0;
+//		changed_ = false;
+//	}
+//
+//	~MySimpleLowPassFilter()
+//	{
+//	}
+//
+//private:
+//	double lfoFrequency_;
+//	double maxCutoff_;
+//	AudioFFT<float> fft;
+//	double time_;
+//	std::vector<audio_sample_t> sample_cache_;
+//	
+//	std::atomic<bool> end_;
+//	std::atomic<bool> changed_;
+//	size_t last_sample_;
+//	size_t cache_size_;
+//	std::vector<complexarray_t<float>> coefficient_array_entire;
+//
+//	void cleanupFilter()
+//	{
+//		// Cleanup if needed
+//	}
+//
+//	void update_cache(const audio_buffer_t& buffer)
+//	{
+//		const audio_sample_t* src = &buffer.data[0];
+//		size_t src_remaining = buffer.valid_samples;
+//
+//		while (src_remaining)
+//		{
+//			const size_t to_copy = std::min(src_remaining, sample_cache_.size() - last_sample_);
+//			std::copy_n(src, to_copy, &sample_cache_[0] + last_sample_);
+//			last_sample_ += to_copy;
+//			if (last_sample_ >= sample_cache_.size())
+//				last_sample_ = 0;
+//			src_remaining -= to_copy;
+//		}
+//		changed_.store(true);
+//	}
+//
+//
+//	complexarray_t<float> applyLowPassFilter(complexarray_t<float>& spectrum)
+//	{
+//		// Implement your low-pass filter logic here
+//		// You can modulate the cutoff frequency based on the LFO and maxCutoff parameters
+//		// Modify the spectrum in-place
+//		// Example: simple low-pass filter with a linear cutoff modulation
+//		double lfoValue = std::sin(2.0 * M_PI * time_ * lfoFrequency_);
+//		double cutoff = maxCutoff_ * (lfoValue + 1.0) / 2.0;
+//
+//		for (size_t i = 0; i < spectrum.size(); ++i)
+//		{
+//			// Implement your low-pass filter logic here
+//			// You may want to design a more sophisticated filter based on your requirements
+//			if (i > cutoff)
+//			{
+//				spectrum[i] = 0.0;
+//			}
+//		}
+//		return spectrum;
+//	}
+//
+//	error_type_t do_process(audio_buffer_t& buffer) override
+//	{
+//
+//		if (!is_enabled())
+//			return error_type_t::ok;
+//
+//		// Return OK for an empty buffer - nothing to do here
+//		if (buffer.valid_samples == 0)
+//			return error_type_t::ok;
+//
+//
+//		const size_t frequency = convert_rate_to_int(buffer.params.rate);
+//		const size_t N = buffer.valid_samples;
+//
+//		update_cache(buffer);
+//
+//		time_ += buffer.valid_samples * 1.0 / convert_rate_to_int(buffer.params.rate);
+//
+//		// Convert audio samples to a complex spectrum
+//		complexarray_t<float> coefficient_array;
+//		{
+//			coefficient_array = fft.FFT1D(sample_cache_.begin(), sample_cache_.end());
+//		}
+//		// Apply the low-pass filter to the spectrum
+//
+//		coefficient_array = applyLowPassFilter(coefficient_array);
+//		// Perform IFFT
+//
+//		simplearray_t<float> result = IFFT1D(coefficient_array);
+//		std::cout << "jsem tady\n\n\n";;
+//
+//		// Copy the modified samples back to the audio buffer
+//		for (size_t i = 0; i < N; ++i)
+//		{
+//			buffer.data[i] = static_cast<audio_sample_t>(result[i]);
+//		}
+//
+//		return error_type_t::ok;
+//	}
+//
+//	void reinitialize() override
+//	{
+//		time_ = 0.0;
+//	}
+//};
+
+
+
+
+namespace
+{
+	// Max value for int16_t
+	const double max_val = std::numeric_limits<int16_t>::max();
+
+	// Value of 2*PI
+	const double pi2 = 8.0 * std::atan(1.0);
+}
+
+
 
 class MIDIFrequencyGenerator : public AudioFilter, public midi::Midi, public ToggleableFilter
 {
@@ -417,6 +845,8 @@ public:
 	}
 
 private:
+	std::vector<audio_sample_t> old_samples_;
+
 	double timespec_;
 	int instruments_;
 	int steps_;
@@ -484,6 +914,15 @@ private:
 		changed_.store(true);
 	}
 
+	
+	//void add_echo(std::vector<audio_sample_t>::iterator dest, std::vector<audio_sample_t>::iterator src, size_t count, double decay)
+	//{
+	//	for (size_t sample = 0; sample < count; ++sample) {
+	//		*dest = (decay * *src++) + ((1.0 - decay) * *dest);
+	//		dest++;
+	//	}
+	//}
+
 	void draw_wave()
 	{
 		// Max value for int16_t
@@ -537,6 +976,10 @@ private:
 	{
 		// Set up our display colors
 		const rgb_t enabled_color = { 20, 200, 50 };
+		const rgb_t enabled_color_delay = { 200, 10, 100 };
+		const rgb_t enabled_color_reverb = { 0, 100, 200 };
+
+
 		const rgb_t disabled_color = { 20, 20, 20 };
 
 		// What's the size of each sequencer step (width) and of each instrument row (height)
@@ -549,9 +992,14 @@ private:
 		// Draw all rectangles representing each sequencer step + instrument
 		for (int i = 0; i < steps_; ++i)
 		{
-			for (int j = 0; j < instruments_; ++j)
+			rectangle_t rect = { i * step_size, (0 * inst_size) + (data_.size.height / 2), step_size, inst_size };
+			draw_rectangle(data_, rect, sequence_[i * instruments_ + 0] ? enabled_color_delay : disabled_color);
+
+			rect = { i * step_size, (1 * inst_size) + (data_.size.height / 2), step_size, inst_size };
+			draw_rectangle(data_, rect, sequence_[i * instruments_ + 1] ? enabled_color_reverb : disabled_color);
+			for (int j = 2; j < instruments_; ++j)
 			{
-				const rectangle_t rect = { i * step_size, (j * inst_size) + (data_.size.height / 2), step_size, inst_size };
+				rect = { i * step_size, (j * inst_size) + (data_.size.height / 2), step_size, inst_size };
 				draw_rectangle(data_, rect, sequence_[i * instruments_ + j] ? enabled_color : disabled_color);
 			}
 		}
@@ -594,10 +1042,14 @@ private:
 				filter->set_enabled(sequence_[cur_step * instruments_ + i]);
 			}
 
+
 			// We only enable/disable at step boundary to save some processing, so we have to remember which step we just processed
 			last_step_ = cur_step;
 		}
 
+
+
+		
 
 
 		return error_type_t::ok;
@@ -640,8 +1092,22 @@ private:
 
 		// Calculate the filter index based on the position of the key in the QWERTZ layout
 		int filter_index = std::max(std::min(instruments_, static_cast<int>(std::distance(qwertz_keys.begin(), it))), 0);
+		//std::cout << filter_index << "\n";
 		int cur_step = current_step();
+		if (filter_index == 0) {
+			for (int i = 0; i < steps_; i++) {
+				sequence_[i * instruments_ + filter_index] = !sequence_[i * instruments_ + filter_index];
+			}
+			return true;
+		}
+		if (filter_index == 1) {
+			for (int i = 0; i < steps_; i++) {
+				sequence_[i * instruments_ + filter_index] = !sequence_[i * instruments_ + filter_index];
+			}
+			return true;
+		}
 		sequence_[cur_step * instruments_ + filter_index] = !sequence_[cur_step * instruments_ + filter_index];
+		
 
 		return true;
 	}
@@ -661,12 +1127,22 @@ try
 	}
 
 	auto sink = iimavlib::filter_chain<MIDIFrequencyGenerator>()
+
 		.add<SineGenerator>(440.0)
 		.add<SquareAdder>(580.0)
 		// .add<TriangleAdder>(380.0)
 		// .add<SawtoothAdder>(120.0)
 		.add<TriangleAdder>(100.0)
-		.add<Control>(800, 400, 3, 16, 5.0f)
+		.add<MySimpleEchoFilter>(1.0, 0.1)
+
+
+		.add<MySimpleReverbFilter>(0.1, 0.25)
+		//.add<MySimpleLowPassFilter>(80.0, 40.0)
+
+
+
+		.add<Control>(800, 400, 5, 16, 5.0f)
+
 		.add<iimavlib::PlatformSink>(device_id)
 		.sink();
 
