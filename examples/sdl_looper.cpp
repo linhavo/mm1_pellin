@@ -498,10 +498,10 @@ namespace
 
 
 
-class MIDIFrequencyGenerator : public AudioFilter, public midi::Midi, public ToggleableFilter
+class MIDIFrequencyGenerator : public AudioFilter, public midi::Midi
 {
 public:
-	MIDIFrequencyGenerator() : AudioFilter(pAudioFilter()), ToggleableFilter(), frequency_(0), time_(0.0), amplitude_(0.0)
+	MIDIFrequencyGenerator() : AudioFilter(pAudioFilter()),  frequency_(880), time_(0.0), amplitude_(10.0)
 	{
 		midi::Midi::start();
 		midi::Midi::open_all_inputs();
@@ -515,17 +515,8 @@ public:
 
 	error_type_t do_process(audio_buffer_t& buffer) override
 	{
-		logger[log_level::info] << "MIDI Frequency Generator";
 		// If disabled, clear the output buffer
-		if (!is_enabled())
-		{
-			logger[log_level::info] << "Disabled";	
-			for (auto& sample : buffer.data)
-			{
-				sample = 0;
-			}
-			return error_type_t::ok;
-		}
+
 
 		const double step = 1.0 / convert_rate_to_int(buffer.params.rate);
 
@@ -552,10 +543,6 @@ private:
 	double time_;
 
 
-	void reinitialize() override
-	{
-		time_ = 0.0f;
-	}
 
 	// MIDI ---
 
@@ -597,10 +584,10 @@ public:
 		// If disabled, clear the output buffer
 		if (!is_enabled())
 		{
-			for (auto& sample : buffer.data)
+			/*for (auto& sample : buffer.data)
 			{
 				sample = 0;
-			}
+			}*/
 			return error_type_t::ok;
 		}
 
@@ -608,7 +595,9 @@ public:
 
 		for (auto& sample : buffer.data)
 		{
-			sample = static_cast<int16_t>(max_val * std::sin(time_ * frequency_ * pi2));
+			sample += static_cast<int16_t>(max_val * std::sin(time_ * frequency_ * pi2));
+			//sample += static_cast<int16_t>(std::copysignl(max_val, std::sin(time_ * frequency_ * pi2)));
+
 			time_ = time_ + step;
 		}
 		buffer.valid_samples = buffer.data.size();
@@ -834,14 +823,11 @@ public:
 		SDLDevice::start();
 
 		// MIDI
-		midi::Midi::start();
-		open_all_inputs();
 	}
 
 	~Control()
 	{
 		SDLDevice::stop();
-		midi::Midi::stop();
 	}
 
 private:
