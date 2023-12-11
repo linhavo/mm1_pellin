@@ -210,8 +210,19 @@ public:
 			const audio_sample_t delayed2 = old_samples_[1];
 			old_samples_[1] = delayed1 + feedback * delayed2;
 
+
+
 			// Combine delayed samples and apply decay
 			*dest = (decay * (*src++ + delayed1 + delayed2)) + ((1.0 - decay) * *dest);
+			//logger[log_level::info] << "dest : " << ;
+						//*dest = (std::copysignl(max_val, (decay * (*src++ + delayed1 + delayed2)) + ((1.0 - decay) * *dest)));
+			//*dest = std::max(max_val, (decay * (*src++ + delayed1 + delayed2)) + ((1.0 - decay) * *dest));
+			/*if ((long double)((decay * (*src++ + delayed1 + delayed2)) + ((1.0 - decay) * *dest)) > max_val) {
+				*dest = max_val;
+			}
+			else {
+				*dest = (decay * (*src++ + delayed1 + delayed2)) + ((1.0 - decay) * *dest);
+			}*/
 			dest++;
 		}
 	}
@@ -584,10 +595,10 @@ public:
 		// If disabled, clear the output buffer
 		if (!is_enabled())
 		{
-			/*for (auto& sample : buffer.data)
+			for (auto& sample : buffer.data)
 			{
 				sample = 0;
-			}*/
+			}
 			return error_type_t::ok;
 		}
 
@@ -595,8 +606,9 @@ public:
 
 		for (auto& sample : buffer.data)
 		{
-			sample += static_cast<int16_t>(max_val * std::sin(time_ * frequency_ * pi2));
+			sample = static_cast<int16_t>(max_val * std::sin(time_ * frequency_ * pi2));
 			//sample += static_cast<int16_t>(std::copysignl(max_val, std::sin(time_ * frequency_ * pi2)));
+			//sample = static_cast<int16_t>(max_val * (2.0 * (time_ * frequency_ - std::floor(time_ * frequency_ + 0.5))));
 
 			time_ = time_ + step;
 		}
@@ -639,6 +651,7 @@ public:
 		{
 			// Generate a sawtooth wave sample
 			sample = static_cast<int16_t>(max_val * (2.0 * (time_ * frequency_ - std::floor(time_ * frequency_ + 0.5))));
+
 			time_ = std::fmod(time_ + step, 1.0 / frequency_);
 		}
 
