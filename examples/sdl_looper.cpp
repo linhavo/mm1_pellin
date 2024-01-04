@@ -36,6 +36,7 @@
 #include <atomic>
 #include <functional>
 #include "../src/video_ops.cpp"
+#include <SDL_events.h>
 
 using namespace iimavlib;
 
@@ -830,6 +831,7 @@ public:
 		thread_ = std::thread(std::bind(&Control::execute_thread, this));
 		time_elapsed = 0.000f;
 		const auto max_int16_value = std::numeric_limits<int16_t>::max();
+		load_file(sequence_, "sequence.dat");
 
 		magic_constant = 1.0f / 16384.0f / max_int16_value;
 
@@ -891,6 +893,9 @@ private:
 				end_ = true;
 			}
 		}
+		/*auto f = fopen("sequence.txt", "rw");
+		fwrite(sequence_, sequence_.size() * sizeof(bool), sequence_.size(), f);*/
+		save_file(sequence_, "sequence.dat");
 		auto surface = SDL_GetVideoSurface();
 		SDL_SaveBMP(surface, "screenshot.bmp");
 	}
@@ -912,6 +917,31 @@ private:
 		}
 		changed_.store(true);
 	}
+
+	void save_file(const std::vector<bool>& vec, const std::string& filename) {
+		std::ofstream file(filename, std::ios::binary);
+		if (file.is_open()) {
+			for (bool value : vec) {
+				file.write(reinterpret_cast<const char*>(&value), sizeof(bool));
+			}
+			file.close();
+		}
+		
+	}
+
+	void load_file(std::vector<bool>& vec, const std::string& filename) {
+		std::ifstream file(filename, std::ios::binary);
+		if (file.is_open()) {
+			vec.clear();
+			bool value;
+			while (file.read(reinterpret_cast<char*>(&value), sizeof(bool))) {
+				vec.push_back(value);
+			}
+			file.close();
+		}
+		
+	}
+
 
 	
 	//void add_echo(std::vector<audio_sample_t>::iterator dest, std::vector<audio_sample_t>::iterator src, size_t count, double decay)
