@@ -168,7 +168,7 @@ public:
 
 	~MySimpleReverbFilter()
 	{
-			
+
 	}
 
 	template<typename T>
@@ -252,7 +252,7 @@ private:
 
 		const size_t from_old = std::min(buffer.valid_samples, delay_samples);
 
-		add_reverb(data, old_samples_.begin(), from_old, decay_,  buffer);
+		add_reverb(data, old_samples_.begin(), from_old, decay_, buffer);
 
 		if (buffer.valid_samples <= delay_samples) {
 			std::copy(old_samples_.begin() + from_old, old_samples_.end(), old_samples_.begin());
@@ -260,7 +260,7 @@ private:
 			old_samples_.insert(old_samples_.end(), data, data + buffer.valid_samples);
 		}
 		else {
-			add_reverb(data + from_old, data, (buffer.valid_samples - from_old), decay_,  buffer);
+			add_reverb(data + from_old, data, (buffer.valid_samples - from_old), decay_, buffer);
 			old_samples_.resize(0);
 			old_samples_.insert(old_samples_.end(),
 				data + (buffer.valid_samples - delay_samples),
@@ -273,7 +273,7 @@ private:
 	{
 		time_ = 0.0f;
 	}
-	
+
 };
 
 //template <class T>
@@ -513,11 +513,11 @@ namespace
 class MIDIFrequencyGenerator : public AudioFilter, public midi::Midi
 {
 public:
-	MIDIFrequencyGenerator() : AudioFilter(pAudioFilter()),  frequency_(880), time_(0.0), amplitude_(10.0)
+	MIDIFrequencyGenerator() : AudioFilter(pAudioFilter()), frequency_(880), time_(0.0), amplitude_(10.0)
 	{
 		midi::Midi::start();
 		midi::Midi::open_all_inputs();
-	
+
 	}
 	~MIDIFrequencyGenerator()
 	{
@@ -926,7 +926,7 @@ private:
 			}
 			file.close();
 		}
-		
+
 	}
 
 	void load_file(std::vector<bool>& vec, const std::string& filename) {
@@ -939,11 +939,11 @@ private:
 			}
 			file.close();
 		}
-		
+
 	}
 
 
-	
+
 	//void add_echo(std::vector<audio_sample_t>::iterator dest, std::vector<audio_sample_t>::iterator src, size_t count, double decay)
 	//{
 	//	for (size_t sample = 0; sample < count; ++sample) {
@@ -1078,7 +1078,7 @@ private:
 
 
 
-		
+
 
 
 		return error_type_t::ok;
@@ -1106,11 +1106,11 @@ private:
 	{
 		if (!pressed)
 			return true;
-		if (keys::key_q == key)
+		if (keys::key_x == key)
 			return false;
 
 		// Define the QWERTZ layout
-		std::vector<int> qwertz_keys = { keys::key_w, keys::key_e, keys::key_r, keys::key_t, keys::key_z, keys::key_u, keys::key_i, keys::key_o, keys::key_p };
+		std::vector<int> qwertz_keys = { keys::key_q, keys::key_w, keys::key_j, keys::key_k, keys::key_l };
 
 		// Find the key in the QWERTZ layout
 		auto it = std::find(qwertz_keys.begin(), qwertz_keys.end(), key);
@@ -1136,7 +1136,7 @@ private:
 			return true;
 		}
 		sequence_[cur_step * instruments_ + filter_index] = !sequence_[cur_step * instruments_ + filter_index];
-		
+
 
 		return true;
 	}
